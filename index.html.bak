@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+
+<!-- HEAD ================================================= -->
+<head>
+	<title>NetLand: a tool for kinetic modeling and visu-alization of Waddington’s epigenetic landscape</title>
+
+
+	<!-- CSS STYLE FILES -->
+	<link rel="stylesheet" href="css/projects.css" type="text/css" /> <!-- must be before jquery mobile... -->
+	<link rel="stylesheet" href="css/lightbox.css" type="text/css" /> <!-- media="screen" interferes with jquerymobile -->
+	<link rel="stylesheet" href="http://vjs.zencdn.net/c/video-js.css" type="text/css" /> 
+
+	<!-- HTML5 video -->
+	<style type="text/css">
+	    .video-js.vjs-default-skin .vjs-big-play-button { 
+		width: 7.0em; height: 7.0em; margin: -37px 0 0 -37px;
+		border: 0.2em solid #fff; opacity: 0.95;
+		-webkit-border-radius: 12px; -moz-border-radius: 12px; border-radius: 12px;
+		/* CSS Shadows */
+		-webkit-box-shadow: none; -moz-box-shadow: none; box-shadow: none;
+	    }
+
+	    .vjs-default-skin div.vjs-big-play-button:hover {
+		-webkit-box-shadow: 0 0 30px #fff; -moz-box-shadow: 0 0 30px #fff; box-shadow: 0 0 30px #fff;
+	    }
+
+	    .vjs-default-skin div.vjs-big-play-button span {
+		/* background-size: 200px 50px; */
+	    }
+	</style>
+
+
+
+	<!-- HTML5 video -->
+	<script src="http://vjs.zencdn.net/c/video.js"></script>
+
+	
+</head>
+
+
+<!-- BODY ================================================= -->
+
+<body>
+
+<div id="libsde-index" data-role="page">
+
+
+<!-- this table splits the page into header, main content and sidebar -->
+<table border="0" frame="void" cellpadding="0" cellspacing="0" id="main-table">
+	
+	<!-- HEADER AND LOGOS ================================================= -->
+	
+	<tr valign="top">
+		<td width="120px"></td>
+		<td width="800px" style="background: url(images/header.png) no-repeat 0 0; width: 800px; height: 195px;">
+			<!-- link to index -->
+			<div style="position: relative; left: 10px; top: 6px; width: 780px; height: 175px; border-width: 0px; border-style: solid; border-color: red;">
+			<a style="display: block; width: 100%; height: 100%;" href="index.html"></a>
+			</div>
+		</td>
+		<td width="3px"></td>
+	</tr>		
+	
+	<tr valign="top" sp>	
+		<td width="120px"></td>	
+		<td>
+			<table><tr>	
+		<td width="792"><div align="center">
+		<a href="index.html"><img src="images/gnw_overview.png" width="133" height="48" alt="Home" /></a>
+		<a href="https://github.com/guigui455/NetLand/"><img src="images/gnw_genenetworkbenchmarks.png" width="137" height="48" alt="Download" /></a>
+		<a href="doc.html"><img src="images/gnw_publications.png" width="195" height="48" alt="Documentation" /></a>
+		<a href="faq.html"><img src="images/gnw_dreamchallenge.png" width="198" height="48" alt="FAQ & Support" /></a></div></td>
+		</tr></table>
+		</td>				
+	</tr>
+
+			
+	
+	<!-- page layout row with the content and the sidebar -->
+	<tr valign="top">
+
+		<td>	
+		</td>
+
+		<!-- the cell below the header -->
+		<td width="800px">
+	
+			<!-- splits page into main content and sidebar -->
+			<table width="800px" border="0" frame="void" cellpadding="0" cellspacing="0">
+			
+				<tr valign="top">
+	
+					<!-- navigation bar and main content -->
+					<td>
+	
+						<!-- MAIN CONTENT BOX 1 ================================================= -->
+		
+						<table border="0" frame="void" cellpadding="0" cellspacing="0">
+
+							<tr valign="top">
+								<td width="800px" class="content_box_top"></td>
+							</tr>
+							<tr valign="top">
+								<td class="content_box_middle">
+									
+									<h2 class="box_header">A tool for kinetic modeling and visualization of Waddington's epigenetic landscape</h2>
+									<p><span class="mininote">Version 1.0.0&nbsp;&nbsp;|&nbsp;&nbsp;Requires <a href="http://www.java.com/en/download/manual.jsp?locale=en" target="_blank">Java</a> </p>	
+									<p>NetLand is designed for modeling and simulating the kinetic dynamics of transcriptional regulatory networks. </p>
+									<p>The global system dynamics which determine cell state transition are abstracted from transcriptional regulations and visualized in <b>Waddington's epigenetic landscape</b>. It provides flexible simulation methods and landscape implementations, i.e. probabilistic landscape representing the stability of cells. The landscape can be visualized by mapping to two marker genes or a two-dimensional latent space by using a dimension reduction method, GPDM. </p>
+									<p>The software NetLand is written in <a href="http://www.java.com/en/download/manual.jsp?locale=en" target="_blank">Java</a>, with a graphical user interface (GUI). The source code and additional resources are available at <a href="https://github.com/guigui455/NetLand/">GitHub</a>. </p>
+
+
+									
+									<b>Implements:</b>
+									<ul>
+										<li><strong>Dynamic modeling</strong></li>
+										<li><strong>Time-course simulation</strong></li>
+										<li><strong>Visualization of system dynamics in Waddington's epigenetic landscape</strong></li>
+									</ul>
+									
+									<center><img src="images/NETLAND_PAPER_FIGURE.png" style="width:400px; height:250px" ></center>
+
+									<p>Screencast:</p>
+<object width="640" height="385"><param name="movie" value="http://www.youtube.com/v/QfyhPaRc68M?hl=en&fs=1"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/QfyhPaRc68M?hl=en&fs=1" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="426" height="256"></embed></object>
+
+									<p>Please send your suggestions, comments, reports of bugs and errors to <a href="mailto:zhengjie@ntu.edu.sg">Jie Zheng</a>. Thank you!</p>
+								</td>
+							</tr>
+							<tr valign="top">
+								<td class="content_box_bottom"></td>
+							</tr>
+						</table>
+		
+					</td>
+					
+					
+		
+					
+				</tr>
+				
+		
+	
+							
+
+		  </table>				
+	
+		</td>
+
+		<!-- empty cell below logos -->
+		<td></td>
+	</tr>
+</table> <!-- ends page layout table -->
+
+</div> <!-- ends data-role="page" -->
+
+</body>
+</html>
