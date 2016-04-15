@@ -114,12 +114,12 @@
 <p>The Java Platform, Standard Edition Runtime Environment (JRE) is required to be installed (Java SE is available at <a href="http://java.com/en/download/inc/windows_upgrade_ie.jsp">here</a>). We have tested NetLand under <b>Window 7/10, Linux Fedora 18</b> and <b>Mac OS 10.8</b>.  </p>
 
 <p>The current NetLand package includes the following files.</p>
+<li>	An executable file, "NetLand-v1.0.jar". </li>
+<li>	Two folders namely "toy models" and "saved results" which contain toy gene network files and pre-computed results respectively. </li>
+<li>	A folder namely "NetLand_lib". It contains the required libraries to launch NetLand. </li>
+<li>	A folder namely "GPDM" which contain the executive files required for running "GPDM" program in NetLand. Note that the "NetLand.jar" file must be in the same directory as the "GPDM" folder. Make sure you have the executive permissions to the executive files. To check the permission, the command is "ls -l XXX". Use "chmod 705 filename" to gain the executive permission. </li>
+<li>	Two scripts, "run.bat" and "run.sh", for launching NetLand in different operation systems. </li>
 
-  <li> One executable file, namely "NetLand.jar". User can double click on this file to launch NetLand. </li>
-  
-  <li> Two folders namely "toy models" and "saved results" which contain toy gene network files and pre-computed results respectively. </li>
-  
-  <li> A folder namely "GPDM" which contain the executive files are required for running "GPDM" program in NetLand. Note that the "NetLand.jar" file must be in the same directory as the "GPDM" folder. Make sure you have the executive permissions to the executive files. To check the permission, the command is 'ls -l XXX' in Linux/Mac OS. Use 'sudo chmod 705 filename' to gain the executive permission. </li>
   
   <p>To run the "GPDM" program, DLL (Dynamic Link Library) of BLAS, LAPACK and GFORTRAN are required. The DLL files for Windows OS are in the GPDM/win folder. For Mac OS, please check if libblas.dylib, liblapack.dylib and libgfortran.dylib are under /usr/lib/. Otherwise users should install the libraries themselves. </p>
   
@@ -133,10 +133,17 @@
   
   <p>Then follow the install instructions in the package. For Linux, users can use the command, e.g. yum, to install these packages.  </p>
 
+  <p>To launch NetLand</p>
+  <li>	In Windows, double click the "run.bat".  </li>
+<li>	In Linux, command "./run.sh". </li>
+<li>	In OSX, command "./run.sh". </li>
+
+
+
 <br><br>
 <a id="file" ><h1><strong> File operation</strong><a href="#backtop" style="float:right; font-size:10px">(back to top)</a></h1></a>
 
-<p><strong> Loading files</strong></p>
+<p><strong> Load files</strong></p>
  
 <p>NetLand can load network structure files (TSV, GML, DOT) or dynamic models (e.g. in format of SBML). </p>
 
@@ -149,7 +156,7 @@
 <p>The Systems Biology Markup Language (SBML) is a representation format, based on XML, for communicating and storing computational models of biological processes. It is a free and open standard with widespread software support and a community of users and developers. SBML can represent many different classes of biological phenomena, including metabolic networks, cell signaling pathways, regulatory networks, infectious diseases, and many others. It is the standard for representing computational models in systems biology today. For more information of SBML, please refer to <a href="http://sbml.org/Main_Page">http://sbml.org/Main_Page</a>. </p>
 
 
-<strong> Saving networks</strong>
+<strong> Save networks</strong>
 
 <p>NetLand can automatically convert the regulatory interactions in a network into a dynamic model. This constructed model can be saved in SBML files. The structure of network can be saved in TSV files as well. </p>
 
@@ -194,7 +201,7 @@ The panels for species, reactions and parameters of the dynamic model.</center><
 <br><br>
 <a id="simulation"><h1><strong> Simulation analysis</strong><a href="#backtop" style="float:right; font-size:10px">(back to top)</a></h1></a>
 
-<p>NetLand is applicable to the study of GRN kinetics. Through in silico simulation, the dynamics of the GRN can be visualized in multiple ways, e.g. trajectories and Waddington’s epigenetic landscape. </p>
+<p>NetLand is applicable to the study of GRN kinetics. Through in silico simulation, the dynamics of the GRN can be visualized in multiple ways, e.g. trajectories and Waddington's epigenetic landscape. </p>
 
 <strong> Generation of trajectories </strong>
 
@@ -208,17 +215,23 @@ The pane for generation of trajectories.</center><br>
 <br><br>
 <a id="landscape"><h1><strong> Construction of landscapes</strong><a href="#backtop" style="float:right; font-size:10px">(back to top)</a></h1></a>
 
-<p>The implementation of probabilistic Waddington’s epigenetic landscape is provided in NetLand. NetLand adopted the self-consistent mean field approximation method in (Li and Wang, 2013) to construct the probabilistic landscape. The probabilistic landscape is based on the notion that the probability of gene expression states determines the stability.</p>
+<p>The implementation of probabilistic Waddington's epigenetic landscape is provided in NetLand. NetLand adopted the self-consistent mean field approximation method in (Li and Wang, 2013) to construct the probabilistic landscape. The probabilistic landscape is based on the notion that the probability of gene expression states determines the stability.</p>
 
-<p>The expression levels of two marker genes are selected as x-axis and y-axis in the landscape with potential U as z-axis. To avoid the loss of information, a probabilistic dimension reduction method, Gaussian process dynamical model (GPDM) is employed to project high dimensional gene expression time-series data to a low dimensional latent space with a dynamical model.</p>
+<p>The expression levels of two marker genes are selected as x-axis and y-axis in the landscape with potential U as z-axis. To avoid the loss of information, a probabilistic dimension reduction method, Gaussian process dynamical model (GPDM) is employed to project high dimensional gene expression time-series data to a low dimensional latent space with a dynamical model. If GPDM is selected as the visualization method, the x-axis and y-axis are two constructed components. On the contrary, users can select the coordinate from the gene list.</p>
 
 <center><img class="figure" src="images/figure5.png"><br>
 The pane for the construction of landscape.</center><br>
 
-<p>If GPDM is selected as the visualization method, the x-axis and y-axis are two constructed components. On the contrary, users can select the coordinate from the gene list. Once the landscape is plotted, a "Show data" button is shown next to the "Cancel" button. The detailed elevations, coordinates in the landscape and gene expression values can be accessed by double click the blocks in the figure below. </p>
-
 <center><img class="figure"  src="images/figure6.png"><br>
 The data of the constructed landscape.</center><br>
+
+
+<p>The detailed elevations, coordinates on the landscape and gene expression values can be accessed by double click the cells in the table at the bottom-right corner. By clicking the buttons on the top-right panel, users can plot the contour map or show the points on the landscape. The "Map a trajectory" function allows users to set an initial point, and then a trajectory will be plotted on the landscape with the input state as initial values. The change of the state can be visualized by animation.  By clicking the points in the figure, users can locate the current state at the data table above.   </p>
+
+
+<center><img class="figure"  src="images/figure5.1.png"><br>
+Generation of a trajectory with defined initial value.</center><br>
+
 
 <br><br>
 <a id="example"><h1><strong> Examples</strong><a href="#backtop" style="float:right; font-size:10px">(back to top)</a></h1></a>
