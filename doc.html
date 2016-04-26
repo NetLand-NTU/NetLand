@@ -139,98 +139,15 @@
 <li>	In OSX, command "./run.sh". </li>
 
 
-
 <br><br>
-<a id="file" ><h1><strong> File operation</strong><a href="#backtop" style="float:right; font-size:10px">(back to top)</a></h1></a>
+<a id="model"><h1><strong> Model Repository</strong><a href="#backtop" style="float:right; font-size:10px">(back to top)</a></h1></a>
 
-<p><strong> Load files</strong></p>
- 
-<p>NetLand can load network structure files (TSV, GML, DOT) or dynamic models (e.g. in format of SBML). </p>
-
-<p>TSV is a file extension for a tab-delimited file used with spreadsheet software. TSV stands for Tab Separated Values. TSV files are used for raw data and can be imported into and exported from spreadsheet software. TSV files are essentially text files, and the raw data can be viewed by text editors, though they are often used when moving raw data between spreadsheets.</p>
-
-<p>Graph Modeling Language (GML) is a hierarchical ASCII-based file format for describing graphs. It has been also named Graph Meta Language.</p>
-
-<p>DOT is a plain text graph description language. It is a simple way of describing graphs that both humans and computer programs can use. </p>
-
-<p>The Systems Biology Markup Language (SBML) is a representation format, based on XML, for communicating and storing computational models of biological processes. It is a free and open standard with widespread software support and a community of users and developers. SBML can represent many different classes of biological phenomena, including metabolic networks, cell signaling pathways, regulatory networks, infectious diseases, and many others. It is the standard for representing computational models in systems biology today. For more information of SBML, please refer to <a href="http://sbml.org/Main_Page">http://sbml.org/Main_Page</a>. </p>
-
-
-<strong> Save networks</strong>
-
-<p>NetLand can automatically convert the regulatory interactions in a network into a dynamic model. This constructed model can be saved in SBML files. The structure of network can be saved in TSV files as well. </p>
-
-<strong> Load saved results</strong>
-
-<p>NetLand can load saved simulation results, e.g. a time-course plot and a constructed landscape. These results can be generated when performing the simulation by identifying the saving path and filename. After it is successfully generated, users can load them in further analysis. When loading the result, the dynamic model, the results and simulation environment will all be recovered. </p>
-
-
-<br><br>
-<a id="network"><h1><strong> Modification of the network</strong><a href="#backtop" style="float:right; font-size:10px">(back to top)</a></h1></a>
-
-<p>NetLand provides flexible ways to load and modify a transcriptional network. </p>
-
-<strong> Block nodes </strong>
-
-<p>The nodes in a gene network can be blocked to simulate the gene knockout experiment. By clicking the "Block nodes" item in "Network" menu or the relative function in the top button bar, a dialog with a gene list will be pop-up (figure below). After moving the blocked genes to the right list, the reactions of the remaining genes should be modified when they contain removed nodes as regulators.  </p>
-
-<center><img class="figure" src="images/figure1a.png" ><br>
-<img class="figure" src="images/figure1b.png"><br>
-The pane for blocking nodes.</center><br>
-
-<strong> Add nodes/Edges</strong>
-
-<p>Compared to blocking functions, users can add new genes and edges to build new regulatory interactions. By clicking the "Add nodes/edges" item in "Network" menu or the relative function in the top button bar, a dialog will be pop-up (figure below). Once you add a new gene, a set of parameters should be verified including initial value, degradation rate etc.. The new regulatory relations (edges) are encoded as Hill equations and added to the target genes' original formulas.  </p>
-
-<center><img class="figure" src="images/figure2a.png"><br>
-<img class="figure" src="images/figure2b.png"><br>
-The pane for adding nodes and edges.</center><br>
-
-
-<br><br>
-<a id="model"><h1><strong> Generation of the dynamic model</strong><a href="#backtop" style="float:right; font-size:10px">(back to top)</a></h1></a>
- 
-<p>Species, reactions and parameters constitutes the three main components of a dynamic model. During conversion of the transcriptional network to the dynamic model or loading a SBML file, the initial values of genes and parameters in reactions are assigned by a default number or read from the SBML file. </p>
-
-<p>The reactions can be easily modified by clicking the button in the "Reaction" Panel (figure below). Similarly the values of genes and parameters can be directly modified in the panel view. </p>
-
-<center><img class="figure" src="images/figure3d.png"><br>
-The panels for species, reactions and parameters of the dynamic model.</center><br>
-
-
-<br><br>
-<a id="simulation"><h1><strong> Simulation analysis</strong><a href="#backtop" style="float:right; font-size:10px">(back to top)</a></h1></a>
-
-<p>NetLand is applicable to the study of GRN kinetics. Through in silico simulation, the dynamics of the GRN can be visualized in multiple ways, e.g. trajectories and Waddington's epigenetic landscape. </p>
-
-<strong> Generation of trajectories </strong>
-
-<p>The transcriptional network can be encoded in deterministic models or stochastic models (figure below). The 5th order Runga-Kuta method is used to solve ODEs. Gillespie algorithm is used to simulate the stochastic processes. SDEs are numerically solved by the Euler-Maruyama method. </p>
-
-<p>It provides multiple simulations within defined time range. By control of the noise strength in SDEs, users can study the influence of noises in transcriptional processes. For the simulation, there are two choices for setting of the initial values of genes, i.e. fixed or random. The fixed initial values are defined in the species panel, while users can define the range of random numbers as initial values. Individual simulated data can be retrieved by the function buttons on the top of the figure. The steady states of multiple trajectories can be analyzed by clicking the "Analyze result" button. It will show the steady states and percentages of the current simulation. </p>
-
-<center><img class="figure" src="images/figure4.png"><br>
-The pane for generation of trajectories.</center><br>
-
-<br><br>
-<a id="landscape"><h1><strong> Construction of landscapes</strong><a href="#backtop" style="float:right; font-size:10px">(back to top)</a></h1></a>
-
-<p>The implementation of probabilistic Waddington's epigenetic landscape is provided in NetLand. NetLand adopted the self-consistent mean field approximation method in (Li and Wang, 2013) to construct the probabilistic landscape. The probabilistic landscape is based on the notion that the probability of gene expression states determines the stability.</p>
-
-<p>The expression levels of two marker genes are selected as x-axis and y-axis in the landscape with potential U as z-axis. To avoid the loss of information, a probabilistic dimension reduction method, Gaussian process dynamical model (GPDM) is employed to project high dimensional gene expression time-series data to a low dimensional latent space with a dynamical model. If GPDM is selected as the visualization method, the x-axis and y-axis are two constructed components. On the contrary, users can select the coordinate from the gene list.</p>
-
-<center><img class="figure" src="images/figure5.png"><br>
-The pane for the construction of landscape.</center><br>
-
-<center><img class="figure"  src="images/figure6.png"><br>
-The data of the constructed landscape.</center><br>
-
-
-<p>The detailed elevations, coordinates on the landscape and gene expression values can be accessed by double click the cells in the table at the bottom-right corner. By clicking the buttons on the top-right panel, users can plot the contour map or show the points on the landscape. The "Map a trajectory" function allows users to set an initial point, and then a trajectory will be plotted on the landscape with the input state as initial values. The change of the state can be visualized by animation.  By clicking the points in the figure, users can locate the current state at the data table above.   </p>
-
-
-<center><img class="figure"  src="images/figure5.1.png"><br>
-Generation of a trajectory with defined initial value.</center><br>
+<table>
+	<tr><th>Model</th><th>Description</th><th>Reference</th></tr>
+	<tr><td>2gene.tsv</td><td>A two-gene network with mutual inhibitions and self-loops. </td><td><a href="https://bmcsystbiol.biomedcentral.com/articles/10.1186/1752-0509-5-85">Bhattacharya, et al. 2011</a></td></tr>
+	<tr><td>seesaw.tsv, NetLand_seesaw.xml</td><td>The seesaw model has four genes. It is constructed to study the stem cell state transitions. </td><td><a href="http://www.sciencedirect.com/science/article/pii/S009286741300531X">Shu, Jian, et al. 2013</a></td></tr>
+	<tr><td>BIOMD0000000209.xml</td><td>A dynamical model of lineage determination based upon a minimal circuit which contains the Oct4/Sox2/Nanog core as well its interaction with a few other key genes is discussed. </td><td><a href="http://www.ebi.ac.uk/biomodels-main/BIOMD0000000209">Chickarmane, et al. 2008</a></td></tr>
+	<tr><td>52gene.tsv, NetLand_52gene.xml</td><td>A stem cell developmental network with 52 gene network to study cell Fate Decisions </td><td><a href="http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003165">Wang, et al. 2008</a></td></tr>
 
 
 <br><br>
@@ -326,14 +243,11 @@ Landscape with two attractors when Sox2 is overexpressed.</center><br>
 							</tr>
 							<tr valign="top">
 								<td class="sidebar_box_menu">
-									<p>Version 1.0.0</p>
-									<p><a href="#installation">Installation</a><br>
-										<a href="#file">File operation</a><br>
-										<a href="#network">Modification of the network</a><br>
-										<a href="#model">Generation of the dynamic model</a><br>
-									  <a href="#simulation">Simulation analysis </a><br>
-									  <a href="#landscape">Construction of landscapes</a><br>
-									    <a href="#example">Examples</a>								  </p></td>
+									<p>Version 1.0</p>
+									<p><a href="#installation">Installation</a><br>						
+									<a href="#model">Model Repository</a><br>
+									<a href="#example">Examples</a>
+									    								  </p></td>
 							</tr>
 							<tr valign="top">
 								<td class="sidebar_box_bottom"></td>
