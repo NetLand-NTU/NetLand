@@ -28,10 +28,6 @@
 	    .vjs-default-skin div.vjs-big-play-button span {
 		/* background-size: 200px 50px; */
 	    }
-		
-		.figure{
-		 width: 600px;
-		}
 	</style>
 
 
@@ -71,11 +67,11 @@
 		<td>
 			<table><tr>	
 		<td width="792"><div align="center">
-	<a href="index.html"><img src="images/home.png"  alt="Home" /></a>
-		<a href="https://github.com/NetLand-NTU/NetLand/"><img src="images/download.png"  alt="Download" /></a>
-		<a href="doc.html"><img src="images/documentation.png"  alt="Documentation" /></a>
-		<a href="model.html"><img src="images/model.png"  alt="Model Repository" /></a>
-		<a href="faq.html"><img src="images/support.png"  alt="FAQ & Support" /></a></div></td>	
+		<a href="index.html"><img src="images/home.png" width="133" height="48" alt="Home" /></a>
+		<a href="https://github.com/NetLand-NTU/NetLand/"><img src="images/download.png" width="137" height="48" alt="Download" /></a>
+		<a href="doc.html"><img src="images/documentation.png" width="195" height="48" alt="Documentation" /></a>
+		<a href="model.html"><img src="images/model.png" width="195" height="48" alt="Model Repository" /></a>
+		<a href="faq.html"><img src="images/support.png" width="198" height="48" alt="FAQ & Support" /></a></div></td>
 		</tr></table>
 		</td>				
 	</tr>
@@ -92,65 +88,33 @@
 		<td width="800px">
 	
 			<!-- splits page into main content and sidebar -->
-			<table width="800" border="0" frame="void" cellpadding="0" cellspacing="0">
+			<table width="800px" border="0" frame="void" cellpadding="0" cellspacing="0">
 			
 				<tr valign="top">
-					
-					
+	
 					<!-- navigation bar and main content -->
-					<td width="800">
+					<td>
 	
 						<!-- MAIN CONTENT BOX 1 ================================================= -->
 		
 						<table border="0" frame="void" cellpadding="0" cellspacing="0">
 
 							<tr valign="top">
-								<td width="800" class="content_box_top"></td>
+								<td width="800px" class="content_box_top"></td>
 							</tr>
 							<tr valign="top">
 								<td class="content_box_middle">
-								<a id="backtop"></a>
-									<p>
-									<a id="installation"><h1><strong> Installation</strong></h1></a>
-<p>The Java Platform, Standard Edition Runtime Environment (JRE) is required to be installed (Java SE is available at <a href="http://java.com/en/download/inc/windows_upgrade_ie.jsp">here</a>). We have tested NetLand under <b>Window 7/10, Linux Fedora 18</b> and <b>Mac OS 10.8</b>.  </p>
-
-<p>The current NetLand package includes the following files.</p>
-<li>	An executable file, "NetLand-v1.0.jar". </li>
-<li>	Two folders namely "toy models" and "saved results" which contain toy gene network files and pre-computed results respectively. </li>
-<li>	A folder namely "NetLand_lib". It contains the required libraries to launch NetLand. </li>
-<li>	A folder namely "GPDM" which contain the executive files required for running "GPDM" program in NetLand. Note that the "NetLand.jar" file must be in the same directory as the "GPDM" folder. Make sure you have the executive permissions to the executive files. To check the permission, the command is "ls -l XXX". Use "chmod 705 filename" to gain the executive permission. </li>
-<li>	Two scripts, "run.bat" and "run.sh", for launching NetLand in different operation systems. </li>
-
-  
-  <p>To run the "GPDM" program, DLL (Dynamic Link Library) of BLAS, LAPACK and GFORTRAN are required. The DLL files for Windows OS are in the GPDM/win folder. For Mac OS, please check if libblas.dylib, liblapack.dylib and libgfortran.dylib are under /usr/lib/. Otherwise users should install the libraries themselves. </p>
-  
-  <p>The BLAS, LAPACK and GFORTRAN can be downloaded from </p>
-    
-      <li>LAPACK, see <a href="http://www.netlib.org/lapack/">http://www.netlib.org/lapack/</a> </li>
-      
-      <li>BLAS, see <a href="http://www.netlib.org/blas/">http://www.netlib.org/blas/</a> </li>
-      
-      <li>GFORTRAN, see <a href="https://gcc.gnu.org/wiki/GFortranBinaries#MacOS">https://gcc.gnu.org/wiki/GFortranBinaries#MacOS</a></li> 
-  
-  <p>Then follow the install instructions in the package. For Linux, users can use the command, e.g. yum, to install these packages.  </p>
-
-  <p><b>To launch NetLand</b></p>
-  <li>	In Windows, double click the "run.bat".  </li>
-<li>	In Linux, command "./run.sh". </li>
-<li>	In OSX, command "./run.sh". </li>
-
-<p><b>The detailed instructions can be found from <a href="https://github.com/NetLand-NTU/NetLand/blob/master/NetLand_manual.docx">the user manual</a>.</b> </p>
-
-
-
-
+									
+									<p>The authors have carried out extensive testing and debugging of the program, which should be generally stable and functional if the instructions in this manual are followed. It is our hope that, with the GUI, users without much computational sophistication can also apply our algorithm to analyze their network smoothly. </p>
+									<p>However, since the authors are not professional programmers, NetLand does not behave or look like a commercial software. Please send your suggestions, comments, reports of bugs and errors to <a href="mailto:zhengjie@ntu.edu.sg">Jie Zheng</a>. Thank you!</p>
+								</td>
 							</tr>
 							<tr valign="top">
 								<td class="content_box_bottom"></td>
 							</tr>
-					  </table>
+						</table>
 		
-				  </td>
+					</td>
 					
 					
 		
@@ -162,10 +126,6 @@
 		  </table>				
 	
 		</td>
-		
-		
-	
-		
 
 		<!-- empty cell below logos -->
 		<td></td>
