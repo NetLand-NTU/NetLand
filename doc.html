@@ -139,82 +139,11 @@
 <li>	In Linux, command "./run.sh". </li>
 <li>	In OSX, command "./run.sh". </li>
 
-<p>The detailed instructions can be found from <a href="https://github.com/NetLand-NTU/NetLand/blob/master/NetLand_manual.docx">the user manual</a>. </p>
-
-<br><br>
-<a id="model"><h1><strong> Model Repository</strong><a href="#backtop" style="float:right; font-size:10px">(back to top)</a></h1></a>
-
-<table border="1">
-	<tr><th>Model</th><th>Description</th><th>Reference</th></tr>
-	<tr><td>2gene.tsv</td><td>A two-gene network with mutual inhibitions and self-loops. </td><td><a href="https://bmcsystbiol.biomedcentral.com/articles/10.1186/1752-0509-5-85">Bhattacharya, et al. 2011</a></td></tr>
-	<tr><td>seesaw.tsv, NetLand_seesaw.xml</td><td>The seesaw model has four genes. It is constructed to study the stem cell state transitions. </td><td><a href="http://www.sciencedirect.com/science/article/pii/S009286741300531X">Shu, Jian, et al. 2013</a></td></tr>
-	<tr><td>BIOMD0000000209.xml</td><td>A dynamical model of lineage determination based upon a minimal circuit which contains the Oct4/Sox2/Nanog core as well its interaction with a few other key genes is discussed. </td><td><a href="http://www.ebi.ac.uk/biomodels-main/BIOMD0000000209">Chickarmane, et al. 2008</a></td></tr>
-	<tr><td>52gene.tsv, NetLand_52gene.xml</td><td>A stem cell developmental network with 52 gene network to study cell Fate Decisions </td><td><a href="http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003165">Wang, et al. 2008</a></td></tr>
-</table>
-
-
-<br><br>
-<a id="example"><h1><strong> Examples</strong><a href="#backtop" style="float:right; font-size:10px">(back to top)</a></h1></a>
-
-<p>To study the stem cell reprogramming process, a computational model, 'seesaw model' with 4 genes (figure below) was constructed in (Li and Wang). NetLand was applied to simulate and analyze the model. </p>
-
-<center><img class="figure" src="images/figure8.png"><br>
-A seesaw model used to simulate differentiation and reprogramming.</center><br>
-
-<p>First, the regulatory relations between genes were extracted into a TSV format file. After loading it to NetLand, the differential equations would be updated according to the paper including the parameters. Once the dynamic model was settled, further analysis and simulation can be performed based on this model. </p>
-
-<strong> Sensitivity analysis </strong>
-
-	<li> Parameter KM=0 </li>
-<p>When the value of Klf4 and MYC is set to be 0, the cells cannot maintain their pluripotency to start differentiation. There will be two attractors left in the landscape representing ME and ECT states. </p>
-
-<center><img class="figure" src="images/figure9.png"><br>
-<br>
-Landscape with two attractors when KM=0.</center><br>
-
-	<li> Parameter KM=0.4 </li>
-<p>Besides two attractors, there will be an additional state representing stem cell state. </p>
-
-<center><img class="figure" src="images/figure10.png"><br>
-Landscape with three attractors when KM=0.4.</center><br>
-
-  <li> Reprogramming experiment with different cocktails </li>
-  
-  <b>3.1 +Sox2</b>
-  
-  <p>With the replenishment of Sox2, the ME lineage will all change into the ECT lineage. There are two attractors left, i.e. stem cell state and ECT state. </p>
-  
-  <center><img class="figure" src="images/figure11b.png"><br>
-  <img class="figure" src="images/figure11.png"><br>
-Landscape with two attractors when Sox2 is overexpressed.</center><br>
-  
-  <p>To check whether all ME cells goes into ECT lineage, we set the initial state as ME state and made use of the analyze function in trajectories simulation. It shows all ME cells turned into ECT state (figure below). </p>
-  
-  <center><img class="figure" src="images/figure11c.png"><br>
-  <img class="figure" src="images/figure11d.png"><br>
-  </center><br>
-  
-  <b>3.2 +Yamanaka's factors (+Sox2+Oct4)</b>
-  
-  <p>In this experiment, the somatic cells will be reprogrammed into iPSCs (similar to stem cells). </p>
-  
-  <center><img class="figure" src="images/figure12.png"><br>
-  <br>
-  </center><br>
-  
-  <b>3.3 +Lineage specifiers (+ME+ECT)</b>
-  
-  <p>In this experiment, ME and ECT work as the substitution of Oct4 and Sox2. The somatic cells will be reprogrammed into iPSCs (similar to stem cells). </p>
-  
-  <center><img class="figure" src="images/figure13.png"><br>
- <br>
-  </center><br>
+<p><b>The detailed instructions can be found from <a href="https://github.com/NetLand-NTU/NetLand/blob/master/NetLand_manual.docx">the user manual</a>.</b> </p>
 
 
 
-</p>
 
-								</td>
 							</tr>
 							<tr valign="top">
 								<td class="content_box_bottom"></td>
