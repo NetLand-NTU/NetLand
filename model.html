@@ -114,23 +114,53 @@
 <a id="model"><h1><strong> Model Repository</strong></h1></a>
 
 <table border="1">
-	<tr><th>Model</th><th>Description</th><th>Reference</th></tr>
-	<tr><td>2gene.tsv</td><td>A two-gene network with mutual inhibitions and self-loops. </td><td><a href="https://bmcsystbiol.biomedcentral.com/articles/10.1186/1752-0509-5-85">Bhattacharya, et al. 2011</a></td></tr>
-	<tr><td>seesaw.tsv, NetLand_seesaw.xml</td><td>The seesaw model has four genes. It is constructed to study the stem cell state transitions. </td><td><a href="http://www.sciencedirect.com/science/article/pii/S009286741300531X">Shu, Jian, et al. 2013</a></td></tr>
-	<tr><td>BIOMD0000000209.xml</td><td>A dynamical model of lineage determination based upon a minimal circuit which contains the Oct4/Sox2/Nanog core as well its interaction with a few other key genes is discussed. </td><td><a href="http://www.ebi.ac.uk/biomodels-main/BIOMD0000000209">Chickarmane, et al. 2008</a></td></tr>
-	<tr><td>52gene.tsv, NetLand_52gene.xml</td><td>A stem cell developmental network with 52 gene network to study cell Fate Decisions </td><td><a href="http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003165">Wang, et al. 2008</a></td></tr>
+	<tr><th>Model</th><th>File</th><th>Description</th><th>Reference</th></tr>
+	<tr><td><a href="#2gene">2-gene model</a></td><td>2gene.tsv</td><td>A two-gene network with mutual inhibitions and self-loops. </td><td><a href="https://bmcsystbiol.biomedcentral.com/articles/10.1186/1752-0509-5-85">Bhattacharya, et al. 2011</a></td></tr>
+	<tr><td><a href="#seesaw">seesaw model</a></td><td>seesaw.tsv, NetLand_seesaw.xml</td><td>The seesaw model has four genes. It is constructed to study the stem cell state transitions. </td><td><a href="http://www.sciencedirect.com/science/article/pii/S009286741300531X">Shu, Jian, et al. 2013</a></td></tr>
+	<tr><td><a href="#209">A dynamic model in embryonic stem cell</a></td><td>BIOMD0000000209.xml</td><td>A dynamical model of lineage determination based upon a minimal circuit which contains the Oct4/Sox2/Nanog core as well its interaction with a few other key genes is discussed. </td><td><a href="http://www.ebi.ac.uk/biomodels-main/BIOMD0000000209">Chickarmane, et al. 2008</a></td></tr>
+	<tr><td><a href="#52gene">52-gene model</a></td><td>52gene.tsv, NetLand_52gene.xml</td><td>A stem cell developmental network with 52 gene network to study cell Fate Decisions </td><td><a href="http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003165">Wang, et al. 2008</a></td></tr>
 </table>
 
 
 <br><br>
-<a id="example"><h1><strong> Examples</strong></h1></a>
+<h1><strong> Examples</strong></h1>
 
-<p>To study the stem cell reprogramming process, a computational model, 'seesaw model' with 4 genes (figure below) was constructed in (Li and Wang). NetLand was applied to simulate and analyze the model. </p>
+<h2><strong><a name="2gene">Example 1: A two-gene model</a></strong></h2>
 
-<center><img class="figure" src="images/figure8.png"><br>
-A seesaw model used to simulate differentiation and reprogramming.</center><br>
+<p>A two-gene network with mutual inhibitions and self-loops.</p>
 
-<p>First, the regulatory relations between genes were extracted into a TSV format file. After loading it to NetLand, the differential equations would be updated according to the paper including the parameters. Once the dynamic model was settled, further analysis and simulation can be performed based on this model. </p>
+<center><img class="figure" src="images/2geneNetwork.png"></center><br><br>
+
+<strong>Probabilistic landscape</strong>
+
+<p>Probabilistic landscape visualized by mapping to two marker genes (the result saved in "saved results/2genePro")</p>
+<p>Parameters: Boundary=3, number of simulations=100, time=128, focus genes=all genes</p>
+<center><img class="figure" src="images/2genePro.png" ></center><br><br>
+
+<p>Probabilistic landscape visualized using GPDM (the result saved in "saved results/2geneGPDM")</p>
+<p>Parameters: Boundary=3, number of simulations=100, time=128, focus genes=all genes, GPDM its=50</p>
+<center><img class="figure" src="images/2geneGPDM.png" ></center><br><br>
+
+
+<!-- *************************************************************************************************************************** -->
+
+
+<h2><strong><a name="seesaw">Example 2: A seesaw model used to simulate differentiation and reprogramming</a></strong></h2>
+
+<p>To study the stem cell reprogramming process, a computational model, 'seesaw model' with 4 genes (figure below) was constructed in (Shu et al, 2013). NetLand was applied to simulate and analyze the model. </p>
+
+<center><img class="figure" src="images/figure8.png" width="100px" height="100px"></center><br><br>
+
+<strong>Probabilistic landscape</strong>
+
+<p>Probabilistic landscape visualized by mapping to two marker genes (the result saved in "saved results/seesawPro")</p>
+<p>Parameters: Boundary=3, number of simulations=100, time=128, focus genes=all genes</p>
+<center><img class="figure" src="images/seesawPro.png" ></center><br><br>
+
+<p>Probabilistic landscape visualized using GPDM (the result saved in "saved results/seesawGPDM")</p>
+<p>Parameters: Boundary=3, number of simulations=100, time=128, focus genes=all genes, GPDM its=50</p>
+<center><img class="figure" src="images/seesawGPDM.png" ></center><br><br>
+
 
 <strong> Sensitivity analysis </strong>
 
@@ -179,11 +209,48 @@ Landscape with two attractors when Sox2 is overexpressed.</center><br>
  <br>
   </center><br>
 
+  <!-- ********************************************************************************************************** -->
+
+<h2><strong><a name="209">Example 3: A dynamic model in embryonic stem cell</a></strong></h2>
+
+<p>A dynamical model of lineage determination based upon a minimal circuit which contains the Oct4/Sox2/Nanog core as well its interaction with a few other key genes is discussed. (BIOMD0000000209.xml from BioModels) </p>
+
+<center><img class="figure" src="images/209.png" width="200px" height="200px"></center><br><br>
+
+<strong>Probabilistic landscape</strong>
+
+<p>Probabilistic landscape visualized by mapping to two marker genes (the result saved in "saved results/209Pro")</p>
+<p>Parameters: Boundary=8, number of simulations=200, time=128, focus genes=all genes</p>
+<center><img class="figure" src="images/209Pro.png" ></center><br><br>
+
+<p>Probabilistic landscape visualized using GPDM (the result saved in "saved results/209GPDM")</p>
+<p>Parameters: Boundary=8, number of simulations=200, time=128, focus genes=all genes, GPDM its=50</p>
+<center><img class="figure" src="images/209GPDM.png" ></center><br><br>
 
 
-</p>
+  <!-- ********************************************************************************************************** -->
 
-								</td>
+  <h2><strong><a name="52gene">Example 4: A 52-gene network </a></strong></h2>
+
+<p>A stem cell developmental network with 52 gene network to study cell Fate Decisions </p>
+
+<center><img class="figure" src="images/52gene.png" ></center><br><br>
+
+<strong>Probabilistic landscape</strong>
+
+<p>Probabilistic landscape visualized by mapping to two marker genes (the result saved in "saved results/52genePro")</p>
+<p>Parameters: Boundary=3, number of simulations=500, time=128, focus genes=all genes</p>
+<center><img class="figure" src="images/52genePro.png" ></center><br><br>
+
+<p>Probabilistic landscape visualized using GPDM (the result saved in "saved results/52geneGPDM")</p>
+<p>Parameters: Boundary=3, number of simulations=500, time=128, focus genes=all genes, GPDM its=50</p>
+<center><img class="figure" src="images/52geneGPDM.png" ></center><br><br>
+
+			
+
+
+
+					</td>
 							</tr>
 							<tr valign="top">
 								<td class="content_box_bottom"></td>
