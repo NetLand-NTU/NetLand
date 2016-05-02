@@ -106,18 +106,18 @@
 								<td class="content_box_middle">
 									<h2><b>FAQ</b></h2>
 									<p><b>1. What is the minimum RAM requirements? </b></p>
-									<p>The estimated RAM requirements for this software is 2G. NetLand uses the default setting of minimum and maximum RAM 
+									<p>The estimated RAM requirement for this software is 2G. NetLand uses the default setting of minimum and maximum RAM 
 										in JVM. To increase the RAM usage, users can add "-Xms2048m -Xmx4096m" to the executive scripts. <br>
-										Example: java <b>-Xms2048m -Xmx4096m</b> -classpath "lib\*;NetLand_v1.0.jar" WindowGUI.NetLand <br>
+										Example: java <b>-Xms2048m -Xmx4096m</b> -classpath "lib\*;main.jar" WindowGUI.NetLand <br>
 										This command will allocate at least 2G RAM and at most 4G RAM to run NetLand. 		 </p>
 									<br>
 									
 									<p><b>2. Why I cannot load NetLand by clicking the script? </b></p>	
 									<p>For Win users, please check if "java" is in your system path. If not, you can either add it to the system path or 
-										add the full path to "java.exe" in the script. <br>
-										Example: "C:\Program Files\Java\jre1.8.0_31\bin\java.exe" -classpath "lib\*;NetLand_v1.0.jar" WindowGUI.NetLand <br>
+										add the full path of "java.exe" to the script. <br>
+										Example: "C:\Program Files\Java\jre1.8.0_31\bin\java.exe" -classpath "lib\*;main.jar" WindowGUI.NetLand <br>
 										
-										For OSX and Linux users, the script should be run under a terminal or konsol using the command "bash run.sh" or "./run.sh". <br>
+										For OSX and Linux users, the script should be run under a terminal or konsole using the command "bash runNetLand.sh" or "./runNetLand.sh". <br>
 									</p>	
 									<br>	
 									
