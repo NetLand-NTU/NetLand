@@ -104,7 +104,49 @@
 							</tr>
 							<tr valign="top">
 								<td class="content_box_middle">
+									<h2><b>FAQ</b></h2>
+									<p><b>1. What is the minimum RAM requirements? </b></p>
+									<p>The estimated RAM requirements for this software is 2G. NetLand uses the default setting of minimum and maximum RAM 
+										in JVM. To increase the RAM usage, users can add "-Xms2048m -Xmx4096m" to the executive scripts. <br>
+										Example: java <b>-Xms2048m -Xmx4096m</b> -classpath "lib\*;NetLand_v1.0.jar" WindowGUI.NetLand <br>
+										This command will allocate at least 2G RAM and at most 4G RAM to run NetLand. 		 </p>
+									<br><br>	
 									
+									<p><b>2. Why I cannot load NetLand by clicking the script? </b></p>	
+									<p>For Win users, please check if "java" is in your system path. If not, you can either add it to the system path or 
+										add the full path to "java.exe" in the script. <br>
+										Example: "C:\Program Files\Java\jre1.8.0_31\bin\java.exe" -classpath "lib\*;NetLand_v1.0.jar" WindowGUI.NetLand <br>
+										
+										For OSX and Linux users, the script should be run under a terminal or konsol using the command "bash run.sh" or "./run.sh". <br>
+									</p>	
+									<br><br>	
+									
+									
+									<p><b>3. NetLand cannot load or simulate my SBML file. </b></p>	
+									<p>The current version of NetLand is limited to analyze models with fixed parameters and variables. It cannot simulate models with parameters 
+										and variables changing with time.   	<br>
+										If you have trouble with loading your SBML file, please feel free to contact the author. 								
+									</p>	
+									<br><br>		
+									
+						
+									<p><b>4. Why it shows "Cannot find a steady state" when I try to construct a landscape? </b></p>	
+									<p>If a system cannot reach a stable state, NetLand can only simulate the time courses but fail to construct the landscape. 
+										The steady state is a situation in which all state variables are constant in spite of ongoing processes that strive to change them.
+										For example, a system with its variables exponentially increasing can never reach a steady state. And a system with oscillations 
+										cannot reach a stable state when all variables are constant.  									
+									</p>	
+									<br><br>	
+									
+									
+									<p><b>5. What does "Focus Genes" do? </b></p>	
+									<p>The attractors are computed based on the selected genes in "Focus Genes". For landscapes using GPDM, the quasi-potentials are 
+										calculated based on the "Focus Genes". The default setting of "Focus Genes" is all variables in the network. 									
+									</p>	
+									<br><br>	
+									
+									
+									<br><br><br><br>
 									<p>The authors have carried out extensive testing and debugging of the program, which should be generally stable and functional if the instructions in this manual are followed. It is our hope that, with the GUI, users without much computational sophistication can also apply our algorithm to analyze their network smoothly. </p>
 									<p>However, since the authors are not professional programmers, NetLand does not behave or look like a commercial software. Please send your suggestions, comments, reports of bugs and errors to <a href="mailto:zhengjie@ntu.edu.sg">Jie Zheng</a>. Thank you!</p>
 								</td>
