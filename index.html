@@ -105,10 +105,21 @@
 							<tr valign="top">
 								<td class="content_box_middle">
 									
-									<h2 class="box_header">A tool for kinetic modeling and visualization of Waddington's epigenetic landscape</h2>
+									<h2 class="box_header">A software for quantitative modeling and visualization of Waddington’s epigenetic landscape</h2>
 									<p><span class="mininote">Version 1.0.0&nbsp;&nbsp;|&nbsp;&nbsp;Requires <a href="http://www.java.com/en/download/manual.jsp?locale=en" target="_blank">Java</a> </p>	
-									<p>NetLand is designed for modeling and simulating the kinetic dynamics of transcriptional regulatory networks. </p>
-									<p>The global system dynamics which determine cell state transition are abstracted from transcriptional regulations and visualized in <b>Waddington's epigenetic landscape</b>. It provides flexible simulation methods and landscape implementations, i.e. probabilistic landscape representing the stability of cells. The landscape can be visualized by mapping to two marker genes or a two-dimensional latent space by using a dimension reduction method, GPDM. </p>
+									<p>
+									NetLand is a software tool designed for modeling, simulations and visualization of gene regulatory networks and their corresponding 
+								<b>Waddington’s epigenetic landscapes</b>. It can provide a global picture of cellular dynamics for a user-specified gene regulatory network. </p>
+									
+									<p>Users can import models of gene regulatory network from a file or database (e.g. BioModels), 
+									or manually edit their own network models. Then, NetLand will automatically encode differential equations for the kinetics of transcriptional regulation. 
+									The forms of equations and parameter values can be edited by the users. The network model will be used to simulate the dynamics of cell state transitions, 
+									which will be plotted as time-course trajectories. After that, NetLand will calculate the quasi-potential landscape based on efficient numerical solutions of 
+									the kinetic equations. To display the 3-D landscape for a network of more than two genes, NetLand allows users to either choose two marker genes, or use 
+									a dimension reduction method called GPDM (Gaussian process dynamical model). </p>
+									
+									<p>Although we designed the NetLand software originally for modeling stem cell fate, it can be also used to study other cellular phenotypes, such as cancer cell death, cellular ageing, etc.
+								</p>
 									<p>The software NetLand is written in <a href="http://www.java.com/en/download/manual.jsp?locale=en" target="_blank">Java</a>, with a graphical user interface (GUI). The source code and additional resources are available at <a href="https://github.com/NetLand-NTU/NetLand/">GitHub</a>. </p>
 
 

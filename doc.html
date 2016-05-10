@@ -112,14 +112,18 @@
 								<a id="backtop"></a>
 									<p>
 									<a id="installation"><h1><strong> Installation</strong></h1></a>
-<p>The Java Platform, Standard Edition Runtime Environment (JRE) is required to be installed (Java SE is available at <a href="http://java.com/en/download/inc/windows_upgrade_ie.jsp">here</a>). We have tested NetLand under <b>Window 7/10, Linux Fedora 18</b> and <b>Mac OS 10.8</b>.  </p>
+<p>The Java Platform, Standard Edition Runtime Environment (JRE) is required to be installed (Java SE is available at 
+	<a href="http://java.com/en/download/inc/windows_upgrade_ie.jsp">here</a>). We have tested NetLand under 
+	<b>64-bit version of Window 7/10, Linux Fedora 18</b> and <b>Mac OS 10.8</b>.  </p>
 
 <p>The current NetLand package includes the following files.</p>
-<li>	A jar file, "main.jar". </li>
+<li>	Two shell scripts, "runNetLand.bat" and "runNetLand.sh", for launching NetLand in different operating systems. </li>
 <li>	Two folders namely "toy models" and "saved results" which contain toy gene network files and pre-computed results respectively. </li>
 <li>	A folder namely "lib". It contains the required libraries to launch NetLand. </li>
-<li>	A folder namely "GPDM" which contain the executive files required for running "GPDM" program in NetLand. Note that the "main.jar" file must be in the same directory as the "GPDM" folder. Make sure you have the executive permissions to the executive files. To check the permission, the command is "ls -l XXX". Use "chmod 705 filename" to gain the executive permission. </li>
-<li>	Two scripts, "runNetLand.bat" and "runNetLand.sh", for launching NetLand in different operation systems. </li>
+<li>	A folder namely "GPDM" which contains the executable files required for running "GPDM" program in NetLand. Make sure you have the executive permissions to the executive files. 
+	To check the permission of a file, the command is "ls -l filename". Use "chmod 705 filename" to gain the executive permission. </li>
+	
+	<p>Note that the scripts must be in the same directory as the "GPDM" folder and "lib" folder. </p>
 
   
   <p>To run the "GPDM" program, DLL (Dynamic Link Library) of BLAS, LAPACK and GFORTRAN are required. The DLL files for Windows OS are in the GPDM/win folder. For Mac OS, please check if libblas.dylib, liblapack.dylib and libgfortran.dylib are under /usr/lib/. Otherwise users should install the libraries themselves. </p>
@@ -132,20 +136,22 @@
       
       <li>GFORTRAN, see <a href="https://gcc.gnu.org/wiki/GFortranBinaries#MacOS">https://gcc.gnu.org/wiki/GFortranBinaries#MacOS</a></li> 
   
-  <p>Then follow the install instructions in the package. For Linux, users can use the command, e.g. yum, to install these packages.  </p>
+  <p>Then follow the installation instructions in the package. For Linux, users can use the command, e.g. yum, to install these packages.  </p>
 
   <p><b>To launch NetLand</b></p>
   <li>	In Windows, double click the "runNetLand.bat".  </li>
-<li>	In Linux, command "./runNetLand.sh". </li>
-<li>	In OSX, command "./runNetLand.sh". </li>
+<li>	In Linux, use command "./runNetLand.sh". </li>
+<li>	In OSX, use command "./runNetLand.sh". </li>
 
 <p>
-Make sure you have the executive permissions to the executive files. To check the permission, the command is “ls –l filename”. Use “chmod 705 filename” to gain the executive permission. For Win users, please check if "java" is in your system path. If not, you can either add it to the system path or add the full path of "java.exe" to the script. </p>
+Make sure you have the executive permissions to the scripts. To check the permission, the command is “ls –l filename”. Use “chmod 705 filename” to gain the executive permission. 
+For Win users, please check if "java" is in your system path. If not, you can either add it to the system path or add the full path of "java.exe" to the script. </p>
 <p>Example: 
-"C:\Program Files\Java\jre1.8.0_31\bin\java.exe" -classpath "lib\*;main.jar" WindowGUI.NetLand </p>
+"C:\Program Files\Java\jre1.8.0_31\bin\java.exe" -classpath "lib\*" WindowGUI.NetLand </p>
 <p>For OSX and Linux users, the script should be run under a terminal or konsole using the command "bash runNetLand.sh" or "./runNetLand.sh". </p>
-<p>The estimated RAM requirement for this software is 2G. NetLand uses the default setting of minimum and maximum RAM in JVM. To increase the RAM usage, users can add "-Xms2048m -Xmx4096m" to the executive scripts. 
-Example: java -Xms2048m -Xmx4096m -classpath "lib\*;main.jar" WindowGUI.NetLand 
+<p>The estimated RAM requirement for this software is 2G. NetLand uses the default settings of minimum and maximum RAM in JVM. 
+	To increase the RAM usage, users can add "-Xms2048m -Xmx4096m" to the shell scripts. 
+Example: java -Xms2048m -Xmx4096m -classpath "lib\*" WindowGUI.NetLand 
 This command will allocate at least 2G RAM and at most 4G RAM to run NetLand.
 </p>
 <br>
