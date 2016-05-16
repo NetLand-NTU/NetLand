@@ -116,9 +116,9 @@
 <table border="1">
 	<tr><th>Model</th><th>File</th><th>Description</th><th>Reference</th></tr>
 	<tr><td><a href="#2gene">2-gene model</a></td><td>2gene.tsv</td><td>A two-gene network with mutual inhibitions and self-loops. </td><td><a href="https://bmcsystbiol.biomedcentral.com/articles/10.1186/1752-0509-5-85">Bhattacharya, et al. 2011</a></td></tr>
-	<tr><td><a href="#seesaw">seesaw model</a></td><td>seesaw.tsv, NetLand_seesaw.xml</td><td>The seesaw model has four genes. It is constructed to study the stem cell state transitions. </td><td><a href="http://www.sciencedirect.com/science/article/pii/S009286741300531X">Shu, Jian, et al. 2013</a></td></tr>
+	<tr><td><a href="#seesaw">seesaw model</a></td><td>NetLand_seesaw.xml</td><td>The seesaw model has four genes. It is constructed to study the stem cell state transitions. </td><td><a href="http://www.sciencedirect.com/science/article/pii/S009286741300531X">Shu, Jian, et al. 2013</a></td></tr>
 	<tr><td><a href="#209">A dynamic model in embryonic stem cell</a></td><td>BIOMD0000000209.xml</td><td>A dynamical model of lineage determination based upon a minimal circuit which contains the Oct4/Sox2/Nanog core as well its interaction with a few other key genes is discussed. </td><td><a href="http://www.ebi.ac.uk/biomodels-main/BIOMD0000000209">Chickarmane, et al. 2008</a></td></tr>
-	<tr><td><a href="#52gene">52-gene model</a></td><td>52gene.tsv, NetLand_52gene.xml</td><td>A stem cell developmental network with 52 gene network to study stem cell fate transitions. </td><td><a href="http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003165">Wang, et al. 2008</a></td></tr>
+	<tr><td><a href="#52gene">52-gene model</a></td><td>NetLand_52gene.xml</td><td>A stem cell developmental network with 52 gene network to study stem cell fate transitions. </td><td><a href="http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003165">Wang, et al. 2008</a></td></tr>
 </table>
 
 
@@ -134,11 +134,11 @@
 <strong>Probabilistic landscape</strong>
 
 <p>Probabilistic landscape visualized by mapping to two marker genes (the result is saved in "saved results/2genePro")</p>
-<p>Parameters: Boundary=3, number of simulations=100, time=128, focus genes=all genes</p>
+<p>Parameters: Boundary=3, number of simulations=100, time=128</p>
 <center><img class="figure" src="images/2genePro.png" ></center><br><br>
 
 <p>Probabilistic landscape visualized using GPDM (the result is saved in "saved results/2geneGPDM")</p>
-<p>Parameters: Boundary=3, number of simulations=100, time=128, focus genes=all genes, GPDM its=50</p>
+<p>Parameters: Boundary=3, number of simulations=100, time=128, GPDM its=50</p>
 <center><img class="figure" src="images/2geneGPDM.png" ></center><br><br>
 
 
@@ -154,11 +154,11 @@
 <strong>Probabilistic landscape</strong>
 
 <p>Probabilistic landscape visualized by mapping to two marker genes (the result is saved in "saved results/seesawPro")</p>
-<p>Parameters: Boundary=3, number of simulations=200, time=128, focus genes=all genes</p>
+<p>Parameters: Boundary=3, number of simulations=200, time=128</p>
 <center><img class="figure" src="images/seesawPro.png" ></center><br><br>
 
 <p>Probabilistic landscape visualized using GPDM (the result is saved in "saved results/seesawGPDM")</p>
-<p>Parameters: Boundary=3, number of simulations=100, time=128, focus genes=all genes, GPDM its=50</p>
+<p>Parameters: Boundary=3, number of simulations=100, time=128, GPDM its=50</p>
 <center><img class="figure" src="images/seesawGPDM.png" ></center><br><br>
 
 
@@ -220,12 +220,12 @@ Landscape with two attractors when Sox2 is overexpressed.</center><br>
 <strong>Probabilistic landscape</strong>
 
 <p>Probabilistic landscape visualized by mapping to two marker genes (the result is saved in "saved results/209Pro")</p>
-<p>Parameters: Boundary=8, number of simulations=200, time=128, focus genes=all genes</p>
+<p>Parameters: Boundary=8, number of simulations=200, time=128</p>
 <p><b>Note: a threshold is set to only show the quasi-potential value U in the landscape below 100. For those expression states with U larger than 100, the probalilities are quite small (~10^-100). </b></p>
 <center><img class="figure" src="images/209Pro.png" ></center><br><br>
 
 <p>Probabilistic landscape visualized using GPDM (the result is saved in "saved results/209GPDM")</p>
-<p>Parameters: Boundary=8, number of simulations=200, time=128, focus genes=all genes, GPDM its=50</p>
+<p>Parameters: Boundary=8, number of simulations=200, time=128, GPDM its=50</p>
 <center><img class="figure" src="images/209GPDM.png" ></center><br><br>
 
 
@@ -240,11 +240,11 @@ Landscape with two attractors when Sox2 is overexpressed.</center><br>
 <strong>Probabilistic landscape</strong>
 
 <p>Probabilistic landscape visualized by mapping to two marker genes (the result is saved in "saved results/52genePro")</p>
-<p>Parameters: Boundary=3, number of simulations=500, time=128, focus genes=all genes</p>
+<p>Parameters: Boundary=3, number of simulations=5000, time=128 </p>
 <center><img class="figure" src="images/52genePro.png" ></center><br><br>
 
 <p>Probabilistic landscape visualized using GPDM (the result is saved in "saved results/52geneGPDM")</p>
-<p>Parameters: Boundary=3, number of simulations=500, time=128, focus genes=x16;x3;, GPDM its=50</p>
+<p>Parameters: Boundary=3, number of simulations=5000, time=128, GPDM its=50</p>
 <center><img class="figure" src="images/52geneGPDM.png" ></center><br><br>
 
 			
