@@ -120,10 +120,10 @@
 <li>	Two shell scripts, "runNetLand.bat" and "runNetLand.sh", for launching NetLand in different operating systems. </li>
 <li>	Two folders namely "toy models" and "saved results" which contain toy gene network files and pre-computed results respectively. </li>
 <li>	A folder namely "lib". It contains the required libraries to launch NetLand. </li>
-<li>	A folder namely "GPDM" which contains the executable files required for running "GPDM" program in NetLand. Make sure you have the executive permissions to the executable files. 
+<li>	A folder namely "GPDM" under "lib" which contains the executable files required for running "GPDM" program in NetLand. Make sure you have the executive permissions to the executable files. 
 	To check the permission of a file, the command is "ls -l filename". Use "chmod 705 filename" to gain the executive permission. </li>
 	
-	<p>Note that the scripts must be in the same directory as the "GPDM" folder and "lib" folder. </p>
+	<p>Note that the scripts must be in the same directory as the "lib" folder. </p>
 
   
   <p>To run the "GPDM" program, DLL (Dynamic Link Library) of BLAS, LAPACK and GFORTRAN are required. The DLL files for Windows OS are in the GPDM/win folder. For Mac OS, please check if libblas.dylib, liblapack.dylib and libgfortran.dylib are under /usr/lib/. Otherwise users should install the libraries themselves. </p>
@@ -155,7 +155,7 @@ Example: java -Xms2048m -Xmx4096m -classpath "lib\*" WindowGUI.NetLand
 This command will allocate at least 2G RAM and at most 4G RAM to run NetLand.
 </p>
 <br>
-<p><b>The detailed instructions can be found from <a href="https://github.com/NetLand-NTU/NetLand/blob/master/NetLand_manual.docx">the user manual</a>.</b> </p>
+<p><b>The detailed instructions can be found from <a href="https://github.com/NetLand-NTU/NetLand/blob/master/NetLand_manual.pdf">the user manual</a>.</b> </p>
 
 
 
