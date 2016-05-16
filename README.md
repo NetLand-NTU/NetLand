@@ -14,16 +14,16 @@ Current release is 1.0.
 The Java Platform, Standard Edition Runtime Environment (JRE) is required to be installed (Java SE is available at http://java.com/en/download/inc/windows_upgrade_ie.jsp). We have tested NetLand under Window 7/10, Linux Fedora 18 and Mac OS 10.8.  
 
 The current NetLand package includes the following files.
-
-  1)	A jar file, "main.jar". 
   
-  2)	Two folders namely "toy models" and "saved results" which contain toy gene network files and pre-computed results respectively. 
+  1)	Two folders namely "toy models" and "saved results" which contain toy gene network files and pre-computed results respectively. 
   
-  3)	A folder namely "lib". It contains the required libraries to launch NetLand. 
+  2)	A folder namely "lib". It contains the required libraries to launch NetLand. 
   
-  4)	A folder namely "GPDM" which contain the executive files required for running "GPDM" program in NetLand. Note that the "main.jar" file must be in the same directory as the "GPDM" folder. Make sure you have the executive permissions to the executive files. To check the permission, the command is `ls -l XXX`. Use `chmod 705 filename` to gain the executive permission. 
+  3)	A folder namely "GPDM" under 'lib' which contain the executive files required for running "GPDM" program in NetLand. Make sure you have the executive permissions to the executive files. To check the permission, the command is `ls -l filename`. Use `chmod 705 filename` to gain the executive permission. 
   
-  5)	Two scripts, "runNetLand.bat" and "runNetLand.sh", for launching NetLand in different operation systems. 
+  4)	Two scripts, "runNetLand.bat" and "runNetLand.sh", for launching NetLand in different operation systems. 
+  
+  Note that the scripts must be in the same directory as the "lib" folder. 
   
   To run the “GPDM” program, DLL (Dynamic Link Library) of BLAS, LAPACK and GFORTRAN are required. The DLL files for Windows OS are in the GPDM/win folder. For Mac OS, please check if libblas.dylib, liblapack.dylib and libgfortran.dylib are under /usr/lib/. Otherwise users should install the libraries themselves. 
   
