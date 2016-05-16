@@ -118,12 +118,13 @@
 
 <p>The current NetLand package includes the following files.</p>
 <li>	Two shell scripts, "runNetLand.bat" and "runNetLand.sh", for launching NetLand in different operating systems. </li>
+<li>	A jar file “main.jar”. It should be in the same directory as shell scripts. </li>
 <li>	Two folders namely "toy models" and "saved results" which contain toy gene network files and pre-computed results respectively. </li>
 <li>	A folder namely "lib". It contains the required libraries to launch NetLand. </li>
-<li>	A folder namely "GPDM" under "lib" which contains the executable files required for running "GPDM" program in NetLand. Make sure you have the executive permissions to the executable files. 
+<li>	A folder namely "GPDM" which contains the executable files required for running "GPDM" program in NetLand. Make sure you have the executive permissions to the executable files. 
 	To check the permission of a file, the command is "ls -l filename". Use "chmod 705 filename" to gain the executive permission. </li>
 	
-	<p>Note that the scripts must be in the same directory as the "lib" folder. </p>
+	<p>Note that the scripts must be in the same directory as the “GPDM” folder and "lib" folder. </p>
 
   
   <p>To run the "GPDM" program, DLL (Dynamic Link Library) of BLAS, LAPACK and GFORTRAN are required. The DLL files for Windows OS are in the GPDM/win folder. For Mac OS, please check if libblas.dylib, liblapack.dylib and libgfortran.dylib are under /usr/lib/. Otherwise users should install the libraries themselves. </p>
