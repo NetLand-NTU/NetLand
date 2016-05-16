@@ -1,2 +1,2 @@
 #!/bin/sh
-java -cp "./lib/*" WindowGUI.NetLand
+java -cp "./lib/*:main.jar" WindowGUI.NetLand

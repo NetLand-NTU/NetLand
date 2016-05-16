@@ -1,2 +1,2 @@
-java -classpath "lib\*" WindowGUI.NetLand
+java -classpath "lib\*;main.jar" WindowGUI.NetLand
 cmd
