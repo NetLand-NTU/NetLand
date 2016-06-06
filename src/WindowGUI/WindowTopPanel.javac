@@ -1,0 +1,41 @@
+package WindowGUI;
+
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+
+import ch.epfl.lis.gnwgui.NetworkElement;
+import WidgetsButtons.TopButton;
+
+public class WindowTopPanel {
+	private NetworkElement element;
+	private JPanel TopPanel;
+	private TopButton button1; 
+	private TopButton button2;
+	private TopButton button3;
+
+	public WindowTopPanel(NetworkElement ele){
+		this.element = ele;
+		TopPanel = new JPanel();
+
+		/**  THE CONTENT OF TOPPANEL  **/		
+		//Define top buttons	
+//		button1 = new TopButton(1,new ImageIcon(getClass().getResource("rsc/buttons/openButton.jpg")), element);
+//		button2 = new TopButton(2,new ImageIcon(getClass().getResource("rsc/buttons/simulationButton.gif")), element);
+//		button3 = new TopButton(3,new ImageIcon(getClass().getResource("rsc/buttons/networkButton.gif")), element);
+		
+//		if(element == null){
+//    		button2.getButton().setEnabled(false);
+//    	}
+		
+		/**	SET LAYOUT **/
+		TopPanel.setLayout(new BoxLayout(TopPanel, BoxLayout.X_AXIS)); 
+		TopPanel.add(button1.getButton());TopPanel.add(button2.getButton());TopPanel.add(button3.getButton());
+	}
+
+
+
+	public JPanel getTopPanel(){ return TopPanel; }
+	public TopButton getButton1(){ return button1; }
+	public NetworkElement getElement(){ return element; }
+}

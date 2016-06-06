@@ -1,0 +1,222 @@
+package WidgetsTables;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
+
+//import LandscapeDisplay.LandscapeView;
+
+import cern.colt.matrix.DoubleMatrix2D;
+import ch.epfl.lis.gnw.GeneNetwork;
+import ch.epfl.lis.gnwgui.DynamicalModelElement;
+import ch.epfl.lis.gnwgui.NetworkElement;
+import ch.epfl.lis.gnwgui.StructureElement;
+import ch.epfl.lis.networks.Node;
+
+public class CDataTable {
+	private JPanel tablePanel = new JPanel();
+	private String[] columnName = null; 
+	private GeneNetwork grn;
+	private boolean displayMethod = true; //default two genes
+	private double maxU = 0; 
+	private double minU = 100000;
+	
+	public CDataTable(JPanel tablePanel, GeneNetwork grn, boolean displayMethod){
+		this.tablePanel = tablePanel;
+		this.displayMethod = displayMethod;
+		this.grn = grn;
+		
+		DoubleMatrix2D Yout = grn.getGridData();
+		double[] x = LandscapeView.increment(grn.getMinX(), (grn.getMaxX()-grn.getMinX())/(Yout.rows()-1), grn.getMaxX());
+		double[] y = LandscapeView.increment(grn.getMinY(), (grn.getMaxY()-grn.getMinY())/(Yout.columns()-1), grn.getMaxY());
+		
+
+		ArrayList<String[]> data = new ArrayList<String[]>();		
+		//colume names
+		String[] tmp = new String[y.length+1];
+		columnName = new String[y.length+1];
+		tmp[0] = "";columnName[0] = "";
+		for(int i=0;i<y.length;i++){
+			tmp[i+1] = Double.toString(y[i]);
+			columnName[i+1] = "";
+		}
+		data.add(0, tmp);
+		
+		for(int i=0;i<x.length;i++){
+			String[] tmp1 = new String[y.length+1];
+			tmp1[0] = Double.toString(x[i]);
+			for(int j=0;j<y.length;j++)
+				tmp1[j+1] = Double.toString(Math.floor(Yout.get(i, j)*100)/100.0);
+			data.add(i+1, tmp1);
+		}
+		
+
+		String[][] rowData = new String[x.length+1][y.length+1];
+		//convert data		
+		for(int i=0;i<x.length+1;i++)
+			for(int j=0;j<y.length+1;j++)
+				rowData[i][j] = data.get(i)[j];
+		
+		
+		//max data min data
+		for(int i=0;i<x.length;i++)
+			for(int j=0;j<y.length;j++){
+				if( Yout.get(i,j)>maxU )
+					maxU = Yout.get(i,j);
+				if( Yout.get(i,j)<minU )
+					minU = Yout.get(i,j);
+			}
+		
+		createDataTable(rowData);			
+	}
+	
+	
+	
+	private void createDataTable(String[][] rowData) { 
+		final DefaultTableModel tableModel = new DefaultTableModel( rowData, columnName){     
+			public boolean isCellEditable(int row,int column){  
+				return false;
+			}
+		};
+		
+		
+		final JTable table = new JTable(tableModel); 
+		
+		
+		table.addMouseListener(new MouseAdapter(){  
+			public void mouseClicked(MouseEvent e) { 
+				if(e.getClickCount() == 2 ){ 
+					int row =((JTable)e.getSource()).rowAtPoint(e.getPoint()); 
+					int col=((JTable)e.getSource()).columnAtPoint(e.getPoint()); 
+					
+					if( row>1 && col>1 ){
+						String cellVal=(String)(tableModel.getValueAt(row,col)); 
+
+						String xValue = (String) ((JTable)e.getSource()).getValueAt(row, 0);
+						String yValue = (String) ((JTable)e.getSource()).getValueAt(0, col);
+
+						//alert dialog
+						final JDialog a = new JDialog();
+						a.setTitle("Landscape data");
+						a.setModal(true);
+
+						JPanel displayPanel = new JPanel();
+						JLabel text1 = new JLabel("U: "+cellVal);
+						JLabel text2 = new JLabel("Coordinates in Landscape:");
+						JLabel xAxisText = new JLabel("X-axis: "+xValue);
+						JLabel yAxisText = new JLabel("Y-axis: "+yValue);
+
+						displayPanel.setLayout(new BoxLayout(displayPanel, BoxLayout.Y_AXIS));
+						JScrollPane  pane  =  new  JScrollPane(displayPanel);
+						pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+						displayPanel.add(text1);
+						displayPanel.add(text2);
+						displayPanel.add(xAxisText);
+						displayPanel.add(yAxisText);
+
+						if( displayMethod ){ //two markers
+							a.setSize(new Dimension(300,150));
+						}else{ //gpdm
+							a.setSize(new Dimension(300,220));
+
+							JLabel text3 = new JLabel("Original vector:");
+							displayPanel.add(text3);
+
+							//get yped
+							DoubleMatrix2D ypred = grn.getAllY();
+							ArrayList<Node> nodes = grn.getNodes();
+							for(int i=0;i<nodes.size();i++){
+								JLabel tempxAxisText = new JLabel(nodes.get(i).getLabel()+": "+ypred.get((row-1)*(table.getRowCount()-1)+col-1, i));
+								displayPanel.add(tempxAxisText);
+							}
+						}
+
+						a.add(pane);
+						a.setVisible(true);
+					}
+				} else 
+					return; 	
+			}
+
+			
+
+//			public void tableChanged(TableModelEvent e) {  
+//				int row = e.getFirstRow();  
+//				int column = e.getColumn();  
+//				TableModel model = (TableModel)e.getSource();  
+//				String targetName = (String) model.getValueAt(row,0);  
+//				String newdata = (String) model.getValueAt(row, column);  
+//				
+//				GeneNetwork grn = ((DynamicalModelElement)element).getGeneNetwork();
+//				ArrayList<String> parameterNames_ = grn.getParameterNames_();
+//				int index = -1;
+//				for(int i=0;i<parameterNames_.size();i++)
+//					if(parameterNames_.get(i).equals(targetName))
+//						index = i;
+//							
+//				ArrayList<Double> parameterValues_ = grn.getParameterValues_();
+//				parameterValues_.set(index, Double.parseDouble(newdata));
+//				grn.setParameterValues_(parameterValues_);
+//				
+//				
+//			}
+		});
+		
+		
+		
+		TableColumnModel tcm = table.getColumnModel();
+        for (int i = 0, n = tcm.getColumnCount(); i < n; i++) {
+            TableColumn tc = tcm.getColumn(i);   
+            tc.setCellRenderer(new MyCellRendener());
+        }
+		
+		
+		JScrollPane scrollPane = new JScrollPane(table);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED); 
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setPreferredSize(new Dimension(980,580));
+
+		tablePanel.setLayout(new BoxLayout(tablePanel, BoxLayout.Y_AXIS)); 
+		tablePanel.add(Box.createVerticalStrut(10)); 
+		tablePanel.add(scrollPane); 
+		tablePanel.add(Box.createVerticalStrut(10)); 
+	}
+	
+	
+	private class MyCellRendener extends DefaultTableCellRenderer {
+        public Component getTableCellRendererComponent(JTable t, Object value, boolean isSelected, boolean hasFocus, int row, int column){        
+        	if( row>0 && column>0 ){
+        		double step = 250/(maxU-minU);
+
+        		if( t.getValueAt(row, column).equals("") )
+        			setBackground(Color.white);
+        		else{
+        			int color = 250 - (int) (step*(Double.parseDouble((String) t.getValueAt(row, column))-minU));
+        			setBackground(new Color(color,color,color));
+        		}
+        	}else{
+        		setBackground(Color.white);
+        	}
+            return super.getTableCellRendererComponent(t, value, isSelected, hasFocus, row, column);
+        }
+    }
+}

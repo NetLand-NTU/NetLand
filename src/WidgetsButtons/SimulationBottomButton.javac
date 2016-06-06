@@ -1,0 +1,920 @@
+package WidgetsButtons;
+
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
+import javax.xml.stream.XMLStreamException;
+
+import org.apache.commons.math.ConvergenceException;
+import org.sbml.jsbml.SBMLException;
+import org.sbml.jsbml.text.parser.ParseException;
+
+import com.sun.glass.events.KeyEvent;
+
+import Widgets.Simulation;
+import WindowGUI.NetLand;
+import WindowGUI.WindowSimulationPanel;
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.DoubleMatrix2D;
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix2D;
+import ch.epfl.lis.animation.Snake;
+import ch.epfl.lis.gnw.CancelException;
+import ch.epfl.lis.gnw.GeneNetwork;
+import ch.epfl.lis.gnw.GnwSettings;
+import ch.epfl.lis.gnwgui.DynamicalModelElement;
+import ch.epfl.lis.gnwgui.IODialog;
+import ch.epfl.lis.gnwgui.IONetwork;
+import ch.epfl.lis.gnwgui.NetworkElement;
+import ch.epfl.lis.gnwgui.NetworkGraph;
+import ch.epfl.lis.networks.Node;
+import LandscapeDisplay.DrawLandscape;
+import ch.epfl.lis.utilities.filefilters.FilenameUtilities;
+
+
+
+public class SimulationBottomButton extends JButton{
+	private static final long serialVersionUID = 1L;
+
+	protected static NetworkElement element;
+	protected JButton b;
+	protected int funcNum;
+	protected ImageIcon icon;
+
+	protected JPanel runButtonAndSnakePanel_;
+	protected Snake snake_;
+	protected CardLayout myCardLayout_ = new CardLayout();
+	protected JPanel snakePanel_;
+	protected JPanel runPanel_;
+	private JDialog a;
+
+	private static Logger log_ = Logger.getLogger(TopButton.class.getName());
+
+	public SimulationBottomButton(int funcNum, ImageIcon icon, NetworkElement element){
+		this.element = element;
+		this.funcNum = funcNum;
+		this.icon = icon;
+		b = new JButton();
+
+		b.setIcon(icon);
+
+
+		TBHandler TB=new TBHandler(funcNum);       //´´½¨°´Å¥¼àÌýÆ÷
+		b.addActionListener(TB);   
+	}
+
+	public JButton getButton(){ return b; } 
+	public NetworkElement getElement(){ return element; } 
+
+	
+	
+	//======  Button 1 ================================================================
+	@SuppressWarnings("static-access")
+	public void loadFile() throws ch.epfl.lis.networks.ios.ParseException, Exception{  
+		//create a dialog
+		a = new JDialog();
+		a.setSize(new Dimension(400,400));
+
+		final JRadioButton radio_land = new JRadioButton("Load LandScape file", true);
+		final JRadioButton radio_traj = new JRadioButton("Load Trajectory file");
+		
+		radio_land.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				//load land
+				if(radio_land.isSelected()){
+					a.dispose();
+					
+					JFrame frame = new JFrame();
+					IODialog dialog = new IODialog(frame, "load file",
+							System.getProperty("user.dir"), IODialog.LOAD);
+					dialog.display();
+
+					String absPath = dialog.getSelection();
+					if (absPath != null){
+						String dir = FilenameUtilities.getDirectory(absPath);
+						String outputFilename = dir + "\\" + FilenameUtilities.getFilenameWithoutPath(absPath);
+						String SBMLfilename = dir+"\\TEMP_SBML.xml";	
+						
+						try {
+							readFileByLines0(outputFilename, SBMLfilename);
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}			
+						
+						File todelete = new File(SBMLfilename);
+						todelete.delete();
+					}	
+				}
+			}
+		});
+		
+		radio_traj.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				if(radio_traj.isSelected()){ //load traj
+					a.dispose();
+					
+					JFrame frame = new JFrame();
+					IODialog dialog = new IODialog(frame, "load file",
+							System.getProperty("user.dir"), IODialog.LOAD);
+					dialog.display();
+
+					String absPath = dialog.getSelection();
+					if (absPath != null){
+						String dir = FilenameUtilities.getDirectory(absPath);
+						String outputFilename = dir + "\\" + FilenameUtilities.getFilenameWithoutPath(absPath);
+						String SBMLfilename = dir+"\\TEMP_SBML.xml";	
+
+						try {
+							readFileByLines1(outputFilename, SBMLfilename);
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}					
+					}		
+
+				}
+			}
+		});
+		
+		ButtonGroup loadOutput = new ButtonGroup();
+		loadOutput.add(radio_land);
+		loadOutput.add(radio_traj);
+		
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		panel.add(radio_land);panel.add(radio_traj);
+	
+		
+		a.getContentPane().add(panel);
+		a.setModal(true);
+		a.setVisible(true);
+		
+		
+	}
+
+	
+	//==== Button 2 ==============================================================
+	private void saveFile() {
+		//create a dialog
+		a = new JDialog();
+		a.setSize(new Dimension(400,300));
+		
+		JPanel saveModelPanel = new JPanel();
+		
+		JLabel label17 = new JLabel("Output the model will be saved at:");	
+		final JTextField userPath_ = new JTextField();
+		userPath_.setBackground(Color.WHITE);
+		userPath_.setEditable(false);
+		userPath_.setColumns(30);
+		
+		JLabel label18 = new JLabel("Input the filename:");	
+		final JTextField inputFilename = new JTextField();
+		inputFilename.setBackground(Color.WHITE);
+		inputFilename.setColumns(30);
+		
+		JButton browse_ = new JButton();
+		browse_.setText("Browse");
+		JButton submit = new JButton("Submit");
+		
+		browse_.addActionListener(new ActionListener() {
+			public void actionPerformed(final ActionEvent arg0) {
+
+				IODialog dialog = new IODialog(new Frame(""), "Select Target Folder", 
+						GnwSettings.getInstance().getOutputDirectory(), IODialog.LOAD);
+
+				dialog.selectOnlyFolder(true);
+				dialog.display();
+
+				if (dialog.getSelection() != null)
+					userPath_.setText(dialog.getSelection());
+			}
+		});
+		
+		submit.addActionListener(new ActionListener() {
+			public void actionPerformed(final ActionEvent arg0) {		
+				GeneNetwork grn = ((DynamicalModelElement) element).getGeneNetwork();	
+				grn.setId("NetLand_"+grn.getId());
+				String filename = userPath_.getText() + "\\" + inputFilename.getText() + ".xml";
+	
+				if( inputFilename.getText().equals("") )
+					JOptionPane.showMessageDialog(null, "The filename cannot be empty", "Save SBML", JOptionPane.INFORMATION_MESSAGE);
+				else{
+					try {
+						URL url = new File(filename).toURI().toURL();
+						grn.writeSBML(url);
+						JOptionPane.showMessageDialog(null, "Successfully saved", "Save SBML", JOptionPane.INFORMATION_MESSAGE);
+						a.dispose();
+					} catch (SBMLException | IOException | XMLStreamException | ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						JOptionPane.showMessageDialog(null, "Failed", "Save SBML", JOptionPane.INFORMATION_MESSAGE);
+					}
+				}
+				
+			}
+		});
+		
+		
+		saveModelPanel.add(label17);
+		saveModelPanel.add(userPath_);
+		saveModelPanel.add(label18);
+		saveModelPanel.add(inputFilename);
+		saveModelPanel.add(browse_);
+		saveModelPanel.add(submit);
+		
+		a.getContentPane().add(saveModelPanel);
+		a.setModal(true);
+		a.setVisible(true);
+	
+	}
+	
+	
+	
+	//==== Button 3 ==============================================================
+	public void generateTrajectory(){
+		//UI
+		Component c = b.getParent();
+		while ( c.getParent() != null ){
+			c = c.getParent();
+		}
+
+		if ( c instanceof JFrame ){
+			Simulation rd = new Simulation(new Frame(), element, (JFrame) c);
+			rd.setModal(true);
+			rd.setVisible(true);
+		}
+				
+	}
+	
+	
+	//==== Button 4 ==============================================================
+	public void generateLandscape(){ //generate Landscape
+		try {
+			//create a dialog
+			a = new JDialog();
+			a.setSize(new Dimension(400,400));
+
+			JLabel setMaxExp = new JLabel("Set Up Boundary for GeneExp: ");
+			final JTextField maxExp = new JTextField("3");
+
+			JLabel setIts = new JLabel("Set No of trajectories to generate: ");
+			final JTextField its = new JTextField("100");
+
+			JLabel setMaxTime = new JLabel("Set MaxTime for trajectories: ");
+			final JTextField maxT = new JTextField("128");
+
+//			JLabel setNumPoints = new JLabel("Set Number of Points for each trajectory: ");
+//			final JTextField numPoints = new JTextField("257");
+
+			JLabel setFocusGenes = new JLabel("Set Analysis Genes (seperated by ;): ");
+			
+			GeneNetwork grn = ((DynamicalModelElement) element).getGeneNetwork();
+			ArrayList<Node> nodes = grn.getNodes();
+			
+			//ArrayList<Node> nodes = element.getNetworkViewer().getStructure().getNodes();
+			String geneNames = "";
+			for(int i=0;i<nodes.size();i++)
+				geneNames += nodes.get(i).getLabel()+";";
+			final JTextField focusGenes = new JTextField(geneNames);
+			
+			JLabel label17 = new JLabel("Output landscape will be saved:");	
+			final JTextField userPath_ = new JTextField();
+			userPath_.setBackground(Color.WHITE);
+			userPath_.setEditable(false);
+			userPath_.setColumns(30);
+			JButton browse_ = new JButton();
+			browse_.setText("Browse");			
+			
+			browse_.addActionListener(new ActionListener() {
+				public void actionPerformed(final ActionEvent arg0) {
+
+					IODialog dialog = new IODialog(new Frame(""), "Select Target Folder", 
+							GnwSettings.getInstance().getOutputDirectory(), IODialog.LOAD);
+
+					dialog.selectOnlyFolder(true);
+					dialog.display();
+
+					if (dialog.getSelection() != null)
+						userPath_.setText(dialog.getSelection());
+				}
+			});
+			
+			//select display method
+			JPanel radioPanel = new JPanel();
+			radioPanel.setBorder(new EmptyBorder(5,5,5,5));
+			radioPanel.setLayout(new FlowLayout(FlowLayout.CENTER,5,5));
+		    final JRadioButton randioButton1=new JRadioButton("Probabilistic",true);
+		    final JRadioButton randioButton2=new JRadioButton("GPDM");
+		    final JRadioButton randioButton3=new JRadioButton("Entropy");
+		    radioPanel.add(randioButton1);
+		    radioPanel.add(randioButton2);
+		    radioPanel.add(randioButton3);
+		    ButtonGroup groupMethod = new ButtonGroup();
+		    groupMethod.add(randioButton1);
+		    groupMethod.add(randioButton2);
+		    groupMethod.add(randioButton3);
+			
+			//set layout
+			JPanel panelTop = new JPanel();
+			panelTop.setLayout(new BoxLayout(panelTop, BoxLayout.X_AXIS));
+			panelTop.add(setMaxExp);panelTop.add(maxExp);
+
+			JPanel panelMid = new JPanel();
+			panelMid.setLayout(new BoxLayout(panelMid, BoxLayout.X_AXIS));
+			panelMid.add(setIts);panelMid.add(its);
+
+			JPanel panelMid2 = new JPanel();
+			panelMid2.setLayout(new BoxLayout(panelMid2, BoxLayout.X_AXIS));
+			panelMid2.add(setMaxTime);panelMid2.add(maxT);
+
+			JPanel panelMid3 = new JPanel();
+			panelMid3.setLayout(new BoxLayout(panelMid3, BoxLayout.X_AXIS));
+//			panelMid3.add(setNumPoints);panelMid3.add(numPoints);
+
+			JPanel panelMid4 = new JPanel();
+			panelMid4.setLayout(new BoxLayout(panelMid4, BoxLayout.X_AXIS));
+			panelMid4.add(setFocusGenes);panelMid4.add(focusGenes);
+
+			JPanel panelMid5 = new JPanel();
+			panelMid5.setLayout(new BoxLayout(panelMid5, BoxLayout.Y_AXIS));
+			panelMid5.add(label17);
+			panelMid5.add(userPath_);
+			panelMid5.add(browse_);
+			panelMid5.add(radioPanel);
+			
+			//buttons
+			myCardLayout_ = new CardLayout();
+			runButtonAndSnakePanel_ = new JPanel();
+			runButtonAndSnakePanel_.setLayout(myCardLayout_);
+
+			runPanel_ = new JPanel();
+			runPanel_.setBackground(Color.WHITE);
+			runPanel_.setLayout(new BorderLayout());
+			runPanel_.setName("runPanel");
+			runButtonAndSnakePanel_.add(runPanel_, runPanel_.getName());
+
+			JButton runButton_ = new JButton();
+			runPanel_.add(runButton_);
+			runButton_.setMnemonic(KeyEvent.VK_R);
+			runButton_.setBackground(UIManager.getColor("Button.background"));
+			runButton_.setName("computeButton");
+			runButton_.setText("Run");
+
+			snakePanel_ = new JPanel();
+			snakePanel_.setLayout(new BorderLayout());
+			snakePanel_.setName("snakePanel");
+			runButtonAndSnakePanel_.add(snakePanel_, snakePanel_.getName());
+
+			snake_ = new Snake();
+			snakePanel_.add(snake_);
+			snake_.setName("snake_");
+			snake_.setBackground(Color.WHITE);
+
+			JPanel cancelPanel = new JPanel();
+			cancelPanel.setBackground(Color.WHITE);
+			cancelPanel.setLayout(new BorderLayout());
+
+			JButton cancelButton_ = new JButton();
+			cancelPanel.add(cancelButton_);
+			cancelButton_.setMnemonic(KeyEvent.VK_C);
+			cancelButton_.setBackground(UIManager.getColor("Button.background"));
+			cancelButton_.setText("Cancel");
+
+
+			JPanel wholePanel = new JPanel();
+			wholePanel.setLayout(new BoxLayout(wholePanel, BoxLayout.Y_AXIS));
+			wholePanel.add(panelTop);wholePanel.add(panelMid);wholePanel.add(panelMid2);wholePanel.add(panelMid3); 
+			wholePanel.add(panelMid4);wholePanel.add(panelMid5);wholePanel.add(runButtonAndSnakePanel_);
+			wholePanel.add(cancelPanel);
+
+			//create landscape
+			//button listeners
+			runButton_.addActionListener(new ActionListener() {
+				public void actionPerformed(final ActionEvent arg0) {		
+					double maxExpValue = Double.parseDouble(maxExp.getText());
+					int itsValue = Integer.parseInt(its.getText());
+					double maxTime = Double.parseDouble(maxT.getText());
+					int numTimePoints = (int)(maxTime)*2+1;//Integer.parseInt(numPoints.getText());
+					
+					String displayMethod = "probabilistic";
+					if( randioButton1.isSelected() ){
+						displayMethod = "probabilistic";					
+					}else if( randioButton2.isSelected() ){
+						displayMethod = "gpdm";				
+						maxExpValue=3;
+					}else if( randioButton3.isSelected() ){
+						displayMethod = "entropy";
+					}
+									
+					String text = focusGenes.getText();
+					text = text.replaceAll(" ","");
+					String[] lines = text.split(";");			
+					String[] focusGenes = new String[lines.length];
+					for(int i=0;i<lines.length;i++){
+						focusGenes[i] = lines[i];
+					}
+										
+					enterAction(maxExpValue, itsValue, maxTime, numTimePoints, focusGenes, userPath_.getText(), displayMethod);
+				}
+			});
+
+			cancelButton_.addActionListener(new ActionListener() {
+				public void actionPerformed(final ActionEvent arg0) {
+					GnwSettings.getInstance().stopBenchmarkGeneration(true);
+					escapeAction();
+				}
+			});
+		
+			
+			a.getContentPane().add(wholePanel);
+			a.setModal(true);
+			a.setVisible(true);
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+//=====================================================================================================	
+
+	
+	public void readFileByLines0(String landFile, String sbmlFileName) throws ch.epfl.lis.networks.ios.ParseException, Exception {
+		FileWriter fw = new FileWriter(sbmlFileName, false);
+		
+		File file = new File(landFile);
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(file));
+            String tempString = null;
+  
+            //save sbml
+            while ((tempString = reader.readLine()) != null) {
+            	if( !tempString.startsWith("Land") )
+            		fw.write(tempString+"\n");
+            	else
+            		break;
+            }
+            fw.close();
+            
+            String[] info = tempString.split("\t");
+            int noAttractors = Integer.parseInt(info[1]);
+            int dimension = Integer.parseInt(info[2]);
+            DoubleMatrix2D sumPara = new DenseDoubleMatrix2D(noAttractors,dimension);
+            int[] counts = new int[Integer.parseInt(info[1])];
+            int i=0;
+            //save info
+            while ((tempString = reader.readLine()) != null && i<noAttractors) {
+            	String[] nums = tempString.split("\t");
+            	for(int j=0;j<dimension;j++)
+            		sumPara.set(i, j, Double.parseDouble(nums[j]));
+            	i++;
+            }
+            String[] nums = tempString.split("\t");
+            for(int j=0;j<noAttractors;j++)
+            	counts[j] = Integer.parseInt(nums[j]);
+            tempString = reader.readLine();
+            double maxTime = Double.parseDouble(tempString);
+            
+            reader.close();
+            
+            //load sbml and land
+            loadSBMLLAND(sbmlFileName, sumPara, counts, maxTime);
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e1) {
+                }
+            }
+        }
+        
+    
+    }
+
+	//load traj
+	public void readFileByLines1(String landFile, String sbmlFileName) throws ch.epfl.lis.networks.ios.ParseException, Exception {
+		FileWriter fw = new FileWriter(sbmlFileName, false);
+		
+		File file = new File(landFile);
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(file));
+            String tempString = null;
+  
+            //save sbml
+            while ((tempString = reader.readLine()) != null) {
+            	if( !tempString.startsWith("Traj") )
+            		fw.write(tempString+"\n");
+            	else
+            		break;
+            }
+            fw.close();
+            
+            String[] info = tempString.split("\t");
+            int noSerries = Integer.parseInt(info[1]);
+            int timePoints = Integer.parseInt(info[2]);
+            int dimension = Integer.parseInt(info[3]);
+           
+            
+            ArrayList<DoubleMatrix2D> timeSeries = new ArrayList<DoubleMatrix2D>(noSerries);
+            ArrayList<DoubleMatrix1D> timeScales = new ArrayList<DoubleMatrix1D>(noSerries);
+            for(int i=0;i<noSerries;i++){
+            	DoubleMatrix1D tempTime = new DenseDoubleMatrix1D(timePoints);
+            	timeScales.add(tempTime);
+            	
+            	DoubleMatrix2D tempSeries = new DenseDoubleMatrix2D(timePoints, dimension);
+            	timeSeries.add(tempSeries); 
+            }
+            
+            tempString = reader.readLine();
+            //each time series
+            for(int its=0;its<noSerries;its++){
+            	int i= Integer.parseInt(tempString);
+            	DoubleMatrix1D tempTime = timeScales.get(i);
+            	DoubleMatrix2D tempSeries = timeSeries.get(i);
+            
+            	int index = 0;
+            	//save info
+            	while ((tempString = reader.readLine()) != null && index<timePoints) {
+            		String[] nums = tempString.split("\t");
+            		tempTime.set(index, Double.parseDouble(nums[0]));
+            		for(int j=1;j<dimension+1;j++)
+            			tempSeries.set(index, j-1, Double.parseDouble(nums[j]));
+            		index++;
+            	}
+            }
+            
+            reader.close();
+            
+            //load sbml and land
+            loadSBMLTRAJ(sbmlFileName, timeSeries, timeScales);
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e1) {
+                }
+            }
+        }
+        
+    
+    }
+	
+	private void loadSBMLTRAJ(String sbmlFileName, ArrayList<DoubleMatrix2D> timeSeries, ArrayList<DoubleMatrix1D> timeScale) throws FileNotFoundException, ch.epfl.lis.networks.ios.ParseException, Exception {
+		//loadSBML		
+		int format = GeneNetwork.SBML;	
+		//URL url =  Thread.currentThread().getContextClassLoader().getResource(sbmlFileName);
+		URL url =  new File(sbmlFileName).toURI().toURL();
+		NetworkElement element = IONetwork.loadItem(sbmlFileName, url, format);
+		element.setNetworkViewer(new NetworkGraph(element));
+		GeneNetwork grn = ((DynamicalModelElement) element).getGeneNetwork();
+
+		grn.setTimeScale(timeScale);;
+		grn.setTimeSeries(timeSeries);
+
+		
+		//repaint components
+		Component c = b.getParent();
+		while ( c.getParent() != null ){
+			c = c.getParent();
+		}
+
+		if ( c instanceof JFrame )
+		{
+			((JFrame) c).getContentPane().removeAll();
+			//WindowTopPanel TopPanel = new WindowTopPanel(element);	
+			WindowSimulationPanel SimulationPanel = new WindowSimulationPanel(element);
+
+			/** SET LAYOUT **/
+			((JFrame) c).getContentPane().setLayout(new GridBagLayout());  
+			// Row 1
+			//NetLand.addComponent(((JFrame) c), TopPanel.getTopPanel(), 0, 0, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 0);
+			// Row 2
+			NetLand.addComponent(((JFrame) c), SimulationPanel.getSimulationPanel(), 0, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+
+			c.invalidate();
+			c.repaint();
+			c.setVisible(true);			
+		}
+
+		
+	}
+
+	private void loadSBMLLAND(String sbmlFileName, DoubleMatrix2D sumPara, int[] counts, double maxTime) throws FileNotFoundException, ch.epfl.lis.networks.ios.ParseException, Exception {
+		//loadSBML		
+		int format = GeneNetwork.SBML;	
+		//URL url =  Thread.currentThread().getContextClassLoader().getResource(sbmlFileName);
+		URL url =  new File(sbmlFileName).toURI().toURL();
+		NetworkElement element = IONetwork.loadItem(sbmlFileName, url, format);
+		element.setNetworkViewer(new NetworkGraph(element));
+		GeneNetwork grn = ((DynamicalModelElement) element).getGeneNetwork();
+
+		grn.setSumPara(sumPara);
+		grn.setCounts(counts);
+		grn.setMaxTime(maxTime);
+
+
+
+		//repaint components
+		Component c = b.getParent();
+		while ( c.getParent() != null ){
+			c = c.getParent();
+		}
+
+		if ( c instanceof JFrame )
+		{
+			((JFrame) c).getContentPane().removeAll();
+			//WindowTopPanel TopPanel = new WindowTopPanel(element);	
+			WindowSimulationPanel SimulationPanel = new WindowSimulationPanel(element);
+
+			/** SET LAYOUT **/
+			((JFrame) c).getContentPane().setLayout(new GridBagLayout());  
+			// Row 1
+			//NetLand.addComponent(((JFrame) c), TopPanel.getTopPanel(), 0, 0, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 0);
+			// Row 2
+			NetLand.addComponent(((JFrame) c), SimulationPanel.getSimulationPanel(), 0, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+
+			c.invalidate();
+			c.repaint();
+			c.setVisible(true);			
+		}
+
+		
+	}
+
+	protected void escapeAction() {
+		a.dispose();
+	}
+
+	protected void enterAction(double maxExpValue, int itsValue, double maxTime, int numTimePoints, String[] focusGenes, String userPath, String displayMethod) {
+		try {
+			
+			//converted to dynamic model
+			DynamicalModelElement grnItem = new DynamicalModelElement((DynamicalModelElement) element);	
+			
+			LandscapeThread landscape = null;
+			GnwSettings settings = GnwSettings.getInstance(); 				
+			
+			landscape = new LandscapeThread(grnItem, maxExpValue, itsValue, maxTime, numTimePoints, focusGenes, userPath, displayMethod);
+			settings.stopBenchmarkGeneration(false); // reset
+
+			// be sure to have set the output directory before running the simulation
+			landscape.start();
+		}
+		catch (Exception e){
+			System.err.print("Landscape::enterAction(): " + e.getMessage());
+		}
+
+	}
+
+
+
+	
+	private class TBHandler implements ActionListener
+	{
+		private int funcNum = 1;
+
+		public TBHandler(int funcNum){
+			this.funcNum = funcNum;
+		}
+
+		public void actionPerformed(ActionEvent e)
+		{      	
+			if( funcNum == 1 ){ try {
+				loadFile();
+			} catch (ch.epfl.lis.networks.ios.ParseException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} } 
+			//else if( funcNum == 2 ){ saveFile(); }
+			else if( funcNum == 3 ){ generateTrajectory(); }
+			else if( funcNum == 4 ){ generateLandscape(); }
+			else{ } //other	
+		}
+
+	}
+
+
+	
+	//=====================================================================================
+	/** 
+//	 * Thread simulating an in silico benchmark.
+//	 */
+	private class LandscapeThread implements Runnable {
+		private GeneNetwork grn_;
+		private DynamicalModelElement grnItem;
+		/** Main Thread */
+		private Thread myThread_;
+
+		private JFrame parentFrame;
+		
+		private double maxExpValue;
+		private int itsValue;
+		private double maxTime;
+		private int numTimePoints;
+		private String[] focusGenes;
+		private String outputPath;
+		private String displayMethod;
+
+		// ============================================================================
+		// PUBLIC METHODS
+		public LandscapeThread(DynamicalModelElement grnItem, double maxExpValue, int itsValue, double maxTime, int numTimePoints, String[] focusGenes, String userPath, String displayMethod)
+		{
+			super();
+			myThread_ = null;
+			this.grnItem = grnItem;
+			grn_ = grnItem.getGeneNetwork();
+			this.maxExpValue = maxExpValue;
+			this.itsValue = itsValue;
+			this.maxTime = maxTime;
+			this.numTimePoints = numTimePoints;
+			this.focusGenes = focusGenes;
+			this.outputPath = userPath;
+			this.displayMethod = displayMethod;
+			
+			Component c = b.getParent();
+			while ( c.getParent() != null ){
+				c = c.getParent();
+			}
+
+			if ( c instanceof JFrame )
+				this.parentFrame = (JFrame) c;
+			
+		}
+
+		// ----------------------------------------------------------------------------
+
+		public void start() {
+			// If myThread_ is null, we start it!
+			if (myThread_ == null) {
+				myThread_ = new Thread(this);
+				myThread_.start();
+			}
+		}
+
+		// ----------------------------------------------------------------------------
+
+		@SuppressWarnings("unused")
+		public void stop()
+		{
+			myThread_ = null;
+		}
+
+		// ----------------------------------------------------------------------------
+
+		public void run()
+		{	
+			snake_.start();
+			myCardLayout_.show(runButtonAndSnakePanel_, snakePanel_.getName());
+			
+			
+			try
+			{
+				//get Jframe
+				Component c = b.getParent();
+				while ( c.getParent() != null ){
+					c = c.getParent();
+				}
+
+				if ( c instanceof JFrame )
+					new DrawLandscape((JFrame) c, grn_, maxExpValue, itsValue, maxTime, numTimePoints, focusGenes, outputPath, displayMethod);
+
+				finalizeAfterSuccess();
+				log_.log(Level.INFO, "Done!");
+
+			}
+			catch (OutOfMemoryError e)
+			{
+				log_.log(Level.WARNING, "There is not enough memory available to run this program.\n" +
+						"Quit one or more programs, and then try again.\n" +
+						"If enough amounts of RAMÂ are installed on this computer, try to run the program " +
+						"with the command-line argument -Xmx1024m to use maximum 1024Mb of memory, " +
+						"-Xmx2048m to use max 2048Mb, etc.");
+				JOptionPane.showMessageDialog(new Frame(), "Out of memory, see console for details.", "GNW message", JOptionPane.WARNING_MESSAGE);
+				finalizeAfterFail();
+
+			}
+			catch (IllegalArgumentException e)
+			{
+				log_.log(Level.WARNING, e.getMessage(), e);
+				JOptionPane.showMessageDialog(new Frame(), "Illegal argument, see console for details.", "GNW message", JOptionPane.WARNING_MESSAGE);
+				log_.log(Level.INFO, "Potential orkaround: gene names must contain at least one char (e.g. \"5\" is not a valid gene name, but \"G5\" is)");
+				finalizeAfterFail();
+			}
+			catch (CancelException e)
+			{
+				// do not display an annoying dialog to say "cancelled!"
+				log_.log(Level.INFO, e.getMessage());
+				finalizeAfterFail();
+			}
+			catch (ConvergenceException e)
+			{
+				log_.log(Level.WARNING, "landscape::run(): " + e.getMessage(), e);
+				JOptionPane.showMessageDialog(new Frame(), "Unable to converge, see console for details.", "GNW message", JOptionPane.WARNING_MESSAGE);
+				finalizeAfterFail();
+			}
+			catch (RuntimeException e)
+			{
+				log_.log(Level.WARNING, "landscape::run(): " + e.getMessage(), e);
+				JOptionPane.showMessageDialog(new Frame(), "Runtime exception, see console for details.", "GNW message", JOptionPane.WARNING_MESSAGE);
+				finalizeAfterFail();
+			}
+			catch (Exception e)
+			{
+				log_.log(Level.WARNING, "landscape::run(): " + e.getMessage(), e);
+				JOptionPane.showMessageDialog(new Frame(), "Error encountered, see console for details.", "GNW message", JOptionPane.WARNING_MESSAGE);
+				finalizeAfterFail();
+			}
+		}
+
+		// ----------------------------------------------------------------------------
+
+		public void finalizeAfterSuccess() throws IOException
+		{
+			snake_.stop();
+			myCardLayout_.show(runButtonAndSnakePanel_, runPanel_.getName());
+			
+			//repaint components
+			if ( parentFrame instanceof JFrame ){		
+				parentFrame.getContentPane().removeAll();
+				//WindowTopPanel TopPanel = new WindowTopPanel(grnItem);	
+				WindowSimulationPanel simulationPanel = new WindowSimulationPanel(grnItem);		
+				
+				/** SET LAYOUT **/
+				parentFrame.getContentPane().setLayout(new GridBagLayout());  
+				// Row 1
+				//NetLand.addComponent(parentFrame, TopPanel.getTopPanel(), 0, 0, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 0);
+				// Row 2
+				NetLand.addComponent(parentFrame, simulationPanel.getSimulationPanel(), 0, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+
+				parentFrame.invalidate();
+				parentFrame.repaint();
+				parentFrame.setVisible(true);			
+			}
+			
+			escapeAction(); // close the simulation window
+		}
+
+		// ----------------------------------------------------------------------------
+
+		public void finalizeAfterFail()
+		{
+			snake_.stop();
+			myCardLayout_.show(runButtonAndSnakePanel_, runPanel_.getName());
+			//escapeAction(); // close the simulation window
+		}
+
+		public String getOutputPath() {
+			return outputPath;
+		}
+
+		public void setOutputPath(String outputPath) {
+			this.outputPath = outputPath;
+		}
+	}
+
+}

@@ -1,0 +1,1082 @@
+package WidgetsButtons;
+
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URL;
+import java.util.ArrayList;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileFilter;
+
+import com.sun.image.codec.jpeg.JPEGCodec;
+import com.sun.image.codec.jpeg.JPEGImageEncoder;
+
+import cern.colt.matrix.DoubleMatrix1D;
+import cern.colt.matrix.impl.DenseDoubleMatrix1D;
+import ch.epfl.lis.gnw.Gene;
+import ch.epfl.lis.gnw.GeneNetwork;
+import ch.epfl.lis.gnw.HillGene;
+import ch.epfl.lis.gnwgui.DynamicalModelElement;
+import ch.epfl.lis.gnwgui.IONetwork;
+import ch.epfl.lis.gnwgui.NetworkElement;
+import ch.epfl.lis.gnwgui.NetworkGraph;
+import ch.epfl.lis.gnwgui.StructureElement;
+import ch.epfl.lis.imod.ImodNetwork;
+import Widgets.AddNodesAndEdges;
+import Widgets.TwoWindowExchangeInfo;
+import WindowGUI.NetLand;
+import WindowGUI.WindowNetworkPanel;
+import WindowGUI.WindowSimulationPanel;
+import WindowGUI.WindowTopPanel;
+import ch.epfl.lis.networks.Edge;
+import ch.epfl.lis.networks.Node;
+import ch.epfl.lis.networks.ios.ParseException;
+import ch.epfl.lis.utilities.filefilters.FilenameUtilities;
+import ch.epfl.lis.utilities.filefilters.FilterImageEPS;
+import ch.epfl.lis.utilities.filefilters.FilterImageJPEG;
+import ch.epfl.lis.utilities.filefilters.FilterImagePNG;
+import edu.uci.ics.screencap.EPSDump;
+import edu.uci.ics.screencap.PNGDump;
+
+
+public class NetworkBottomButton extends JButton{
+	private static final long serialVersionUID = 1L;
+	
+	protected JButton b;
+	protected int funcNum;
+	protected ImageIcon icon;
+	
+	private NetworkElement item_;
+
+	public NetworkBottomButton(int funcNum, ImageIcon icon, NetworkElement item){
+		this.funcNum = funcNum;
+		this.icon = icon;		
+		this.item_ = item;
+		
+		b = new JButton(); 
+	
+		
+		if( funcNum == 0 ){	//exportButton_
+			setExportButton();		
+		}else if( funcNum == 1 ){	//blockButton_
+			setBlockButton();
+		}else if( funcNum == 2 ){   //addButton_
+			setAddButton();
+		}else if( funcNum == 3 ){   //resetButton_
+			setResetButton();
+		}
+
+	}
+
+	// set add resetButton
+	private void setResetButton(){
+		b.setBackground(UIManager.getColor("Button.background"));
+		b.setText("<html><center>Reset</center></html>");
+		b.setIcon(icon);
+		b.setBounds(10,10,100,21);
+
+		b.addActionListener(new ActionListener(){//为按钮添加鼠标单击事件
+			public void actionPerformed(ActionEvent e){			
+//				NetworkGraph viewer = item_.getNetworkViewer();
+//				viewer.Reset();
+//				
+//				//add blocked
+//				viewer.getStructure().getNodes().addAll(viewer.getBlockedNodes());
+//				viewer.getStructure().getEdges().addAll(viewer.getBlockEdges());
+//								
+//				ArrayList<Node> nodes = viewer.getStructure().getNodes();
+//				ArrayList<Edge> edges = viewer.getStructure().getEdges();
+//					
+//				//remove new
+//				nodes.removeAll(viewer.getNewNodes());
+//				edges.removeAll(viewer.getNewEdges());
+//			
+//				viewer.clearBlockAndNewBuff();
+//				
+//				viewer.AddNewNodesAndEdges(nodes, edges);
+				
+				//reload file
+				URL absPath = item_.getAbsPath();
+				String filename = item_.getFilename();
+				int format = item_.getFormat();
+
+				
+				try {
+					item_ = IONetwork.loadItem(filename, absPath, format);
+				} catch (FileNotFoundException e1) {
+					e1.printStackTrace();
+				} catch (ParseException e1) {
+					e1.printStackTrace();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				item_.setNetworkViewer(new NetworkGraph(item_));
+				
+				if( item_ instanceof StructureElement )
+					item_ = WidgetsButtons.TopButton.convert2dynamicModel(item_);
+				
+				item_.setOrigFile(absPath, filename, format);
+				
+				//UI
+				Component c = b.getParent();
+				while ( c.getParent() != null ){
+					c = c.getParent();
+				}
+
+				if ( c instanceof JFrame ){
+					((JFrame) c).getContentPane().removeAll();
+					WindowTopPanel TopPanel = new WindowTopPanel(item_);	
+					//WindowNetworkPanel NetworkPanel = new WindowNetworkPanel(item_);
+
+					/** SET LAYOUT **/
+					((JFrame) c).getContentPane().setLayout(new GridBagLayout());  
+					// Row 1
+					NetLand.addComponent(((JFrame) c), TopPanel.getTopPanel(), 0, 0, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 0);
+					// Row 2
+					//NetLand.addComponent(((JFrame) c), NetworkPanel.getPanel(), 0, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+
+					c.invalidate();
+					c.repaint();
+					c.setVisible(true);		
+				}	
+
+				
+			}
+		});
+	}
+
+	
+	// set add addButton
+	private void setAddButton(){
+		b.setBackground(UIManager.getColor("Button.background"));
+		b.setText("<html><center>Add nodes<br>and edges</center></html>");
+		b.setIcon(icon);
+		b.setBounds(10,10,100,21);
+
+		b.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				final JDialog a = new JDialog();
+				a.setSize(new Dimension(400,400));
+				a.setModal(true);
+				
+				JPanel dialogPanel = new JPanel();
+				JButton submit = new JButton("submit");
+				final AddNodesAndEdges panel = new AddNodesAndEdges(item_);
+				
+				
+				submit.addActionListener(new ActionListener(){
+					public void actionPerformed(ActionEvent e){
+						ArrayList<Node> newnodes = panel.getNodesContent();
+						ArrayList<Edge> newedges = panel.getEdgesContent();
+			
+						//reset genenetwork
+						AddrepaintFrame(item_, newnodes, newedges);
+						
+						a.dispose();
+					}
+				});
+				
+				
+//				//closing listener
+//				a.addWindowListener(new WindowAdapter() {
+//					public void windowClosing(WindowEvent windowEvent){												
+//					}
+//				});
+				
+				dialogPanel.setLayout(new BoxLayout(dialogPanel, BoxLayout.Y_AXIS));
+				dialogPanel.add(panel.getPanel());
+				dialogPanel.add(submit);
+				
+				a.add(dialogPanel);	
+				a.setVisible(true);
+			
+			}
+		});
+	}
+
+
+	// set modify blockButton
+	private void setBlockButton(){
+		b.setBackground(UIManager.getColor("Button.background"));
+		b.setText("<html><center>Block<br>nodes</center></html>");
+		b.setIcon(icon);
+		b.setBounds(10,10,100,21);
+
+
+		b.addActionListener(new ActionListener(){//为按钮添加鼠标单击事件
+			public void actionPerformed(ActionEvent e){
+				final JDialog a = new JDialog();
+				a.setSize(new Dimension(400,300));
+				a.setModal(true);
+				
+				JPanel dialogPanel = new JPanel();
+				final TwoWindowExchangeInfo panel = new TwoWindowExchangeInfo(item_, 0);
+				JButton submit = new JButton("submit");
+				
+				submit.addActionListener(new ActionListener(){//为按钮添加鼠标单击事件
+					public void actionPerformed(ActionEvent e){
+						ArrayList<String> selection = new ArrayList<String>();  //nodes to keep
+						ArrayList<String> notselection = new ArrayList<String>();  //nodes not to keep
+						for( int i=0;i<panel.getListleft().getModel().getSize();i++){
+							selection.add((String) panel.getListleft().getModel().getElementAt(i));
+						}
+						for( int i=0;i<panel.getListright().getModel().getSize();i++){
+							notselection.add((String) panel.getListright().getModel().getElementAt(i));
+						}
+						item_.getNetworkViewer().RemoveNodesAndEdges(selection);
+						
+						//reset genenetwork
+						BlockrepaintFrame(item_, notselection, selection);
+						a.dispose();
+					}
+				});
+					
+				
+				
+//				//closing listener
+//				a.addWindowListener(new WindowAdapter() {
+//					public void windowClosing(WindowEvent windowEvent){	
+//					}      
+//				});
+				
+				dialogPanel.setLayout(new BoxLayout(dialogPanel, BoxLayout.Y_AXIS));
+				dialogPanel.add(panel);
+				dialogPanel.add(submit);
+				
+				a.add(dialogPanel);
+				a.setVisible(true);//使MyJDialog窗体可见
+			}
+		});
+	}
+
+
+	// set image exportButton
+	private void setExportButton(){
+		b.setBackground(UIManager.getColor("Button.background"));
+		b.setText("<html><center>Screen<br>the network</center></html>");
+		b.setIcon(icon);
+
+		// Allow the user to take a picture of the current content of visualization panel
+		b.addActionListener(new ActionListener() {
+			public void actionPerformed(final ActionEvent arg0) {
+				printGraph();
+			}
+		});
+	}
+
+	
+	private void AddrepaintFrame(final NetworkElement element, final ArrayList<Node> newnodes, final ArrayList<Edge> newedges) {
+		//step 1: get current grn
+		final GeneNetwork grn = ((DynamicalModelElement) element).getGeneNetwork();
+
+		final ArrayList<Node> nodes = grn.getNodes();
+		final ArrayList<Edge> edges = grn.getEdges();
+		
+		final ArrayList<Node> newAddNodes = new ArrayList<Node>();
+		final ArrayList<Edge> newAddEdges = new ArrayList<Edge>();
+		for(int i=0;i<newnodes.size();i++)
+			if( !nodes.contains(newnodes.get(i)) )
+				newAddNodes.add(newnodes.get(i));
+		
+		for(int i=0;i<newedges.size();i++)
+			if( !edges.contains(newedges.get(i)) )
+				newAddEdges.add(newedges.get(i));
+
+		//step 2: parameters of new gene
+		if( newAddNodes.size() != 0 ){	
+			final JDialog a = new JDialog();
+			a.setSize(new Dimension(600,400));
+			a.setModal(true);
+
+			//closing listener
+			a.addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent windowEvent){
+					JOptionPane.showConfirmDialog(null, "Have you verified rxns? Otherwise the dynamic model won't change!", "Reset reactions", JOptionPane.YES_NO_OPTION);
+				}
+			});
+
+			JPanel content = new JPanel();
+			content.setPreferredSize(new Dimension(600,400));
+
+			//content
+			JLabel targetGeneName = new JLabel("NewGene: ");
+
+			//define combo
+			String[] genelist = new String[newAddNodes.size()];
+			final String[] basal = new String[newAddNodes.size()];
+			final String[] max = new String[newAddNodes.size()];
+			final String[] deg = new String[newAddNodes.size()];
+			final String[] initial = new String[newAddNodes.size()];
+			for(int i=0;i<newAddNodes.size();i++){
+				genelist[i] = newAddNodes.get(i).getLabel();
+				basal[i] = "0.0";
+				max[i] = "1.0";
+				deg[i] = "1.0";
+				initial[i] = "1.0";
+			}
+			final JComboBox<String> combo=new JComboBox<String>(genelist);
+			combo.setSelectedIndex(0);
+		
+			//parameters
+			JLabel parameterLabel = new JLabel("Parameters:");
+			JLabel basalExpLabel = new JLabel("Basic Expression:");
+			final JTextField basalExpValue = new JTextField("0.0");
+			JLabel maxLabel = new JLabel("Max transcriptional rate:");
+			final JTextField maxValue = new JTextField("1.0");
+			JLabel degLabel = new JLabel("Degradation rate:");
+			final JTextField degValue = new JTextField("1.0");
+			JLabel initialLabel = new JLabel("Initial value:");
+			final JTextField initialValue = new JTextField("1.0");
+
+
+			//combo actions
+			combo.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e) {
+					int index = combo.getSelectedIndex();
+					basalExpValue.setText(basal[index]);
+					maxValue.setText(max[index]);
+					degValue.setText(deg[index]);
+					initialValue.setText(initial[index]);
+				}
+			});
+
+			// textField action
+			maxValue.getDocument().addDocumentListener(new DocumentListener(){
+				public void changedUpdate(final DocumentEvent e) {
+					int index = combo.getSelectedIndex();
+					String newvalue = maxValue.getText();
+					max[index] = newvalue;		
+				}
+
+				public void insertUpdate(DocumentEvent arg0) {
+					int index = combo.getSelectedIndex();
+					String newvalue = maxValue.getText();
+					max[index] = newvalue;	
+				}
+
+				public void removeUpdate(DocumentEvent arg0) {
+					int index = combo.getSelectedIndex();
+					String newvalue = maxValue.getText();
+					max[index] = newvalue;	
+				}
+
+			});
+
+			degValue.getDocument().addDocumentListener(new DocumentListener(){
+				public void changedUpdate(final DocumentEvent e) {
+					int index = combo.getSelectedIndex();
+					String newvalue = degValue.getText();
+					deg[index] = newvalue;		
+				}
+
+				public void insertUpdate(DocumentEvent arg0) {
+					int index = combo.getSelectedIndex();
+					String newvalue = degValue.getText();
+					deg[index] = newvalue;	
+				}
+
+				public void removeUpdate(DocumentEvent arg0) {
+					int index = combo.getSelectedIndex();
+					String newvalue = degValue.getText();
+					deg[index] = newvalue;	
+				}
+			});
+
+			basalExpValue.getDocument().addDocumentListener(new DocumentListener(){
+				public void changedUpdate(final DocumentEvent e) {
+					int index = combo.getSelectedIndex();
+					String newvalue = basalExpValue.getText();
+					basal[index] = newvalue;		
+				}
+
+				public void insertUpdate(DocumentEvent arg0) {
+					int index = combo.getSelectedIndex();
+					String newvalue = basalExpValue.getText();
+					basal[index] = newvalue;	
+				}
+
+				public void removeUpdate(DocumentEvent arg0) {
+					int index = combo.getSelectedIndex();
+					String newvalue = basalExpValue.getText();
+					basal[index] = newvalue;	
+				}
+			});
+
+			initialValue.getDocument().addDocumentListener(new DocumentListener(){
+				public void changedUpdate(final DocumentEvent e) {
+					int index = combo.getSelectedIndex();
+					String newvalue = initialValue.getText();
+					initial[index] = newvalue;		
+				}
+
+				public void insertUpdate(DocumentEvent arg0) {
+					int index = combo.getSelectedIndex();
+					String newvalue = initialValue.getText();
+					initial[index] = newvalue;	
+				}
+
+				public void removeUpdate(DocumentEvent arg0) {
+					int index = combo.getSelectedIndex();
+					String newvalue = initialValue.getText();
+					initial[index] = newvalue;	
+				}
+			});
+
+
+			JPanel buttonPanel = new JPanel();
+			JButton submitButton = new JButton("Submit");
+			buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+			buttonPanel.add(submitButton); 
+
+			//add listener
+			submitButton.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent arg0) {				
+					DoubleMatrix1D initialValues = grn.getInitialState();
+					DoubleMatrix1D speciesValues = grn.getSpecies_initialState();
+					ArrayList<Gene> species = grn.getSpecies();
+					ArrayList<String> parameterNames = grn.getParameterNames_();
+					ArrayList<Double> parameterValues = grn.getParameterValues_();
+					
+					DoubleMatrix1D newinitialValues = new DenseDoubleMatrix1D(initialValues.size()+newAddNodes.size());
+					DoubleMatrix1D newspeciesValues = new DenseDoubleMatrix1D(speciesValues.size()+newAddNodes.size());
+					
+					for(int i=0;i<initialValues.size();i++)
+						newinitialValues.set(i, initialValues.get(i));
+					for(int i=0;i<speciesValues.size();i++)
+						newspeciesValues.set(i, newspeciesValues.get(i));
+					
+					//add new nodes/species/initial/speciesInitial
+					int size = nodes.size();
+					for(int i=0;i<newAddNodes.size();i++){
+						HillGene newgene = new HillGene();
+						newgene.setLabel(newAddNodes.get(i).getLabel());
+						newgene.setBasalExpression_( Double.parseDouble(basal[i]) );
+						newgene.setMax(Double.parseDouble(max[i]));
+						newgene.setDelta(Double.parseDouble(deg[i]));
+						newgene.setCombination("max_"+newAddNodes.get(i).getLabel()+"*BasalExpression_"+newAddNodes.get(i).getLabel()+"-deg_"+newAddNodes.get(i).getLabel());
+
+						newgene.setInputGenes(new ArrayList<Gene>());
+						
+						parameterNames.add("max_"+newAddNodes.get(i).getLabel());
+						parameterNames.add("BasalExpression_"+newAddNodes.get(i).getLabel());
+						parameterNames.add("deg_"+newAddNodes.get(i).getLabel());
+						
+						parameterValues.add(Double.parseDouble(max[i]));
+						parameterValues.add(Double.parseDouble(basal[i]));
+						parameterValues.add(Double.parseDouble(deg[i]));
+						
+						newinitialValues.set(size+i, Double.parseDouble(initial[i]));
+						newspeciesValues.set(size+i, Double.parseDouble(initial[i]));
+						
+						nodes.add(newgene);
+						species.add(newgene);
+					}
+
+					//change view						
+					item_.getNetworkViewer().AddNewNodesAndEdges(nodes, edges);
+					
+					//add new edges
+					grn.setNodes(nodes);
+					grn.setSpecies(species);
+					grn.setEdges(edges);
+					grn.setInitialState(newinitialValues);
+					grn.setSpecies_initialState(newspeciesValues);
+					grn.setParameterNames_(parameterNames);
+					grn.setParameterValues_(parameterValues);
+
+					a.dispose();	
+				}
+			});   
+
+			//set layout
+			content.setLayout(new GridBagLayout());  
+			// Row 1
+			NetLand.addComponent(content, targetGeneName, 0, 0, 2, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 0);
+			// Row 2
+			NetLand.addComponent(content, combo, 0, 1, 2, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+			// Row 3
+			NetLand.addComponent(content, parameterLabel, 0, 2, 2, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+			// Row 4
+			NetLand.addComponent(content, basalExpLabel, 0, 3, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+			NetLand.addComponent(content, basalExpValue, 1, 3, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+			// Row 5
+			NetLand.addComponent(content, maxLabel, 0, 4, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+			NetLand.addComponent(content, maxValue, 1, 4, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+			// Row 6
+			NetLand.addComponent(content, degLabel, 0, 5, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+			NetLand.addComponent(content, degValue, 1, 5, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+			// Row 7
+			NetLand.addComponent(content, initialLabel, 0, 6, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+			NetLand.addComponent(content, initialValue, 1, 6, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+			// Row 8
+			NetLand.addComponent(content, buttonPanel, 0, 7, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+						
+			
+			a.add(content);
+			a.setVisible(true);	
+		}//end of judge num of newnodes
+		
+		
+		if( newAddEdges.size() != 0 ){
+			
+			for(int i=0;i<newAddEdges.size();i++){
+				ArrayList<String> selectionTarget = new ArrayList<String>(newAddEdges.size());
+				ArrayList<String> selectionSource = new ArrayList<String>(newAddEdges.size());
+				ArrayList<String> selectionType = new ArrayList<String>(newAddEdges.size());
+				
+				selectionTarget.add(newAddEdges.get(i).getTarget().getLabel());
+				selectionSource.add(newAddEdges.get(i).getSource().getLabel());
+				selectionType.add(newAddEdges.get(i).getTypeString());
+				
+				newAddEdges.get(i).setTarget(indexOfNodeName(grn, newAddEdges.get(i).getTarget().getLabel()));
+				newAddEdges.get(i).setSource(indexOfNodeName(grn, newAddEdges.get(i).getSource().getLabel()));
+						
+				AddEdgeRepaintFrame(element, selectionTarget, selectionSource, selectionType);
+			}				
+			
+			edges.addAll(newAddEdges);
+			//change view						
+			item_.getNetworkViewer().AddNewNodesAndEdges(grn.getNodes(), grn.getEdges());
+			
+		}// end of judge num  of newedges
+		
+		
+		//UI
+		Component c = b.getParent();
+		while ( c.getParent() != null ){
+			c = c.getParent();
+		}
+
+		if ( c instanceof JFrame ){
+			((JFrame) c).getContentPane().removeAll();
+			WindowTopPanel TopPanel = new WindowTopPanel(element);	
+			//WindowNetworkPanel NetworkPanel = new WindowNetworkPanel(element);
+
+			/** SET LAYOUT **/
+			((JFrame) c).getContentPane().setLayout(new GridBagLayout());  
+			// Row 1
+			NetLand.addComponent(((JFrame) c), TopPanel.getTopPanel(), 0, 0, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 0);
+			// Row 2
+			//NetLand.addComponent(((JFrame) c), NetworkPanel.getPanel(), 0, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+
+			c.invalidate();
+			c.repaint();
+			c.setVisible(true);		
+		}	
+
+
+	}  
+	
+	private Node indexOfNodeName(GeneNetwork grn, String nodeName){
+		ArrayList<Node> nodes = grn.getNodes();
+		
+		for(int i=0;i<nodes.size();i++)
+			if( nodes.get(i).getLabel().equals(nodeName) )
+				return nodes.get(i);
+		
+		return nodes.get(0);
+	}
+	
+	
+	private void AddEdgeRepaintFrame(NetworkElement element, final ArrayList<String> selectionTarget, ArrayList<String> selectionSource, ArrayList<String> selectionType) {
+		//step 1: get current grn
+		final GeneNetwork grn = ((DynamicalModelElement) element).getGeneNetwork();
+
+		//step 2: input rxn foreach selected gene
+		final JDialog a = new JDialog();
+		a.setSize(new Dimension(600,400));
+		a.setModal(true);
+
+		//closing listener
+		a.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent windowEvent){
+				JOptionPane.showConfirmDialog(null, "Have you verified rxns? Otherwise the dynamic model won't change!", "Reset reactions", JOptionPane.YES_NO_OPTION);
+			}
+		});
+
+		JPanel content = new JPanel();
+		content.setPreferredSize(new Dimension(600,400));
+
+		//content
+		JLabel targetGeneName = new JLabel("TargetGene: ");
+		//reaction field
+		JLabel reactionFieldLable = new JLabel("Reaction:");
+		final JTextArea reactionField = new JTextArea();
+		reactionField.setSize(new Dimension(100,100));
+		reactionField.setAutoscrolls(true);
+		JScrollPane scrollPane = new JScrollPane(reactionField);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 
+
+		//define combo
+		String[] genelist = new String[selectionTarget.size()];
+		final String[] reactionlist = new String[selectionTarget.size()];
+		for(int i=0;i<selectionTarget.size();i++){
+			genelist[i] = selectionTarget.get(i);
+			
+			ArrayList<Gene> inputs = ((Gene)grn.getNode(selectionTarget.get(i))).getInputGenes();			
+			int m = inputs.size();
+			
+			if( selectionType.get(i).equals("+") )
+				reactionlist[i] =  ((Gene)grn.getNode(selectionTarget.get(i))).getCombination() + "+(BasalExpression_" + selectionTarget.get(i) + "_" + m + "+I_" + selectionTarget.get(i) + "_" + m + "*(" + selectionSource.get(i) + "/K_" + selectionTarget.get(i) + "_" + m + ")^N_" + selectionTarget.get(i) + "_" + m + "/(1+(" + selectionSource.get(i) + "/K_" + selectionTarget.get(i) + "_" + m + ")^N_" + selectionTarget.get(i) + "_" + m + ")))";
+			else
+				reactionlist[i] =  ((Gene)grn.getNode(selectionTarget.get(i))).getCombination() + "+(BasalExpression_" + selectionTarget.get(i) + "_" + m + "+I_" + selectionTarget.get(i) + "_" + m + "*(1/(1+(" + selectionSource.get(i) + "/K_" + selectionTarget.get(i) + "_" + m + ")^N_" + selectionTarget.get(i) + "_" + m + ")))";
+			
+			int flag = 0;
+			for(int k=0;k<inputs.size();k++)
+				if( inputs.get(k).getLabel().equals(selectionSource.get(i)) )
+					flag = 1;
+			
+			if( flag == 0 )
+				((Gene)grn.getNode(selectionTarget.get(i))).getInputGenes().add((Gene)grn.getNode(selectionSource.get(i)));
+		}
+		final JComboBox<String> combo=new JComboBox<String>(genelist);
+		combo.setSelectedIndex(0);
+
+		reactionField.setText(reactionlist[0]);
+		
+		//combo actions
+		combo.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				int index = combo.getSelectedIndex();
+				reactionField.setText(reactionlist[index]);
+			}
+		});
+
+		// reactionField action
+		reactionField.getDocument().addDocumentListener(new DocumentListener(){
+			public void changedUpdate(final DocumentEvent e) {
+				int index = combo.getSelectedIndex();
+				String newrxn = reactionField.getText();
+				reactionlist[index] = newrxn;		
+			}
+
+			public void insertUpdate(DocumentEvent arg0) {
+				int index = combo.getSelectedIndex();
+				String newrxn = reactionField.getText();
+				reactionlist[index] = newrxn;
+			}
+
+			public void removeUpdate(DocumentEvent arg0) {
+				int index = combo.getSelectedIndex();
+				String newrxn = reactionField.getText();
+				reactionlist[index] = newrxn;
+			}
+		});
+
+
+		JPanel buttonPanel = new JPanel();
+		JButton submitButton = new JButton("Submit");
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+		buttonPanel.add(submitButton); 
+
+		//add listener
+		submitButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				//check if notselected gene is involved
+				for(int j=0;j<reactionlist.length;j++){
+					String newrxn = reactionlist[j];
+					newrxn = newrxn.replace(" ", "");
+					renewAddNodeSpeicesInitialSpeiceInitial(grn,selectionTarget,reactionlist,a);
+				}
+				
+			}
+
+		});   
+
+		//set layout
+		content.setLayout(new GridBagLayout());  
+		// Row 1
+		NetLand.addComponent(content, targetGeneName, 0, 0, 2, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 0);
+		// Row 2
+		NetLand.addComponent(content, combo, 0, 1, 2, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+		// Row 3
+		NetLand.addComponent(content, reactionFieldLable, 0, 2, 2, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+		// Row 4
+		NetLand.addComponent(content, scrollPane, 0, 3, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+		// Row 5
+		NetLand.addComponent(content, buttonPanel, 0, 4, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+
+		a.add(content);
+		a.setVisible(true);	
+
+	}
+	
+	
+
+	private void BlockrepaintFrame(NetworkElement element, final ArrayList<String> notselection, final ArrayList<String> selection) {
+		//step 1: get current grn
+		final GeneNetwork grn = ((DynamicalModelElement) element).getGeneNetwork();
+	
+		//step 2: input rxn foreach selected gene
+		final JDialog a = new JDialog();
+		a.setSize(new Dimension(600,400));
+		a.setModal(true);
+
+		//closing listener
+		a.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent windowEvent){
+				JOptionPane.showConfirmDialog(null, "Have you verified rxns? Otherwise the dynamic model won't change!", "Reset reactions", JOptionPane.YES_NO_OPTION);
+			}
+		});
+		
+		JPanel content = new JPanel();
+		content.setPreferredSize(new Dimension(600,400));
+
+		//content
+		JLabel targetGeneName = new JLabel("TargetGene: ");
+		//reaction field
+		JLabel reactionFieldLable = new JLabel("Reaction:");
+		String reaction = ((Gene)grn.getNode(selection.get(0))).getCombination();
+		final JTextArea reactionField = new JTextArea(reaction);
+		reactionField.setSize(new Dimension(100,100));
+		reactionField.setAutoscrolls(true);
+		JScrollPane scrollPane = new JScrollPane(reactionField);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS); 
+
+		//define combo
+		String[] genelist = new String[selection.size()];
+		final String[] reactionlist = new String[selection.size()];
+		for(int i=0;i<selection.size();i++){
+			genelist[i] = selection.get(i);
+			reactionlist[i] =  ((Gene)grn.getNode(selection.get(i))).getCombination();
+		}
+		final JComboBox<String> combo=new JComboBox<String>(genelist);
+		combo.setSelectedIndex(0);
+
+		//combo actions
+		combo.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				int index = combo.getSelectedIndex();
+				reactionField.setText(reactionlist[index]);
+			}
+		});
+
+		// reactionField action
+		reactionField.getDocument().addDocumentListener(new DocumentListener(){
+			public void changedUpdate(final DocumentEvent e) {
+				int index = combo.getSelectedIndex();
+				String newrxn = reactionField.getText();
+				reactionlist[index] = newrxn;		
+			}
+
+			public void insertUpdate(DocumentEvent arg0) {
+				int index = combo.getSelectedIndex();
+				String newrxn = reactionField.getText();
+				reactionlist[index] = newrxn;
+			}
+
+			public void removeUpdate(DocumentEvent arg0) {
+				int index = combo.getSelectedIndex();
+				String newrxn = reactionField.getText();
+				reactionlist[index] = newrxn;
+			}
+		});
+
+
+		JPanel buttonPanel = new JPanel();
+		JButton submitButton = new JButton("Submit");
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+		buttonPanel.add(submitButton); 
+
+		//add listener
+		submitButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				//check if notselected gene is involved
+				int flag = 0;
+				for(int j=0;j<reactionlist.length;j++){
+					String newrxn = reactionlist[j];
+					newrxn = newrxn.replace(" ", "");
+					for(int i=0;i<notselection.size();i++){
+						String[] items = newrxn.split("\\*|\\^|\\+|\\/|\\-|\\(|\\)");
+						for(int k=0;k<items.length;k++)
+							if( items[k].equals(notselection.get(i)) ){
+								JOptionPane.showMessageDialog(null,"\""+notselection.get(i)+"\" has been removed, but contains in \""+selection.get(j)+"\" reaction!","ERROR",JOptionPane.INFORMATION_MESSAGE);
+								combo.setSelectedIndex(j);
+								reactionField.setText(reactionlist[j]);
+								flag = 1;
+							}
+					}
+				}
+
+				if( flag == 0 ) //every reaction is ok
+ 					renewBlockNodeEdgeSpeicesInitialSpeiceInitial(grn,selection,notselection,reactionlist,a);
+			}
+		});   
+
+		//set layout
+		content.setLayout(new GridBagLayout());  
+		// Row 1
+		NetLand.addComponent(content, targetGeneName, 0, 0, 2, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 0);
+		// Row 2
+		NetLand.addComponent(content, combo, 0, 1, 2, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+		// Row 3
+		NetLand.addComponent(content, reactionFieldLable, 0, 2, 2, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+		// Row 4
+		NetLand.addComponent(content, scrollPane, 0, 3, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+		// Row 5
+		NetLand.addComponent(content, buttonPanel, 0, 4, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+
+		a.add(content);
+		a.setVisible(true);	
+		
+		//UI
+		Component c = b.getParent();
+		while ( c.getParent() != null ){
+			c = c.getParent();
+		}
+
+		if ( c instanceof JFrame ){
+			((JFrame) c).getContentPane().removeAll();
+			WindowTopPanel TopPanel = new WindowTopPanel(element);	
+			//WindowNetworkPanel NetworkPanel = new WindowNetworkPanel(element);
+
+			/** SET LAYOUT **/
+			((JFrame) c).getContentPane().setLayout(new GridBagLayout());  
+			// Row 1
+			NetLand.addComponent(((JFrame) c), TopPanel.getTopPanel(), 0, 0, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 0);
+			// Row 2
+			//NetLand.addComponent(((JFrame) c), NetworkPanel.getPanel(), 0, 1, 1, 1, GridBagConstraints.NORTHWEST, GridBagConstraints.BOTH, 1, 1);
+
+			c.invalidate();
+			c.repaint();
+			c.setVisible(true);		
+		}	
+		
+	} 
+	
+	
+	
+	
+	private void renewAddNodeSpeicesInitialSpeiceInitial(GeneNetwork grn, ArrayList<String> selectionTarget,String[] reactionlist, JDialog a) {
+		//update reactionlist and parameters
+//		ArrayList<String> newparameterNames_ = new ArrayList<String>();
+//		ArrayList<Double> newparameterValues_ = new ArrayList<Double>();
+		for(int i=0;i<selectionTarget.size();i++){
+			String newReaction = reactionlist[i];
+			Gene targetGene = (Gene) grn.getNode(selectionTarget.get(i));
+
+			ArrayList<Gene> newinputs = new ArrayList<Gene>();
+			WidgetsTables.RxnButtonRender.parseNewRxn(grn, newReaction, targetGene, newinputs);
+			targetGene.setInputGenes(newinputs);
+
+			targetGene.setCombination(newReaction);
+		}
+//		grn.setParameterNames_(newparameterNames_);
+//		grn.setParameterValues_(newparameterValues_);
+
+		a.dispose();
+		
+	}
+
+	private void renewBlockNodeEdgeSpeicesInitialSpeiceInitial(GeneNetwork grn, ArrayList<String> selection, ArrayList<String> notselection, String[] reactionlist, JDialog a) {
+		//remove notselected nodes from nodes and species
+		ArrayList<Edge> edges = grn.getEdges();
+		ArrayList<Edge> newedges = new ArrayList<Edge>();
+		ArrayList<Node> nodes = grn.getNodes();
+		ArrayList<Node> newnodes = new ArrayList<Node>();
+		ArrayList<Gene> species = grn.getSpecies();
+		ArrayList<Gene> newspecies = new ArrayList<Gene>();
+
+		for(int j=0;j<notselection.size();j++)
+			for(int i=0;i<edges.size();i++)
+				if( !edges.get(i).getSource().getLabel().equals(notselection.get(j)) )
+					if( !edges.get(i).getTarget().getLabel().equals(notselection.get(j)) )
+						newedges.add(edges.get(i));
+		
+		
+		for(int i=0;i<selection.size();i++)
+			for(int j=0;j<nodes.size();j++)
+				if( nodes.get(j).getLabel().equals(selection.get(i)) )
+					newnodes.add(nodes.get(j));
+
+		for(int i=0;i<species.size();i++){
+			int flag1 = 0;
+			for(int j=0;j<notselection.size();j++)
+				if( species.get(i).getLabel().equals(notselection.get(j)) )
+					flag1 = 1;
+
+			if( flag1 == 0 )
+				newspecies.add(species.get(i));
+		}
+
+		grn.setSpecies(newspecies);
+		grn.setNodes(newnodes);
+		grn.setEdges(newedges);
+		//remove initial/species
+		DoubleMatrix1D initial = grn.getInitialState();
+		DoubleMatrix1D speciesinitial = grn.getSpecies_initialState();
+		DoubleMatrix1D newinitial = new DenseDoubleMatrix1D(nodes.size()); 
+		DoubleMatrix1D newspeciesinitial = new DenseDoubleMatrix1D(newspecies.size()); 
+
+		for(int i=0;i<newnodes.size();i++)
+			for(int j=0;j<nodes.size();j++)
+				if( nodes.get(j).equals(newnodes.get(i)) )
+					newinitial.set(i,initial.get(j));
+
+		for(int i=0;i<newspecies.size();i++){
+			for(int j=0;j<species.size();j++)
+				if( species.get(j).equals(newspecies.get(i)) )
+					newspeciesinitial.set(i, speciesinitial.get(i));
+		}
+
+		grn.setInitialState(newinitial);
+		grn.setSpecies_initialState(newspeciesinitial);
+		
+		
+		//update reactionlist and parameters
+//		ArrayList<String> newparameterNames_ = new ArrayList<String>();
+//		ArrayList<Double> newparameterValues_ = new ArrayList<Double>();
+		for(int i=0;i<newnodes.size();i++){
+			String newReaction = reactionlist[i];
+			Gene targetGene = (Gene) newnodes.get(i);
+		
+			ArrayList<Gene> newinputs = new ArrayList<Gene>();
+			WidgetsTables.RxnButtonRender.parseNewRxn(grn, newReaction, targetGene, newinputs);
+			
+			targetGene.setCombination(newReaction);
+			targetGene.setInputGenes(newinputs);
+		}
+//		grn.setParameterNames_(newparameterNames_);
+//		grn.setParameterValues_(newparameterValues_)
+		
+		a.dispose();
+	}	
+	
+	
+	
+	
+	
+	
+	public JButton getButton(){ return b; }
+
+	//-------------------------------------------------------------------------------------
+	/**  Print the graph into 3 different format modifiable through the controller: EPS, PNG and JPEG  **/
+	public void printGraph() {
+
+		String title = "Save As";
+
+		final JFileChooser fc = new JFileChooser();
+		fc.setAcceptAllFileFilterUsed(false);
+		fc.addChoosableFileFilter(new FilterImagePNG());
+		fc.addChoosableFileFilter(new FilterImageJPEG());
+		fc.addChoosableFileFilter(new FilterImageEPS());
+		fc.setSelectedFile(new File(item_.getLabel())); // filename proposition
+
+		// Center the file chooser dialog in the center of the JPanel that displays the JUNG visualization.
+		int returnVal = fc.showDialog(item_.getNetworkViewer().getScreen(), title);
+
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			FileFilter filter = fc.getFileFilter();
+
+			if (filter instanceof  FilterImagePNG) {
+				String[] ext = {"png"};
+				file = FilenameUtilities.addExtension(file, ext);
+				if (FilenameUtilities.writeOrAbort(file.getAbsolutePath(), new JFrame())) {
+					saveComponentAsPNG(file, item_.getNetworkViewer().getVisualizationViewer());
+				}
+			}
+			else if (filter instanceof  FilterImageJPEG) {
+				String[] ext = {"jpg", "jpeg"};
+				file = FilenameUtilities.addExtension(file, ext);
+				if (FilenameUtilities.writeOrAbort(file.getAbsolutePath(), new JFrame())) {
+					saveComponentAsJPEG(file, item_.getNetworkViewer().getVisualizationViewer());
+				}
+			}
+			else if (filter instanceof  FilterImageEPS) {
+				String[] ext = {"eps"};
+				file = FilenameUtilities.addExtension(file, ext);
+				if (FilenameUtilities.writeOrAbort(file.getAbsolutePath(), new JFrame())) {
+					saveComponentAsEPS(file, item_.getNetworkViewer().getVisualizationViewer());
+				}
+			}
+			else
+				return;
+		}
+	}
+
+
+	// ----------------------------------------------------------------------------
+	/** Save a given Component as EPS image (uses EPSDump). **/
+	public void saveComponentAsEPS(File file, Component c) {
+		EPSDump dumper = new EPSDump(false);
+
+		// Little subtlety for EPS images, As EPS doesn't support transparency
+		try { dumper.dumpComponent(file, item_.getNetworkViewer().getVisualizationViewer()); }
+		catch (IOException e) {
+			System.err.print("NetworkGraph::saveComponentAsEPS(): " + e.getMessage());
+			System.exit(1); 
+		}
+	}
+
+
+	// ----------------------------------------------------------------------------
+	/**  Save a given Component as PNG image (uses PNGDump). **/
+	public void saveComponentAsPNG(File file, Component c) {
+		PNGDump dumper = new PNGDump();
+		try { dumper.dumpComponent(file, item_.getNetworkViewer().getVisualizationViewer()); }
+		catch (IOException e) {
+			System.err.print("NetworkGraph::saveComponentAsPNG(): " + e.getMessage());
+			System.exit(1); 		
+		}
+	}
+
+
+	// ----------------------------------------------------------------------------
+	/**  Save a given Component as JPEG image (uses). **/
+	public void saveComponentAsJPEG(File file, Component c) {
+		BufferedImage myImage = new BufferedImage(c.getWidth(), c.getHeight(),
+				BufferedImage.TYPE_INT_RGB);
+		Graphics2D g2 = myImage.createGraphics();
+		c.paint(g2);
+		try {
+			OutputStream out = new FileOutputStream(file.getAbsolutePath());
+			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
+			encoder.encode(myImage);
+			out.close();
+		} catch (Exception e) {
+			System.err.print("NetworkGraph::saveComponentAsJPEG(): " + e.getMessage());
+			System.exit(1);
+		}
+	}
+
+	public NetworkElement getElement(){ return item_; }
+
+}
+
+		
