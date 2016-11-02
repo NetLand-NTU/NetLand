@@ -44,21 +44,21 @@ Then follow the install instructions in the package. For Linux, users can use th
 
     The NetLand package should include the following files: 
 
-      a)	One shell script, named "runNetLand.sh", for launching NetLand in Linux/Unix operating systems.
+        a)	One shell script, named "runNetLand.sh", for launching NetLand in Linux/Unix operating systems.
 
-      b)	A jar file, named “main.jar”. It should be in the same directory as the shell script. 
+        b)	A jar file, named “main.jar”. It should be in the same directory as the shell script. 
 
-      c)	A folder, named "lib". It contains the required libraries to launch NetLand.
+        c)	A folder, named "lib". It contains the required libraries to launch NetLand.
 
-      d)	A folder namely "GPDM" which contains the executable files required for running "GPDM" program in NetLand.
-
-      e)	Two folders namely "toy models" and "saved results" (not necessary for launching the software) which contain toy gene network files and pre-computed results respectively.
+        d)	A folder namely "GPDM" which contains the executable files required for running "GPDM" program in NetLand.
+        
+        e)	Two folders namely "toy models" and "saved results" (not necessary for launching the software) which contain toy gene network files and pre-computed results respectively.
 
 3.	Make sure you have the executive permissions to the executable files in “GPDM” folder. To check the permission of a file, typing the following command at a terminal: `ls –l <filename>`. Use `chmod 705 <filename>` to gain the executive permission. 
 
 4.	If everything installed correctly, you’re ready to run a simulation (see next section).
 
-
+<br><br>
 <b>Windows</b>
 
 1.	Download NetLand from GitHub: http://netland-ntu.github.io/NetLand/. 
