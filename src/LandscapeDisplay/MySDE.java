@@ -15,23 +15,60 @@ import ch.epfl.lis.sde.Sde;
  **/
 
 public class MySDE extends Sde {
-	
+
 	private double sigma_;
 	private GeneNetwork grn_;
 	private String name_;
-	
+
+	private MathEval math;
+	private String[] combinations;
 	private boolean islandscape = false;
 	// ============================================================================
 	// PUBLIC METHODS
-	
+
 	public MySDE(GeneNetwork grn, boolean islandscape) {
 		this.islandscape = islandscape;
 		this.grn_ = grn;
+
+		//		if(islandscape)
+		//			dimension_ = grn_.getNodes().size()*2;
+		//		else
+		dimension_ = grn_.getNodes().size();
+
 		
-//		if(islandscape)
-//			dimension_ = grn_.getNodes().size()*2;
-//		else
-			dimension_ = grn_.getNodes().size();
+		combinations = new String[dimension_];
+		for (int i = 0; i < dimension_; i++) {
+			Gene gene = (Gene) grn_.getNode(i);
+
+			String combination = gene.getCombination();
+			combination = combination.replace(" ", "");		
+			
+//			ArrayList<String> variables = math.MygetVariablesWithin(combination);
+//			for(int j=0;j<variables.size();j++){
+//				int index = parameterNames.indexOf(variables.get(j));
+//				if( index>=0 ){
+//					combination = combination.replaceFirst(variables.get(j), parameterValuesString.get(index));
+//				}
+//			}
+			
+			
+			combinations[i] = combination;
+		}
+		
+
+		ArrayList<String> parameterNames = grn_.getParameterNames_();
+		ArrayList<Double> parameterValues = grn_.getParameterValues_();		
+		ArrayList<Gene> species = grn_.getSpecies();
+
+
+		math=new MathEval();	
+		for(int j=0;j<parameterNames.size();j++)
+			math.setVariable(parameterNames.get(j),  parameterValues.get(j));
+
+		for(int j=0;j<species.size();j++)
+			math.setVariable(species.get(j).getLabel(),  grn_.getSpecies_initialState().get(j));
+
+
 	}
 
 	// ----------------------------------------------------------------------------
@@ -45,53 +82,41 @@ public class MySDE extends Sde {
 	public void getDriftAndDiffusion(final double t, final DoubleMatrix1D Xin, DoubleMatrix1D F, DoubleMatrix2D G) throws Exception {
 		//origGenes list
 		int dimension = dimension_;
-//		if(islandscape) 
-//			dimension = dimension_/2;
-		ArrayList<String> origGeneNames = new ArrayList<String>();
-		for(int i=0;i<dimension;i++)
-			origGeneNames.add(grn_.getNode(i).getLabel());
-		
-		ArrayList<String> parameterNames = grn_.getParameterNames_();
-		ArrayList<Double> parameterValues = grn_.getParameterValues_();		
-		ArrayList<Gene> species = grn_.getSpecies();
+		//		if(islandscape) 
+		//			dimension = dimension_/2;
+//		ArrayList<String> origGeneNames = new ArrayList<String>();
+//		for(int i=0;i<dimension;i++)
+//			origGeneNames.add(grn_.getNode(i).getLabel());
+
+
 		ArrayList<Node> nodes = grn_.getNodes();
-		
-		MathEval math=new MathEval();	
-		for(int j=0;j<parameterNames.size();j++)
-			math.setVariable(parameterNames.get(j),  parameterValues.get(j));
-		
-		for(int j=0;j<species.size();j++)
-			math.setVariable(species.get(j).getLabel(),  grn_.getSpecies_initialState().get(j));
-		
 		for(int j=0;j<nodes.size();j++){
 			if( Xin.get(j)<0 ) Xin.set(j, 0);
 			math.setVariable(nodes.get(j).getLabel(),  Xin.get(j));
 		}
-		
+
+
 		//construct SDEs
 		//SDEs
 		for (int i = 0; i < dimension; i++) {
-			Gene gene = (Gene) grn_.getNode(i);
-			
-			String combination = gene.getCombination();
-			combination = combination.replace(" ", "");		
-			
-	    	Double result = math.evaluate(combination);
-	    
+			String combination = combinations[i];
+
+			Double result = math.evaluate(combination);
+
 			F.set(i, result);
 			G.set(i, i, sigma_);
 		}
 		//end of SDEs
-		
+
 	}
-	
+
 	// ============================================================================
 	// SETTERS AND GETTERS
-	
+
 	public void setSigma(double sigma) { sigma_ = sigma; }
 	public double getSigma() { return sigma_; }
-	
-	
+
+
 
 	public String getName() {
 		return name_;

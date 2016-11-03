@@ -18,8 +18,10 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import javax.swing.JFileChooser;
@@ -33,6 +35,7 @@ import org.sbml.jsbml.text.parser.ParseException;
 import FileManager.FileChooser;
 import LandscapeAnimation.LandscapePanel;
 import LandscapeDisplay.JacobiMatrix;
+import LandscapeDisplay.ODESolver;
 import LandscapeDisplay.ODESolverTheta;
 import LandscapeDisplay.SDESolver;
 import LandscapeDisplay.SDETimeSeriesExperiment;
@@ -53,43 +56,42 @@ import ch.epfl.lis.networks.Node;
 import edu.umbc.cs.maple.utils.ColtUtils;
 
 public class Landscape extends LandscapeWindow {
-	private NetworkElement item_;
+	private GeneNetwork grn;
 	private LandscapeThread landscape = null;
-	
-	private boolean ide = false;
-	
+
+	private boolean ide = true;
+
 	public Landscape(Frame aFrame, NetworkElement item) {
 		super(aFrame);		
-		item_ = item;
-		
+		grn  = ((DynamicalModelElement) item).getGeneNetwork();
+
 		//closing listener
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent windowEvent){
 				if( landscape != null && landscape.myThread_.isAlive() ){
 					landscape.stop();	
-					System.out.print("Simulation is canceled.");
+					System.out.print("Simulation is canceled.\n");
 					//JOptionPane.showMessageDialog(new Frame(), "Simulation is canceled.", "Warning!", JOptionPane.INFORMATION_MESSAGE);
 				}
 				escapeAction();
 			}
 		});
-		
-		
-		//set core genenames
-		final GeneNetwork grn = ((DynamicalModelElement) item_).getGeneNetwork();
+
+
+		//set core genenames		
 		ArrayList<Node> nodes = grn.getNodes();
-	
+
 
 		String geneNames = "";
 		for(int i=0;i<nodes.size();i++)
 			geneNames += nodes.get(i).getLabel()+";";
-		
+
 		focusGenes.setText(geneNames);
-		
+
 		gpdmIts.setEnabled(false);
-		
-		
+
+
 		//set plot part
 		//display saved result
 		if( grn.getGridData()!=null ){		
@@ -97,11 +99,11 @@ public class Landscape extends LandscapeWindow {
 			its.setText(grn.getLand_itsValue()+"");
 			maxExp.setText(grn.getLand_maxExpValue()+"");
 			maxT.setText(grn.getLand_maxTime()+"");
-			
+
 			geneNames = "";
 			for(int i=0;i<grn.getLand_focusGenesList().length;i++)
 				geneNames += grn.getLand_focusGenesList()[i]+";";
-			
+
 			focusGenes.setText(geneNames);
 
 			if( grn.isLand_isTwoGenes() ){
@@ -111,12 +113,12 @@ public class Landscape extends LandscapeWindow {
 				randioButton11.setSelected(false);
 				randioButton31.setSelected(true);
 			}
-			
+
 			this.gpdmIts.setText(grn.getLand_gpdmitsValue()+"");
-			
+
 		}
-		
-		
+
+
 		//radios
 		generateTimeCourse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -127,53 +129,31 @@ public class Landscape extends LandscapeWindow {
 				}
 			}
 		});
-		
+
 		loadTimeCourse.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(loadTimeCourse.isSelected()){
 					maxExp.setEnabled(false);
 					its.setEnabled(false);
 					maxT.setEnabled(false);
-					
+
 					if( grn.getLandTimeSeries().isEmpty() ){
 						JOptionPane.showMessageDialog(null, "Please run simulation first", "Error", JOptionPane.INFORMATION_MESSAGE);
 						generateTimeCourse.setSelected(true);
 						loadTimeCourse.setSelected(false);
-						
+
 						maxExp.setEnabled(true);
 						its.setEnabled(true);
 						maxT.setEnabled(true);
 					}else{
 						JOptionPane.showMessageDialog(null, "Pre-computed time course data is loaded.", "Information", JOptionPane.INFORMATION_MESSAGE);
 					}
-					
+
 				}
 			}
 		});
-		
-		//button functions
-		browse_.addActionListener(new ActionListener() {
-			public void actionPerformed(final ActionEvent arg0) {
-				try {
-		            JFileChooser c = new FileChooser();
-		            int result = c.showSaveDialog(new JFrame());
-		            if(result == JFileChooser.APPROVE_OPTION){
-		                c.approveSelection();
-		                userPath_.setText(c.getSelectedFile().getAbsolutePath());
-		            }
-		        } catch (HeadlessException e) {
-		            MsgManager.Messages.errorMessage(e, "Error", "Cannot create a new file!");
-		        }	
-			}
-		});
-		
-		clear_.addActionListener(new ActionListener() {
-			public void actionPerformed(final ActionEvent arg0) {
-				userPath_.setText("");
-			}
-		});
-		
-		
+
+
 		btn.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent arg0) {	
 				String geneNames = "";
@@ -182,7 +162,7 @@ public class Landscape extends LandscapeWindow {
 				focusGenes.setText(geneNames);
 			}
 		});
-		
+
 		runButton_.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent arg0) {	
 				String text = focusGenes.getText();
@@ -192,8 +172,8 @@ public class Landscape extends LandscapeWindow {
 				for(int i=0;i<lines.length;i++){
 					focusGenes[i] = lines[i];
 				}
-								
-				enterAction(item_);
+
+				enterAction();
 			}
 		});
 
@@ -207,15 +187,8 @@ public class Landscape extends LandscapeWindow {
 				}
 			}
 		});
-		
-//		randioButton3.addActionListener(new ActionListener() {
-//			public void actionPerformed(final ActionEvent arg0) {
-//				randioButton11.setEnabled(false);
-//				randioButton31.setSelected(true);
-//				randioButton11.setSelected(false);
-//			}
-//		});
-		
+
+
 		randioButton1.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent arg0) {
 				randioButton11.setEnabled(true);
@@ -223,13 +196,13 @@ public class Landscape extends LandscapeWindow {
 				randioButton11.setSelected(true);
 			}
 		});
-		
+
 		randioButton11.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent arg0) {
 				gpdmIts.setEnabled(false);
 			}
 		});
-		
+
 		randioButton31.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent arg0) {
 				gpdmIts.setEnabled(true);
@@ -237,24 +210,21 @@ public class Landscape extends LandscapeWindow {
 			}
 		});
 	}
-	
-	
-	public void enterAction(NetworkElement item) {
+
+
+	public void enterAction() {
 		try {
-			
-			//converted to dynamic model
-			DynamicalModelElement grnItem = new DynamicalModelElement((DynamicalModelElement) item);	
-			
-			if( grnItem.getGeneNetwork().getNodes().size() <= 1 ){
-				JOptionPane.showMessageDialog(null, "The system only contains "+grnItem.getGeneNetwork().getNodes().size()+" reaction! To plot the landscape, at least two kinetic reactions are required.", "Error", JOptionPane.INFORMATION_MESSAGE);
+
+			if( grn.getNodes().size() <= 1 ){
+				JOptionPane.showMessageDialog(null, "The system only contains "+grn.getNodes().size()+" reaction! To plot the landscape, at least two kinetic reactions are required.", "Error", JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
 
 			GnwSettings settings = GnwSettings.getInstance(); 				
-			
-			landscape = new LandscapeThread(grnItem);
+
+			landscape = new LandscapeThread();
 			settings.stopBenchmarkGeneration(false); // reset
-			
+
 			// be sure to have set the output directory before running the simulation
 			landscape.start();
 		}
@@ -264,11 +234,11 @@ public class Landscape extends LandscapeWindow {
 		}
 
 	}
-	
-	
-	
+
+
+
 	public class LandscapeThread implements Runnable {
-		private GeneNetwork grn_;
+//		private GeneNetwork grn_;
 		/** Main Thread */
 		private Thread myThread_;
 		private volatile boolean stopRequested;
@@ -277,28 +247,25 @@ public class Landscape extends LandscapeWindow {
 		private int[] counts;
 		//size is num attractors with indexes 
 		private	ArrayList<int[]> labeledSeries;
-		
+
 		private double maxExpValue;
 		private int itsValue;
 		private int maxTime;
 		private int numTimePoints;
 		private String[] focusGenesList;
-		private String outputPath;
 		private String landscapeMethod;
 		private boolean displayMethod = true; //default two markers
 		private int gpdmItsValue;
 
-//		Logger log_ = Logger.getLogger(TopButton.class.getName());
 		
 		// ============================================================================
 		// PUBLIC METHODS
-		public LandscapeThread(DynamicalModelElement grnItem)
+		public LandscapeThread()
 		{
 			super();
 			myThread_ = null;
 			stopRequested = false;
-			
-			grn_ = grnItem.getGeneNetwork();
+
 			maxExpValue = Double.parseDouble(maxExp.getText());
 			itsValue = Integer.parseInt(its.getText());
 			maxTime = Integer.parseInt(maxT.getText());
@@ -306,7 +273,7 @@ public class Landscape extends LandscapeWindow {
 
 			numTimePoints = (int) (maxTime*2+1);
 			focusGenesList = focusGenes.getText().split(";");
-			outputPath = userPath_.getText();
+//			outputPath = userPath_.getText();
 			if( randioButton1.isSelected() )
 				landscapeMethod = "probabilistic";
 			else
@@ -316,8 +283,6 @@ public class Landscape extends LandscapeWindow {
 				displayMethod = true;
 			else //gpdm
 				displayMethod = false;		
-
-			
 		}
 
 		// ----------------------------------------------------------------------------
@@ -348,7 +313,7 @@ public class Landscape extends LandscapeWindow {
 		{	
 			snake_.start();
 			myCardLayout_.show(runButtonAndSnakePanel_, snakePanel_.getName());
-			
+
 			Component c = snake_.getParent();
 			while ( c.getParent() != null ){
 				c = c.getParent();
@@ -361,92 +326,97 @@ public class Landscape extends LandscapeWindow {
 						System.out.print("Start to construct Landscape\n");
 					else //gpdm
 						System.out.print("Start to construct Landscape using GPDM\n");
-					
+
 					//construct landscape
-					//DrawLandscape instance = new DrawLandscape((JFrame) c, grn_, maxExpValue, itsValue, maxTime, numTimePoints, focusGenesList, outputPath, landscapeMethod, displayMethod, gpdmItsValue);
 					/** generate time series **/
 					//run numSeries_ times
-					ArrayList<SDETimeSeriesExperiment> tss = new ArrayList<SDETimeSeriesExperiment>();
-					ArrayList<DoubleMatrix1D> timeScale = new ArrayList<DoubleMatrix1D>();	
 					ArrayList<DoubleMatrix2D> timeSeries = new ArrayList<DoubleMatrix2D>();
-					
+//					ArrayList<DoubleMatrix1D> timeScale = new ArrayList<DoubleMatrix1D>();		
+
+
 					boolean isStable = true;
 					if( generateTimeCourse.isSelected() ){
-						SDESolver deSolver_ = new SDESolver(grn_, true, 0);
-
-						//random start values
-						deSolver_.setOutputDirectory(System.getProperty("user.dir"));
-						deSolver_.setNumSeries(itsValue); //foreach X0 runs once
-						deSolver_.setMaxt(maxTime);
-						deSolver_.setNumTimePoints(numTimePoints);
-						deSolver_.setNoiseStrength(0);
-						deSolver_.setIslandscape(true);
-
-						double dt_ = maxTime*1.0 / (numTimePoints - 1) ;
-						deSolver_.setDt(dt_);
-
-
-						deSolver_.setTss(tss);
-						deSolver_.setTimeScale(timeScale);
-						deSolver_.setTimeSeries(timeSeries);
-
-						int its = 0;
-						while( !stopRequested && its<itsValue ){
-							System.out.print("Trajectory no: "+its+"\n");
-							try {
-								deSolver_.solveEquations_landscape(maxExpValue, displayMethod);
-								
-								if( deSolver_.getTimeScale() == null ){
-									isStable = false;
-									break;
-								}
-							} catch (Exception e) {			
-								JOptionPane.showMessageDialog(new Frame(), "Error in execution!", "Runtime exception", JOptionPane.INFORMATION_MESSAGE);
-								MsgManager.Messages.errorMessage(e, "Runtime exception", "");
-								this.stop();
-							}
-							its++;
-						}
-					}else if( loadTimeCourse.isSelected() )
-						timeSeries = grn_.getLandTimeSeries();
+						/** settings **/
+						double step = 1; //default fixed step
+	
 						
-					
-					
-					grn_.setDisplayMethod(landscapeMethod);
-					
-					
-					
+						/** check memory **/			
+						double leastMemoryReq = maxTime*1.0/step*itsValue*8*grn.getNodes().size()/1024.0/1024; //MB
+						boolean isEnoughMem = checkMemory(leastMemoryReq);
+
+						boolean isCutTime = false;
+						boolean isCutIts = false;
+
+						
+						if( !isEnoughMem ){
+							leastMemoryReq = maxTime*1.0/step*1*8*grn.getNodes().size()/1024.0/1024; //MB for 1 traj
+							int maxPointsPerTraj = calculateMaxPointsPerTraj(itsValue*2*8*grn.getNodes().size()/1024.0/1024);
+							isEnoughMem = checkMemory(leastMemoryReq);
+							
+							if( !isEnoughMem ) //for one traj
+								memoryWarning(leastMemoryReq, 0);
+							else{
+								/** decide m, save every m traj **/
+								int m = calculateMTraj(leastMemoryReq);
+								if( m<itsValue )
+									isCutIts = true;
+								else
+									m = itsValue;
+
+								if( m==0 ) m=1;
+
+
+								/** decide t, save every t steps **/
+								int t = maxTime;
+								
+								/** run SDE **/
+								runODE(itsValue, maxTime, true, m, t, isCutTime, isCutIts, maxPointsPerTraj);
+
+							}
+						}else
+							runODE(itsValue, maxTime, true, itsValue, maxTime, isCutTime, isCutIts, maxTime);
+												
+					}//else if( loadTimeCourse.isSelected() )
+						//timeSeries = grn.getLandTimeSeries();
+
+					timeSeries = grn.getLandTimeSeries();
+
+					grn.setDisplayMethod(landscapeMethod);
+
+
 					/** get attractors focusGenes=all **/
-					if( !stopRequested && isStable ){	
+					if( timeSeries.size() == 0 ){
+						isStable = false;
+					}else if( !stopRequested && isStable ){	
 						System.out.print("Calculate attractors...\n");
 						if( !checkAttractor(focusGenesList, timeSeries) ){
 							isStable = false;
 						}
 					}
-								
-					
+
+
 					/** calculate theta **/		
-					int dimension = grn_.getNodes().size();	
+					int dimension = grn.getNodes().size();	
 					ArrayList<DoubleMatrix1D> theta = new ArrayList<DoubleMatrix1D>(dimension);						
-					
+
 					if( !stopRequested && isStable ){
-						for(int i=0;i<sumPara.rows();i++){
-							
+						for(int i=0;i<grn.getSumPara().rows();i++){
+
 							DoubleMatrix1D x0 = new DenseDoubleMatrix1D(dimension);
 							for(int j=0;j<dimension;j++)
-								x0.set(j, sumPara.get(i, j));
-							
+								x0.set(j, grn.getSumPara().get(i, j));
+
 							//mean = F(mean)  x0
 							//jacobian
-							JacobiMatrix jacobi = new JacobiMatrix(grn_, x0);
+							JacobiMatrix jacobi = new JacobiMatrix(grn, x0);
 							double[][] a = jacobi.getJacMatrix();
-							DoubleMatrix2D A = new DenseDoubleMatrix2D(grn_.getNodes().size(),grn_.getNodes().size());
+							DoubleMatrix2D A = new DenseDoubleMatrix2D(grn.getNodes().size(),grn.getNodes().size());
 							A.assign(a);
-							
-							
+
+
 							int trainingTime = 100;
-							ODESolverTheta deSolverTheta = new ODESolverTheta(grn_, trainingTime, A);
-						
+							ODESolverTheta deSolverTheta = new ODESolverTheta(grn, trainingTime, A);
+
 							DoubleMatrix1D initialX0 = new DenseDoubleMatrix1D((int) (Math.pow(dimension,2)));
 							for(int j=0;j<initialX0.size();j+=dimension+1)
 								initialX0.set(j, 0.1);
@@ -454,46 +424,46 @@ public class Landscape extends LandscapeWindow {
 
 							deSolverTheta.setIslandscape(false);
 							deSolverTheta.setRandomInitial(false);
-		
+
 							//run numSeries_ times
 							ArrayList<DoubleMatrix2D> timeSeriesTheta = new ArrayList<DoubleMatrix2D>();
 							ArrayList<DoubleMatrix1D> timeScaleTheta = new ArrayList<DoubleMatrix1D>();		
 
 							deSolverTheta.setTimeScale(timeScaleTheta);
 							deSolverTheta.setTimeSeries(timeSeriesTheta);
-			
-							
+
+
 							if( !stopRequested )
 								deSolverTheta.solveEquations_ODE(); 
-							
+
 							//stable state 
 							DoubleMatrix1D stable = timeSeriesTheta.get(0).viewRow(trainingTime-1);
 							for(int j=dimension;j<2*dimension;j++)
-								sumPara.set(i,j,stable.get(0+(dimension+1)*(j-dimension)));
+								grn.getSumPara().set(i,j,stable.get(0+(dimension+1)*(j-dimension)));
 						}						
-						
+
 					}
 					//end of varation
-					
-					
+
+
 					/** update figure **/
 					if( !stopRequested ){	
 						if( isStable ){
 							/** draw landscape **/
 							if( !stopRequested ){		
 								System.out.print("Plot the landscape...\n");
-								
-								if( displayMethod ){ //two markers// not gpdm
-									grn_.setCounts(counts);
-									grn_.setSumPara(sumPara);
-									grn_.setLand_isTwoGenes(true);
 
-									grn_.setLand_maxTime(maxTime);
-									grn_.setLand_itsValue(itsValue);
-									grn_.setLand_maxExpValue(maxExpValue);
-									grn_.setLand_focusGenesList(focusGenesList);
-									grn_.setLand_gpdmitsValue(gpdmItsValue);
-									grn_.setLandTimeSeries(timeSeries);
+								if( displayMethod ){ //two markers// not gpdm
+//									grn.setCounts(counts);
+//									grn.setSumPara(sumPara);
+									grn.setLand_isTwoGenes(true);
+
+									grn.setLand_maxTime(maxTime);
+									grn.setLand_itsValue(itsValue);
+									grn.setLand_maxExpValue(maxExpValue);
+									grn.setLand_focusGenesList(focusGenesList);
+									grn.setLand_gpdmitsValue(gpdmItsValue);
+									grn.setLandTimeSeries(timeSeries);
 
 								}else if( !displayMethod ){//gpdm
 									computeGPDMLand(timeSeries, theta, focusGenesList);						
@@ -503,63 +473,440 @@ public class Landscape extends LandscapeWindow {
 							if( !stopRequested ){	
 								finalizeAfterSuccess();
 								System.out.print("Done!\n");
+								
+								//System.out.print(System.currentTimeMillis()+"\n"); 
 							}
 						}else{
 							snake_.stop();
 							myCardLayout_.show(runButtonAndSnakePanel_, runPanel_.getName());
 							dispose();
 
-							JOptionPane.showMessageDialog(new Frame(), "<html><body>Cannot find a steady state. <br> Please check if this system is a stable system. Or try to increase the simulation time. <br><br> NetLand cannot construct the landscape of a system without a stable state. The steady state is a situation in which all state variables are constant in spite of ongoing processes that strive to change them. <br>For example, a system with its variables exponentially increasing can never reach a steady state. And the current version of NetLand cannot construct the landscape of a system with stable oscillations. <br></body></html> ", "Warning", JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(new Frame(), "Cannot find a steady state. \n Please check if this system is a stable system. Or try to increase the simulation time. \n NetLand cannot construct the landscape of a system without a stable state. \n And the current version of NetLand cannot construct the landscape of a system with stable oscillations. \n ", "Warning", JOptionPane.INFORMATION_MESSAGE);
 						}
 					}
-				
-				
+
+
 				}
 				catch (OutOfMemoryError e)
 				{
-//					log_.log(Level.WARNING, "There is not enough memory available to run this program.\n" +
-//							"Quit one or more programs, and then try again.\n" +
-//							"If enough amounts of RAMÂ are installed on this computer, try to run the program " +
-//							"with the command-line argument -Xmx1024m to use maximum 1024Mb of memory, " +
-//							"-Xmx2048m to use max 2048Mb, etc.");
 					JOptionPane.showMessageDialog(new Frame(), "There is not enough memory available to run this program.\n" +
 							"Quit one or more programs, and then try again.\n" +
-							"If enough amounts of RAMÂ are installed on this computer, try to run the program " +
-							"with the command-line argument -Xmx1024m to use maximum 1024Mb of memory, " +
-							"-Xmx2048m to use max 2048Mb, etc.", "Out of memory", JOptionPane.INFORMATION_MESSAGE);
+							"If enough amounts of RAM are installed on this computer, try to run the program \n" +
+							"with the command-line argument -Xmx[XXXX]m to set the maximum memory of JVM. \n "
+							, "Out of memory", JOptionPane.INFORMATION_MESSAGE);
 					finalizeAfterFail();
 
 				}
 				catch (IllegalArgumentException e)
 				{
-					//log_.log(Level.WARNING, e.getMessage(), e);
 					JOptionPane.showMessageDialog(new Frame(), "Illegal argument", "Error", JOptionPane.INFORMATION_MESSAGE);
 					MsgManager.Messages.errorMessage(e, "Error", "");
-					//log_.log(Level.INFO, "Potential orkaround: gene names must contain at least one char (e.g. \"5\" is not a valid gene name, but \"G5\" is)");
 					finalizeAfterFail();
 				}
 			}
+				
 		}
 		
 		
+		
+		private void runODE(Integer numSeries, Integer maxt, boolean randomInitial, int saveEveryMTraj, int saveEveryTStep, boolean isCutTime, boolean isCutIts, int maxPointsPerTraj) {
+			System.out.print("Simulating\n"); 			
 
+			/** run solver **/
+			ODESolver deSolver_ = new ODESolver(grn, maxt);
+
+			if( randomInitial ){
+				deSolver_.setUpBoundary(maxExpValue);
+				deSolver_.setLowBoundary(0);
+			}
+
+
+			/** set parameters **/
+			deSolver_.setIslandscape(true);
+			deSolver_.setRandomInitial(randomInitial);		
+
+			/** backup initial values **/
+			DoubleMatrix1D initialX0 = grn.getInitialState().copy();
+
+			/** create a temp dir **/
+			File dir = new File("./"+ "NetLand_" 
+					+ new SimpleDateFormat("yyyyMMddhhmmss").format(new Date())  
+					+ "_tempSimulationResult");  
+			dir.mkdirs(); 
+
+			/** create tmp file **/
+			File tmpfilename = createTmpFile(dir, numSeries, grn.getSize(), maxt, 0, "land");			
+
+			if( tmpfilename == null ){
+				dir.delete();
+				finalizeAfterFail();
+				return;
+			}
+
+			/** each iteration **/		
+			int its = 1; //output iterations
+
+
+			/** set temp storage, for saving **/
+			ArrayList<DoubleMatrix2D> temptimeSeries = new ArrayList<DoubleMatrix2D>();
+			ArrayList<DoubleMatrix1D> temptimeScale = new ArrayList<DoubleMatrix1D>();
+
+			/** data to plot **/
+			ArrayList<DoubleMatrix2D> timeSeries = new ArrayList<DoubleMatrix2D>();
+			ArrayList<DoubleMatrix1D> timeScale = new ArrayList<DoubleMatrix1D>();		
+
+
+			int steps = saveEveryTStep; //simulation time for each run
+			int numPoints = 0; //record the number of sampled points
+			double previoudTime = 0; //if isCutTime=ture, record the end time of the previous segment 
+			cern.colt.matrix.DoubleFactory1D Factory1D = cern.colt.matrix.DoubleFactory1D.dense;
+			cern.colt.matrix.DoubleFactory2D Factory2D = cern.colt.matrix.DoubleFactory2D.dense;
+
+			while( !stopRequested && its<=numSeries ){					
+				//System.out.print("Its: "+its+"\n"); 
+
+				/** reset parameters **/
+				numPoints = 0;			
+				previoudTime = 0;
+
+				/** set time for each traj **/
+				for(int j=0;j<maxt;j+=saveEveryTStep){		
+					steps = saveEveryTStep;			
+					if( j+saveEveryTStep>maxt )
+						steps = maxt-j;
+
+					deSolver_.setT(steps);	
+
+					deSolver_.solveEquations_ODE();						
+
+					
+					
+					/** sample points **/
+					if( deSolver_.getTimeSeries() == null || deSolver_.getTimeSeries().rows()==0 ){
+						its--;
+						break;
+					}else if( deSolver_.getTimeSeries().rows()>200 || deSolver_.getTimeSeries().rows()==1 ){
+						numPoints = samplePoints(deSolver_);
+					}else
+						numPoints = deSolver_.getTimeSeries().rows();
+					
+					System.out.print("\nIts: "+its+"\n"); 
+
+					/** update time scale **/
+					deSolver_.setTimeScale(Transform.plus(deSolver_.getTimeScale(), previoudTime));
+
+					temptimeSeries.add(deSolver_.getTimeSeries().copy());
+					temptimeScale.add(deSolver_.getTimeScale().copy());
+
+					/** new initial state from previous calculation **/
+					grn.setInitialState(deSolver_.getTimeSeries().viewRow(deSolver_.getTimeSeries().rows()-1).copy());
+
+
+					if( numPoints>maxPointsPerTraj ){
+//						System.out.print(maxPointsPerTraj+" out of "+numPoints+" points are selected.\n");
+
+						if( previoudTime==0 ){
+							timeSeries.add(selectNPoints(deSolver_.getTimeSeries().copy(), maxPointsPerTraj));
+							timeScale.add(selectNPoints(deSolver_.getTimeScale().copy(), maxPointsPerTraj));
+						}else{
+							timeSeries.set(timeSeries.size()-1, Factory2D.appendRows(timeSeries.get(timeSeries.size()-1), selectNPoints(deSolver_.getTimeSeries().copy(),maxPointsPerTraj)));							
+							timeScale.set(timeScale.size()-1, Factory1D.append(timeScale.get(timeScale.size()-1), selectNPoints(deSolver_.getTimeScale().copy(),maxPointsPerTraj)));
+						}
+
+					}else{					
+						if( previoudTime==0 ){
+							timeSeries.add(deSolver_.getTimeSeries().copy());
+							timeScale.add(deSolver_.getTimeScale().copy());
+						}else{
+							timeSeries.set(timeSeries.size()-1, Factory2D.appendRows(timeSeries.get(timeSeries.size()-1), deSolver_.getTimeSeries()));							
+							timeScale.set(timeScale.size()-1, Factory1D.append(timeScale.get(timeScale.size()-1), deSolver_.getTimeScale()));
+						}
+					}
+
+
+					/** save records **/
+					if( its%saveEveryMTraj==0 ){
+						saveTmpFile(temptimeSeries, temptimeScale, grn.getId(), tmpfilename, its-saveEveryMTraj, isCutTime, j);
+						temptimeSeries.clear();
+						temptimeScale.clear();
+					}else if( its==numSeries ){
+						saveTmpFile(temptimeSeries, temptimeScale, grn.getId(), tmpfilename, ((int)Math.floor(numSeries/saveEveryMTraj))*saveEveryMTraj, isCutTime, j);
+						temptimeSeries.clear();
+						temptimeScale.clear();
+						break;
+					}
+
+					/** cumulate time **/
+					previoudTime = deSolver_.getTimeScale().get(deSolver_.getTimeScale().size()-1);
+
+
+				}//end of for
+
+				its++;
+			}//end of while
+
+			/** reset initial values **/
+			grn.setInitialState(initialX0);
+
+			if( stopRequested == true ){
+				System.out.print("The simulation is cancelled. \nThe temporary result is saved at "+tmpfilename.toString()+". \n");
+				finalizeAfterFail();
+				return;
+			}
+
+			/** save for plot **/			
+			grn.setLandTimeSeries(timeSeries);
+			grn.setLand_itsValue(numSeries);
+			grn.setLand_maxTime(maxt);
+			grn.setLand_gpdmitsValue(gpdmItsValue);
+			grn.setLand_maxExpValue(maxExpValue);
+			grn.setLand_isTwoGenes(displayMethod);
+
+
+//			finalizeAfterSuccess();
+			System.out.print("Done!\n"); 
+		
+		}
+		
+		private void saveTmpFile(ArrayList<DoubleMatrix2D> temptimeSeries, ArrayList<DoubleMatrix1D> temptimeScale, String id, File tmpfilename, int fileIndex,	boolean isCutTime, int currentSegment) {
+			// save time series to file
+			try {
+				FileWriter fw = new FileWriter(tmpfilename.getAbsolutePath(), true);
+
+				if( isCutTime ){				
+					if( currentSegment == 0 ) fw.write(Integer.toString(fileIndex)+"\t"+""+"\n");
+					printAll(fw, temptimeSeries.get(0), temptimeScale.get(0));	
+				}else
+					for(int i=0;i<temptimeSeries.size();i++){
+						fw.write(Integer.toString(i+fileIndex)+"\t"+temptimeSeries.get(i).rows()+"\n");
+						printAll(fw, temptimeSeries.get(i), temptimeScale.get(i));			
+					}
+
+				fw.close();
+
+				//System.out.print("Save the simulated data to "+tmpfilename.toString()+".\n");
+
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(null, "Cannot open the temporary file!", "Error", JOptionPane.INFORMATION_MESSAGE);
+				MsgManager.Messages.errorMessage(e, "Error", "");
+				
+				finalizeAfterFail();
+				this.stop();
+			}
+
+		}
+
+		private void printAll(FileWriter fw, DoubleMatrix2D timeSeries_, DoubleMatrix1D timeScale_) {
+
+			try {
+				printTrajectories(fw, timeSeries_, timeScale_);
+			} catch (Exception e) {
+				//Log.error("TimeSeriesExperiment", "Failed to write time series to file.", e);
+				JOptionPane.showMessageDialog(null, "Failed to write time series to file", "Error", JOptionPane.INFORMATION_MESSAGE);
+				MsgManager.Messages.errorMessage(e, "Error", "");
+			}
+		}
+
+		/** Writes time series data with the time scale to file. */
+		private void printTrajectories(FileWriter fw, DoubleMatrix2D timeSeries, DoubleMatrix1D timeScale) {
+			int R = timeSeries.rows();
+			int C = timeSeries.columns();
+
+			for (int i = 0; i < R; i++) {
+				// first column of the file is time scale
+				try {
+					fw.write(Double.toString(timeScale.get(i)));
+
+					for (int j = 0; j < C; j++)
+						fw.write("\t" + timeSeries.get(i, j));			
+					fw.write("\n");
+
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(null, "Error in writing the file!", "Error", JOptionPane.INFORMATION_MESSAGE);
+					MsgManager.Messages.errorMessage(e, "Error", "");
+				}			
+
+			}
+		}
+
+		private File createTmpFile(File saveTempDir, int numTimeSeries, int dimension, int maxt, double noise, String model) {
+			String filename = "temp_"+System.currentTimeMillis();
+			File fTemp = null;
+			try {
+				fTemp = File.createTempFile(filename, ".NetLand", saveTempDir);
+
+				//part1: save the complete network in smbl2
+				URL url = fTemp.toURI().toURL();
+				grn.setId("NetLand_"+grn.getId());
+				grn.writeSBML(url);
+
+				//part2: save time series to file
+				FileWriter fw = new FileWriter(fTemp.getAbsolutePath(), true);
+
+				//parameters
+				fw.write("\n\nLand\t"+numTimeSeries+"\t"+dimension+"\t"+maxt+"\t"+noise+"\t"+model+"\n");
+				fw.close();
+
+				return fTemp;
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(null, "Cannot create the temporary file!", "Error", JOptionPane.INFORMATION_MESSAGE);
+				MsgManager.Messages.errorMessage(e, "Error", "");
+			} catch (SBMLException e) {
+				JOptionPane.showMessageDialog(null, "Cannot save the SBML model!", "Error", JOptionPane.INFORMATION_MESSAGE);
+				MsgManager.Messages.errorMessage(e, "Error", "");
+			} catch (XMLStreamException e) {
+				JOptionPane.showMessageDialog(null, "Error in saving the SBML model!", "Error", JOptionPane.INFORMATION_MESSAGE);
+				MsgManager.Messages.errorMessage(e, "Error", "");
+			} catch (ParseException e) {
+				JOptionPane.showMessageDialog(null, "Error in saving the SBML model!", "Error", JOptionPane.INFORMATION_MESSAGE);
+				MsgManager.Messages.errorMessage(e, "Error", "");
+			}
+
+			return fTemp;			
+		}
+
+		private DoubleMatrix2D selectNPoints(DoubleMatrix2D timeSeries, int maxPointsPerTraj) {
+			int[] index = incrementByN(0, maxPointsPerTraj, timeSeries.rows()-1);
+
+			int[] y = new int[timeSeries.columns()];
+			for(int i=0;i<timeSeries.columns();i++)
+				y[i] = i;
+
+			return timeSeries.viewSelection(index, y);
+		}
+		
+		private DoubleMatrix1D selectNPoints(DoubleMatrix1D timeScale, int maxPointsPerTraj) {
+			int[] index = incrementByN(0, maxPointsPerTraj, timeScale.size()-1);
+
+			return timeScale.viewSelection(index);
+		}
+		
+		private int samplePoints(ODESolver dSolver) {
+			ArrayList<Integer> index = new ArrayList<Integer>();
+			index.add(0);		
+			for(int i=1;i<dSolver.getTimeSeries().rows()-1;i++){
+				for(int j=0;j<grn.getSize();j++){
+					if(dSolver.getTimeSeries().get(i, j)-dSolver.getTimeSeries().get(i-1, j)>0 && dSolver.getTimeSeries().get(i, j)-dSolver.getTimeSeries().get(i+1, j)>0){
+						index.add(i); break;
+					}else if(dSolver.getTimeSeries().get(i, j)-dSolver.getTimeSeries().get(i-1, j)==0 && dSolver.getTimeSeries().get(i, j)-dSolver.getTimeSeries().get(i+1, j)!=0){
+						index.add(i); break;
+					}else if(dSolver.getTimeSeries().get(i, j)-dSolver.getTimeSeries().get(i-1, j)!=0 && dSolver.getTimeSeries().get(i, j)-dSolver.getTimeSeries().get(i+1, j)==0){
+						index.add(i); break;
+					}
+				}			
+			}
+
+			if( index.size() == 1 )
+				index.add(dSolver.getTimeSeries().rows()-1);
+			else{
+				index.add(dSolver.getTimeSeries().rows()-2);
+				index.add(dSolver.getTimeSeries().rows()-1);
+			}
+			
+
+			int[] y = new int[grn.getSize()];
+			for(int i=0;i<grn.getSize();i++)
+				y[i] = i;
+
+			int[] x = new int[index.size()];
+			for(int i=0;i<index.size();i++)
+				x[i] = index.get(i);
+
+		
+			dSolver.setTimeSeries(dSolver.getTimeSeries().viewSelection(x, y).copy());
+			dSolver.setTimeScale(dSolver.getTimeScale().viewSelection(x).copy());
+
+			return x.length;
+		}
+		
+		private int calculateTStep(double memoryForOneTraj, double maxt) {
+			/** get JVM free memory **/
+			MonitorServiceImpl monitorSys = new MonitorServiceImpl();
+			long freeMemory = monitorSys.getTotalFreeMemory(); //monitorSys.getFreeMemory()/1000; //MB
+
+			int t = (int) (freeMemory*0.5/memoryForOneTraj*maxt);
+
+			return t;
+		}
+
+		private int calculateMTraj(double memoryForOneTraj) {
+			/** get JVM free memory **/
+			MonitorServiceImpl monitorSys = new MonitorServiceImpl();
+			long freeMemory = monitorSys.getTotalFreeMemory(); //monitorSys.getFreeMemory()/1000; //MB
+
+			int m = (int) (freeMemory*0.5/memoryForOneTraj);
+
+			return m;
+		}
+		
+		private void memoryWarning(double leastMemoryReq, int maxPointsPerTraj) {
+			Object[] options = {"Continue","Cancel"};
+
+			if( maxPointsPerTraj >= 0 ){
+				JOptionPane.showMessageDialog(new Frame(), "Not enough memory! \n" +
+						"At least "+Double.toString(leastMemoryReq)+" MB is required.\n"+
+						"If enough amounts of RAM are installed on this computer, try to run the program \n" +
+						"with the command-line argument -XmxXXm to set maximum memory of JVM\n" +
+						"Or please reduce the number of simulations and simulation time. \n", "Error", JOptionPane.INFORMATION_MESSAGE);
+				finalizeAfterFail();
+				stopRequested = true;
+				return;		
+			}else{	
+				int response = JOptionPane.showOptionDialog(null, "Not enough memory to plot the result! Maximumly "+maxPointsPerTraj+" points per trajectory.\n" +
+						"At least "+Double.toString(leastMemoryReq)+" MB is required.\n"+
+						"If enough amounts of RAM are installed on this computer, try to run the program \n" +
+						"with the command-line argument -XmxXXm to set maximum memory of JVM\n" +
+						"Or please reduce the number of simulations and simulation time. \n" +
+						"If choose to 'continue', "+maxPointsPerTraj+" points per trajectory will be plotted. ","Warning: Out of memory!",JOptionPane.YES_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);	
+
+				if(response==0) {    
+					return;
+				}else if(response==1) {  
+					//cancel
+					finalizeAfterFail();
+					return;					
+				}
+			}
+		}
+
+		private int calculateMaxPointsPerTraj(double memoryPerPointAllTraj) {
+			/** get JVM free memory **/
+			MonitorServiceImpl monitorSys = new MonitorServiceImpl();
+			long freeMemory = monitorSys.getTotalFreeMemory(); //monitorSys.getFreeMemory()/1000; //MB
+
+			int maxPointsPerTraj = (int) (freeMemory*1.0/memoryPerPointAllTraj);
+			return maxPointsPerTraj;		
+		}
+
+		private boolean checkMemory(double leastMemoryReq) {
+			/** get JVM free memory **/
+			MonitorServiceImpl monitorSys = new MonitorServiceImpl();
+			long freeMemory = monitorSys.getTotalFreeMemory(); //monitorSys.getFreeMemory()/1000; //MB
+
+			/** check memory **/
+			if( leastMemoryReq<0 || freeMemory*0.6<leastMemoryReq )
+				return false;	
+
+			return true;
+		}
+		
 
 		//---------------------------------------------------------------------------------------------------------------------------------
 		private void computeGPDMLand(ArrayList<DoubleMatrix2D> timeSeries, ArrayList<DoubleMatrix1D> theta, String[] focusGenesList2) {
 			//discrete the final state
-			int dimension = grn_.getNodes().size();
-			
+			int dimension = grn.getNodes().size();
+
 			//get gene index
 			int[] focus_index = new int[focusGenesList.length];
 			for(int j=0;j<focusGenesList.length;j++)
 				for(int i=0;i<dimension;i++)
-					if( grn_.getNode(i).getLabel().equals(focusGenesList[j]) )
+					if( grn.getNode(i).getLabel().equals(focusGenesList[j]) )
 						focus_index[j] = i;
-			
-			
+
+
 			//calculate Ua
 			int exitVal = -2;
-			
+
 			//first round of GPDM
 			try {
 				//write svml
@@ -606,31 +953,31 @@ public class Landscape extends LandscapeWindow {
 					maxY = Double.parseDouble(temp1[2]);
 					minY = Double.parseDouble(temp1[3]);
 					n = Integer.parseInt(temp1[4]);
-					
 
-					grn_.setCounts(counts);
-					grn_.setSumPara(sumPara);
-					grn_.setMinX(minX);
-					grn_.setMaxX(maxX);
-					grn_.setMinY(minY);
-					grn_.setMaxY(maxY);
-					grn_.setN(n);
-					grn_.setAllX(allX);
-					grn_.setAllY(allY);
-					grn_.setLand_isTwoGenes(false);
+
+//					grn.setCounts(counts);
+//					grn.setSumPara(sumPara);
+					grn.setMinX(minX);
+					grn.setMaxX(maxX);
+					grn.setMinY(minY);
+					grn.setMaxY(maxY);
+					grn.setN(n);
+					grn.setAllX(allX);
+					grn.setAllY(allY);
+					grn.setLand_isTwoGenes(false);
 
 					fTemp.delete();
 					fTempout.delete();
 					fTempnew.delete();
 
-					grn_.setLand_maxTime(maxTime);
-					grn_.setLand_itsValue(itsValue);
-					grn_.setLand_maxExpValue(maxExpValue);
-					grn_.setLand_focusGenesList(focusGenesList);
-					grn_.setLand_gpdmitsValue(gpdmItsValue);
-					
-					grn_.setLandTimeSeries(timeSeries);
-					
+					grn.setLand_maxTime(maxTime);
+					grn.setLand_itsValue(itsValue);
+					grn.setLand_maxExpValue(maxExpValue);
+					grn.setLand_focusGenesList(focusGenesList);
+					grn.setLand_gpdmitsValue(gpdmItsValue);
+
+					grn.setLandTimeSeries(timeSeries);
+
 					return;
 				}//end of exitVal == 0 
 			} catch (IOException e) {
@@ -638,54 +985,58 @@ public class Landscape extends LandscapeWindow {
 				MsgManager.Messages.errorMessage(e, "Error", "");
 				this.stop();
 			}	
-			
+
 			if( exitVal == -2 && loadTimeCourse.isSelected() ){
-				JOptionPane.showMessageDialog(new Frame(), "Error of Execution! Please reselect the gene list or run simulations!", "Runtime exception", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(new Frame(), "Error of Execution! Please run simulations again!", "Runtime exception", JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
-				
-			
+
+
 			//in case of "Matrix non positive definite error"
 			while( exitVal == -2 ){ 
 				//regenerate traj							
 				/** generate time series **/
-				SDESolver deSolver_ = new SDESolver(grn_, true, 0);
-
-				//random start values
-				deSolver_.setOutputDirectory(System.getProperty("user.dir"));
-				deSolver_.setNumSeries(itsValue); //foreach X0 runs once
-				deSolver_.setMaxt(maxTime);
-				deSolver_.setNumTimePoints(numTimePoints);
-				deSolver_.setNoiseStrength(0);
-				deSolver_.setIslandscape(true);
-
-				double dt_ = maxTime*1.0 / (numTimePoints - 1) ;
-				deSolver_.setDt(dt_);
-				
-				//run numSeries_ times
-				ArrayList<SDETimeSeriesExperiment> tss = new ArrayList<SDETimeSeriesExperiment>();
-				ArrayList<DoubleMatrix1D> timeScale = new ArrayList<DoubleMatrix1D>();	
+				//run numSeries_ times				
 				timeSeries = new ArrayList<DoubleMatrix2D>();
-				theta = new ArrayList<DoubleMatrix1D>();
 				
-				deSolver_.setTss(tss);
-				deSolver_.setTimeScale(timeScale);
-				deSolver_.setTimeSeries(timeSeries);
-				
+				//run solver
+				ODESolver deSolver_ = new ODESolver(grn, maxTime);
+
+				boolean randomInitial = true;
+				if( randomInitial ){
+					deSolver_.setUpBoundary(this.maxExpValue);
+					deSolver_.setLowBoundary(0);
+				}
+
+				deSolver_.setIslandscape(true);
+				deSolver_.setRandomInitial(randomInitial);
+
 				int its = 0;
-				while( !stopRequested && its<itsValue ){
-					System.out.print("Trajectory no: "+its+"\n");
-					try {
-						deSolver_.solveEquations_landscape(maxExpValue, displayMethod);
-					} catch (Exception e) {			
-						JOptionPane.showMessageDialog(new Frame(), "Error in execution!", "Runtime exception", JOptionPane.INFORMATION_MESSAGE);
-						MsgManager.Messages.errorMessage(e, "Runtime exception", "");
-						this.stop();
-					}
+				while( !stopRequested && its<=100 ){
+					System.out.print("Trajectory #: "+its+"\n"); 
+					deSolver_.solveEquations_ODE(); 
+					
+					timeSeries.add(deSolver_.getTimeSeries().copy());
 					its++;
 				}
 				
 				
+				boolean isStable = true;
+				/** get attractors focusGenes=all **/
+				if( timeSeries.size() == 0 ){
+					isStable = false;
+				}else if( !stopRequested && isStable ){	
+					//System.out.print("Calculate attractors...\n");
+					if( !checkAttractor(focusGenesList, timeSeries) ){
+						isStable = false;
+					}
+				}
+	
+				if( !isStable ){
+					exitVal = -2;
+					continue;
+				}
+					
 				try {
 					//write svml
 					//input file
@@ -703,7 +1054,7 @@ public class Landscape extends LandscapeWindow {
 					File fTempout = File.createTempFile(outputModelName, ".gpdm", fout);
 
 					//run GPDM
-					while( !stopRequested )
+					if( !stopRequested )
 						exitVal = runGPDM(temppath,fTemp.getName(),fTempout.getName(),gpdmItsValue);
 
 					if( exitVal == 0 ){
@@ -717,7 +1068,7 @@ public class Landscape extends LandscapeWindow {
 
 						int nPerDim=31;
 						//get new Y and new X
-						DoubleMatrix2D allY = new DenseDoubleMatrix2D(nPerDim*nPerDim,grn_.getNodes().size());
+						DoubleMatrix2D allY = new DenseDoubleMatrix2D(nPerDim*nPerDim,grn.getNodes().size());
 						DoubleMatrix2D allX = new DenseDoubleMatrix2D(nPerDim*nPerDim,2); //numYorig+
 						double minX=0, maxX=0, minY=0, maxY=0; int n=0;
 
@@ -732,27 +1083,27 @@ public class Landscape extends LandscapeWindow {
 						n = Integer.parseInt(temp1[4]);
 
 
-						grn_.setCounts(counts);
-						grn_.setSumPara(sumPara);
-						grn_.setMinX(minX);
-						grn_.setMaxX(maxX);
-						grn_.setMinY(minY);
-						grn_.setMaxY(maxY);
-						grn_.setN(n);
-						grn_.setAllX(allX);
-						grn_.setAllY(allY);
-						grn_.setLand_isTwoGenes(false);
+//						grn.setCounts(counts);
+//						grn.setSumPara(sumPara);
+						grn.setMinX(minX);
+						grn.setMaxX(maxX);
+						grn.setMinY(minY);
+						grn.setMaxY(maxY);
+						grn.setN(n);
+						grn.setAllX(allX);
+						grn.setAllY(allY);
+						grn.setLand_isTwoGenes(false);
 
 						fTemp.delete();
 						fTempout.delete();
 						fTempnew.delete();
 
-						grn_.setLand_maxTime(maxTime);
-						grn_.setLand_itsValue(itsValue);
-						grn_.setLand_maxExpValue(maxExpValue);
-						grn_.setLand_focusGenesList(focusGenesList);
-						grn_.setLand_gpdmitsValue(gpdmItsValue);
-						
+						grn.setLand_maxTime(maxTime);
+						grn.setLand_itsValue(itsValue);
+						grn.setLand_maxExpValue(maxExpValue);
+						grn.setLand_focusGenesList(focusGenesList);
+						grn.setLand_gpdmitsValue(gpdmItsValue);
+
 						return;
 					}//end of exitVal == 0
 				} catch (IOException e) {
@@ -761,10 +1112,10 @@ public class Landscape extends LandscapeWindow {
 					this.stop();
 				}		
 			}//end of while
-			
+
 		}
-		
-		
+
+
 		//run c++ GPDM
 		public int runGPDM(String filePath, String filename, String outputModelName, int gpdmItsValue){	
 			int exitVal = -1;
@@ -779,8 +1130,8 @@ public class Landscape extends LandscapeWindow {
 				}else{
 					//for standalone package
 					String programPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();	
-	
-	
+
+
 					String os = System.getProperty("os.name");  		
 					if(os.toLowerCase().startsWith("win")){   
 						programPath = programPath.replaceAll("^/", "");
@@ -796,20 +1147,19 @@ public class Landscape extends LandscapeWindow {
 						p = rn.exec("./GPDM/mac/gplvm -v 3 learn -L true -D rbf -# "+gpdmItsValue+" "+filePath+"/"+filename+" "+filePath+"/"+outputModelName);
 					}
 				}
-			
-				
+
+
 				System.out.print("Run GPDM \n"); //+programPath+"\n"+filePath+"\n"+outputModelName+"\n"
 
 
 				BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
 				String msg = null;
 				while ((msg = br.readLine()) != null) {
-					System.out.println(msg);
+					//System.out.println(msg); 
+					System.out.println('.');
 					if( msg.equals("Press enter for more.") ){
 						p.destroy();
 						return -2;
-//						JOptionPane.showMessageDialog(null, "Please try again.", "Error in execution of GPDM!", JOptionPane.INFORMATION_MESSAGE);
-//						return exitVal;
 					}
 					checkForInterruption_process(p);
 				}
@@ -827,67 +1177,67 @@ public class Landscape extends LandscapeWindow {
 					stopRequested = true;
 					JOptionPane.showMessageDialog(null, "Error in the execution of GPDM!", "Error", JOptionPane.INFORMATION_MESSAGE);
 					MsgManager.Messages.errorMessage(e, "Error", "");
-					System.out.print("Generation stopped!");
+					System.out.print("Generation stopped!\n");
 				}
 			}
-			
+
 			return exitVal;	
 		}
-		
-		
+
+
 		private void checkForInterruption_process(Process p) throws CancelException {	
 			if ( stopRequested ){ 
 				p.destroy();
 				throw new CancelException("Generation canceled!");
 			}
 		}
-		
+
 		//read Ypred Y and Xold Xnew from files
 		private String getYandX(File fTempnew, DoubleMatrix2D allY, DoubleMatrix2D allX) {
 			String paras = "";
-			
+
 			//get ogrinal Y and X
-	        BufferedReader reader = null;
-	        try {
-	            reader = new BufferedReader(new FileReader(fTempnew));
-	            String tempString = null;
-	            //get minX maxX minY maxY
-	            tempString = reader.readLine();
-	            paras = tempString;
-	            
-	            int line = 0;
-	            while ((tempString = reader.readLine()) != null) {
-	            	String temp[] = tempString.split("\t");
-	            	for(int i=0;i<allY.columns();i++)
-	            		allY.set(line, i, Double.parseDouble(temp[i]));
-	            	for(int i=allY.columns();i<temp.length;i++)
-	            		allX.set(line, i-allY.columns(), Double.parseDouble(temp[i]));
-	            	line++;
-	            }
-	            reader.close();
-	            
-	        } catch (IOException e) {
-	        	JOptionPane.showMessageDialog(null, "Error in reading the file!", "Error", JOptionPane.INFORMATION_MESSAGE);
-	        	MsgManager.Messages.errorMessage(e, "Error", "");
-	        } finally {
-	            if (reader != null) {
-	                try {
-	                    reader.close();                 
-	                } catch (IOException e1) {
-	                	JOptionPane.showMessageDialog(null, "Error in reading the file!", "Error", JOptionPane.INFORMATION_MESSAGE);
-	                	MsgManager.Messages.errorMessage(e1, "Error", "");
-	                }
-	            }
-	        }
-	    	
-	        return paras;
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader(new FileReader(fTempnew));
+				String tempString = null;
+				//get minX maxX minY maxY
+				tempString = reader.readLine();
+				paras = tempString;
+
+				int line = 0;
+				while ((tempString = reader.readLine()) != null) {
+					String temp[] = tempString.split("\t");
+					for(int i=0;i<allY.columns();i++)
+						allY.set(line, i, Double.parseDouble(temp[i]));
+					for(int i=allY.columns();i<temp.length;i++)
+						allX.set(line, i-allY.columns(), Double.parseDouble(temp[i]));
+					line++;
+				}
+				reader.close();
+
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(null, "Error in reading the file!", "Error", JOptionPane.INFORMATION_MESSAGE);
+				MsgManager.Messages.errorMessage(e, "Error", "");
+			} finally {
+				if (reader != null) {
+					try {
+						reader.close();                 
+					} catch (IOException e1) {
+						JOptionPane.showMessageDialog(null, "Error in reading the file!", "Error", JOptionPane.INFORMATION_MESSAGE);
+						MsgManager.Messages.errorMessage(e1, "Error", "");
+					}
+				}
+			}
+
+			return paras;
 		}
 
 
 		//from latent to orginal
 		private int runMyGPDM(String filePath, String modelName, String outputName) {
 			int exitVal = -1;
-			
+
 			Runtime rn = Runtime.getRuntime();
 			Process p = null;
 			try {
@@ -914,21 +1264,21 @@ public class Landscape extends LandscapeWindow {
 						p = rn.exec("./GPDM/mac/myGPLVM -i "+filePath+"/"+modelName+" -o "+filePath+"/"+outputName);
 					}  
 				}
-				
-								
-				
+
+
+
 				//System.out.println("Run reverse mapping\n");
 				checkForInterruption_process(p);
-							
+
 				exitVal = p.waitFor();
-//				System.out.println("Process exitValue mygpdm: " + exitVal);
-				
-				
-//				BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-//				String msg = null;
-//				while ((msg = br.readLine()) != null) {
-//					System.out.println(msg);
-//				}
+				//				System.out.println("Process exitValue mygpdm: " + exitVal);
+
+
+				//				BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				//				String msg = null;
+				//				while ((msg = br.readLine()) != null) {
+				//					System.out.println(msg);
+				//				}
 			} catch (Exception e) {
 				snake_.stop();
 				myCardLayout_.show(runButtonAndSnakePanel_, runPanel_.getName());
@@ -938,243 +1288,448 @@ public class Landscape extends LandscapeWindow {
 			}	
 			return exitVal;
 		}
-		
+
 		public int writeSVML(URL filename, ArrayList<DoubleMatrix2D> timeSeries, ArrayList<int[]> labeledSeries, int[] focus_index) throws IOException{
-			
-			//cannot take all data
-			//int n1 = its/30; total 30 trajectories are selected
-			int n1 = 10; //default 10 traj per attractor
-			
+
 			// Create a new file	
 			FileWriter fw = new FileWriter(filename.getPath());   
 
+			//cannot take all data
+			//int n1 = its/30; total 30 trajectories are selected
+			int n1 = 10; //default 10 traj per attractor
 
 			//define the num of traj for each attractor; thus we should sample enough items from each attractor!!!
-			int[] nTrajPerAttr = new int[counts.length];
+			int[] nTrajPerAttr = new int[grn.getCounts().length];
 			int minCounts = 1000000;
-			for(int i=0;i<counts.length;i++)
-				if( minCounts>counts[i] )
-					minCounts = counts[i];
-			
+			for(int i=0;i<grn.getCounts().length;i++)
+				if( minCounts>grn.getCounts()[i] )
+					minCounts = grn.getCounts()[i];
+
 			if( minCounts>n1 )
-				for(int i=0;i<counts.length;i++)
+				for(int i=0;i<grn.getCounts().length;i++)
 					nTrajPerAttr[i] = n1;
 			else
-				for(int i=0;i<counts.length;i++)
-					if( counts[i]<n1 )
-						nTrajPerAttr[i] = counts[i];
+				for(int i=0;i<grn.getCounts().length;i++)
+					if( grn.getCounts()[i]<n1 )
+						nTrajPerAttr[i] = grn.getCounts()[i];
 					else
 						nTrajPerAttr[i] = n1;
 
-			
+
 			int lines = 0; 
 			//write trajectories
-			for(int i=0;i<counts.length;i++){	
+			for(int i=0;i<grn.getCounts().length;i++){	
 				for(int jj=0;jj<nTrajPerAttr[i];jj++){
 					DoubleMatrix2D tempX0 =  timeSeries.get(labeledSeries.get(i)[jj]);	
 					int len = tempX0.rows();
-					int interval = len<100?1:len/10;
-					int numItem = (len-1)/interval+1;
-					
-//					//take the last 10
-//					for(int j=tempX0.rows()-10;j<tempX0.rows();j+=1){ //rows: time length
-//						String temp = "0";
-//						for(int k=1;k<=tempX0.columns();k++)
-//							temp += " "+k+":"+tempX0.get(j, k-1);
-//						fw.write(temp+"\n");
-//						lines++;
-//					}
-					
-					for(int j=0;j<tempX0.rows();j+=interval){ //rows: time length
+//					int interval = len<100?1:len/100;
+//					int numItem = (len-1)/interval+1;
+					int[] indexes;
+					if( len>100 )
+						indexes = incrementByN(0, 20, len-1);
+					else
+						indexes = incrementByN(0, len, len-1);
+
+					//					//take the last 10
+					//					for(int j=tempX0.rows()-10;j<tempX0.rows();j+=1){ //rows: time length
+					//						String temp = "0";
+					//						for(int k=1;k<=tempX0.columns();k++)
+					//							temp += " "+k+":"+tempX0.get(j, k-1);
+					//						fw.write(temp+"\n");
+					//						lines++;
+					//					}
+
+					for(int j=0;j<indexes.length;j++){ //rows: time length
 						String temp = "0";
 						//for(int k=1;k<=tempX0.columns();k++)
-						for(int k=1;k<=focus_index.length;k++)
-							temp += " "+k+":"+tempX0.get(j, focus_index[k-1]);
+						for(int k=1;k<=focus_index.length;k++){
+							if( k==5 ){ //try gj
+								temp += " "+k+":80";
+							}else{
+								temp += " "+k+":"+tempX0.get(indexes[j], focus_index[k-1]);			
+							}
+						}
 						fw.write(temp+"\n");
 						lines++;
 					}
+					
+//					for(int j=0;j<tempX0.rows();j+=interval){ //rows: time length
+//						String temp = "0";
+//						//for(int k=1;k<=tempX0.columns();k++)
+//						for(int k=1;k<=focus_index.length;k++)
+//							temp += " "+k+":"+tempX0.get(j, focus_index[k-1]);
+//						fw.write(temp+"\n");
+//						lines++;
+//					}
+					//System.out.print(lines+"\n"); 
 				}
 			}
-			
+
 			//write origAllY
-			DoubleMatrix2D origAllY = new DenseDoubleMatrix2D(lines, grn_.getNodes().size());
+			DoubleMatrix2D origAllY = new DenseDoubleMatrix2D(lines, grn.getNodes().size());
 			lines = 0;
-			for(int i=0;i<counts.length;i++){	
+			for(int i=0;i<grn.getCounts().length;i++){	
 				for(int jj=0;jj<nTrajPerAttr[i];jj++){
 					DoubleMatrix2D tempX0 =  timeSeries.get(labeledSeries.get(i)[jj]);	
 					int len = tempX0.rows();
-					int interval = len<100?1:len/10;
-					int numItem = (len-1)/interval+1;
+//					int interval = len<100?1:len/10;
+//					int numItem = (len-1)/interval+1;
+					int[] indexes;
+					if( len>100 )
+						indexes = incrementByN(0, 20, len-1);
+					else
+						indexes = incrementByN(0, len, len-1);
+
+					//					//take the last 10
+					//					for(int j=tempX0.rows()-10;j<tempX0.rows();j+=1){ //rows: time length
+					//						for(int k=1;k<=tempX0.columns();k++)
+					//							origAllY.set(lines, k-1, tempX0.get(j, k-1));
+					//						lines++;
+					//					}
+
+
+					for(int j=0;j<indexes.length;j++){ //rows: time length
+						for(int k=1;k<=focus_index.length;k++){
+							origAllY.set(lines, k-1, tempX0.get(indexes[j], focus_index[k-1]));
+						}
+						lines++;
+					}
 					
-//					//take the last 10
-//					for(int j=tempX0.rows()-10;j<tempX0.rows();j+=1){ //rows: time length
+//					for(int j=0;j<tempX0.rows();j+=interval){
 //						for(int k=1;k<=tempX0.columns();k++)
 //							origAllY.set(lines, k-1, tempX0.get(j, k-1));
 //						lines++;
 //					}
-					
-					
-					for(int j=0;j<tempX0.rows();j+=interval){
-						for(int k=1;k<=tempX0.columns();k++)
-							origAllY.set(lines, k-1, tempX0.get(j, k-1));
-						lines++;
-					}
 				}
 			}
-			grn_.setOrigAllY(origAllY);
-			
+			grn.setOrigAllY(origAllY);
+
 			fw.close();   
 
 			return lines;
 		}
 
+		public int[] incrementByN(int start, int n, int end) {
+			double aStep = (end-start)*1.0/n;
+
+			int length = (int) (Math.rint((end-start)/aStep)+1);
+			int[] temp=new int[length];
+			for (int i = 0; i < temp.length; i++){
+				double t = (Math.rint(1000*(start+aStep*i)))/1000.0;
+				temp[i] = (int) Math.rint(t);
+			}
+			
+			return temp;
+		}
+		
 		//-------------------------------------------------------------------------------------------------------------------------
 		private boolean checkAttractor(String[] focusGenes, ArrayList<DoubleMatrix2D> timeSeries){
 			//discrete the final state
-			int dimension = grn_.getNodes().size();
-			
+			int dimension = grn.getNodes().size();
+
 			//get gene index
 			int[] focus_index = new int[focusGenes.length];
 			for(int j=0;j<focusGenes.length;j++)
 				for(int i=0;i<dimension;i++)
-					if( grn_.getNode(i).getLabel().equals(focusGenes[j]) )
+					if( grn.getNode(i).getLabel().equals(focusGenes[j]) )
 						focus_index[j] = i;
+
+//			int[] isConverge = new int[grn.getLand_itsValue()];
+//			String out = calculateSteadyStates(focus_index, isConverge);
 			
+			//////old
 			//double check distances between attractors	
 			String out =  calculateDistances(timeSeries, focus_index, dimension);
+			///old
 			
 			if( out.equals("ok") ){						
 				return true;
 			}
-			
+
 			return false;
+			
 		}
+
 		
-		
-		private String calculateDistances(ArrayList<DoubleMatrix2D> timeSeries, int[] focus_index, int dimension) {		
+		//0 no stable state   1 one possible steady state  2 steady state exists
+		private String calculateSteadyStates(int[] focus_index, int[] isConverge){	
+			ArrayList<DoubleMatrix2D> timeSeries = grn.getLandTimeSeries();
+			int its = timeSeries.size();
+
+			//discrete the final state
+			int dimension = grn.getNodes().size();
+
+			//double check distances between attractors			
 			//solver equations
-			List<String> solverResults_focusgenes = new ArrayList<String>(itsValue);
-			DoubleMatrix2D attractorTypes_focusgene = new DenseDoubleMatrix2D(itsValue, focus_index.length);
-			ArrayList<DoubleMatrix1D> attractorTypesAll = new ArrayList<DoubleMatrix1D>(itsValue);
+			List<String> solverResults_focusgenes = new ArrayList<String>();
+//			ArrayList<double[]> attractorTypes_focusgene = new ArrayList<double[]>();
+
+		
+			int allNumConverge = 0;
+			//at the same time, check if trajectories are stable
+			for(int i=0;i<its;i++){		
+				isConverge[i] = 0; //0: converge 1:not converge
+
+				DoubleMatrix1D tempX0 =  timeSeries.get(i).viewRow(timeSeries.get(i).rows()-1);
+				DoubleMatrix1D tempX1 =  timeSeries.get(i).viewRow(timeSeries.get(i).rows()-2);
+				cern.jet.math.Functions F = cern.jet.math.Functions.functions;	
+				double dis = tempX0.aggregate(tempX1, F.plus, F.chain(F.square,F.minus))/dimension;
+
+				
+				if( dis>0.000001 ){
+					isConverge[i] = 1;
+					continue;
+					//return "notStable"; //precision 0.000001
+				}
+				
+
+				nonlinearEq a = new nonlinearEq(grn);
+				DoubleMatrix1D tempY = a.runSolver(tempX0,grn);
+				if( tempY == null ){
+					isConverge[i] = 2;
+					continue;
+				}
+
+				allNumConverge++;
+				
+				String temp1 = "";
+				for(int j=0;j<focus_index.length;j++){		
+					double temp = Math.floor(100*tempY.get(focus_index[j]))/100;
+					temp1 += temp+";" ;
+				}
+				solverResults_focusgenes.add(temp1);	
+			}
+			
+			
+			if( allNumConverge == 0 )
+				return "Not stable";
+			
+			//remove duplicates
+			List<String> uniqueList_focusgene = new ArrayList<String>(new HashSet<String>(solverResults_focusgenes));
+			
+			//distance matrix
+			DoubleMatrix2D attractorTypes_focusgene_input = new DenseDoubleMatrix2D(uniqueList_focusgene.size(),dimension);
+			for(int i=0;i<uniqueList_focusgene.size();i++){
+				for(int j=0;j<dimension;j++)
+					attractorTypes_focusgene_input.set(i, j, Double.parseDouble(uniqueList_focusgene.get(i).split(";")[j]));
+			}
+			solverResults_focusgenes = null;
+			uniqueList_focusgene = null;
+
+			/** high iterations may cause the OutOfMemoryError **/
+			ArrayList<Integer> output = Landscape.calculateDisMatrix(attractorTypes_focusgene_input);
+
+			Collections.sort(output);
+			//remove i or j
+			for(int i=output.size()-1;i>=0;i--){
+				attractorTypes_focusgene_input = ColtUtils.deleteRow(attractorTypes_focusgene_input, output.get(i));
+			}
+			output = null;
+
+			//calculate para
+			DoubleMatrix2D sumPara = new DenseDoubleMatrix2D( attractorTypes_focusgene_input.rows(), dimension*2);
+			int[] counts = new int[attractorTypes_focusgene_input.size()];
+			ArrayList<int[]> labeledSeries = new ArrayList<int[]>(attractorTypes_focusgene_input.size());
+			sumPara.assign(0);
+
+			int temp[][] = new int[counts.length][its];
+			cern.jet.math.Functions F = cern.jet.math.Functions.functions;	
+			for(int i=0;i<its;i++){
+				if( isConverge[i] == 0 ){
+					DoubleMatrix1D tempX0 =  timeSeries.get(i).viewRow(timeSeries.get(i).rows()-1);
+
+					//generate current vector
+					DoubleMatrix1D temp1 = new DenseDoubleMatrix1D(focus_index.length);
+					for(int j=0;j<focus_index.length;j++)
+						temp1.set(j, Math.floor(100*tempX0.get(focus_index[j]))/100);
+
+					//close to which attractor
+					double[] tempSum = new double[sumPara.rows()]; 
+					for(int k=0;k<attractorTypes_focusgene_input.rows();k++)
+						tempSum[k] =  temp1.aggregate(attractorTypes_focusgene_input.viewRow(k), F.plus, F.chain(F.square,F.minus));
+
+
+					//find the minimal distance
+					int flag = -1; double minimal = 100000;
+					for(int j=0;j<tempSum.length;j++)
+						if(tempSum[j]<minimal){flag=j;minimal=tempSum[j];}
+
+					counts[flag] += 1;
+					temp[flag][counts[flag]-1] = i;
+
+					for(int j=0;j<dimension;j++)
+						sumPara.set(flag, j, sumPara.get(flag, j) + tempX0.get(j));
+
+					for(int j=dimension;j<2*dimension;j++)
+						sumPara.set(flag, j, sumPara.get(flag, j) + 0.03);
+
+					//not converged yet, but will converge to a steady state
+				}else if( isConverge[i] == 1 ){
+
+
+					//cannot converge to a steady state
+				}else if( isConverge[i] == 2 ){
+
+				}
+			}
+			//-------------------
+
+			for(int i=0;i<counts.length;i++)
+				labeledSeries.add(temp[i]);
+
+			for(int j=0;j<attractorTypes_focusgene_input.rows();j++)
+				Transform.div(sumPara.viewRow(j), counts[j]);
+
+			grn.setCounts(counts);
+			grn.setSumPara(sumPara);
+			
+			
+			return "ok";
+		}
+
+		private String calculateDistances(ArrayList<DoubleMatrix2D> timeSeries, int[] focus_index, int dimension) {	
+			
+			int its = timeSeries.size();
+
+
+			//solver equations
+			List<String> solverResults_focusgenes = new ArrayList<String>();
 			
 			//java.text.DecimalFormat df = new java.text.DecimalFormat("#.00");  
 			int i = 0;
 			while( !stopRequested && i<itsValue ){	
 				DoubleMatrix1D tempX0 =  timeSeries.get(i).viewRow(timeSeries.get(i).rows()-1);
-			
+
 				cern.jet.math.Functions F = cern.jet.math.Functions.functions;	
-//				if( this.displayMethod ){
-//					DoubleMatrix1D tempX1 =  timeSeries.get(i).viewRow(timeSeries.get(i).rows()-2);					
-//					double dis = tempX0.aggregate(tempX1, F.plus, F.chain(F.square,F.minus));
-//					if( dis>0.000001 ) return "notStable";
-//				}
-				
-				nonlinearEq a = new nonlinearEq(grn_);
-				DoubleMatrix1D tempY = a.runSolver(tempX0,grn_);
+				//				if( this.displayMethod ){
+				//					DoubleMatrix1D tempX1 =  timeSeries.get(i).viewRow(timeSeries.get(i).rows()-2);					
+				//					double dis = tempX0.aggregate(tempX1, F.plus, F.chain(F.square,F.minus));
+				//					if( dis>0.000001 ) return "notStable";
+				//				}
+
+				nonlinearEq a = new nonlinearEq(grn);
+				DoubleMatrix1D tempY = a.runSolver(tempX0,grn);
 				if( tempY == null ) return "notStable";
 
-//				DoubleMatrix1D tempX1 =  timeSeries.get(i).viewRow(timeSeries.get(i).rows()-2);
-				//judge if the stable state is far from the end position
-//				cern.jet.math.Functions F = cern.jet.math.Functions.functions;	
-				double dis = tempX0.aggregate(tempY, F.plus, F.chain(F.square,F.minus));
-				if( dis>500 ) return "notStable"; ////ad hoc	
-//				DoubleMatrix1D tempY = tempX0;
 				
-				attractorTypesAll.add(tempY);
+				//judge if the stable state is far from the end position	
+				//double dis = tempX0.aggregate(tempY, F.plus, F.chain(F.square,F.minus));
+				//if( dis>1500 ) return "notStable"; ////ad hoc	
 
 				String temp1 = "";
 				for(int j=0;j<focus_index.length;j++){				
 					double temp = Math.floor(100*tempY.get(focus_index[j]))/100;
 					temp1 += temp+";" ;
-					attractorTypes_focusgene.set(i, j, Math.abs(temp));
 				}
 				solverResults_focusgenes.add(temp1);
-				
+
 				i++;
 			}
-			
-			//distance matrix
-			double threshold = 0.1; //0.05 hahahaha
-			ArrayList<Integer> output = calculateDisMatrix(attractorTypes_focusgene, threshold);
-			
-			Collections.sort(output);
-			//remove i or j
-			for(i=output.size()-1;i>=0;i--){
-				solverResults_focusgenes.remove((int)output.get(i));
-				attractorTypes_focusgene = ColtUtils.deleteRow(attractorTypes_focusgene, output.get(i));
-			}
-			
+
 			//remove duplicates
 			List<String> uniqueList_focusgene = new ArrayList<String>(new HashSet<String>(solverResults_focusgenes));
+
+			//distance matrix
+			DoubleMatrix2D attractorTypes_focusgene_input = new DenseDoubleMatrix2D(uniqueList_focusgene.size(),dimension);
+			for(i=0;i<uniqueList_focusgene.size();i++){
+				for(int j=0;j<dimension;j++)
+					attractorTypes_focusgene_input.set(i, j, Double.parseDouble(uniqueList_focusgene.get(i).split(";")[j]));
+			}
+
+		
+			solverResults_focusgenes = null;
+			uniqueList_focusgene = null;
 			
+
+			/** high iterations may cause the OutOfMemoryError **/
+			ArrayList<Integer> output = calculateDisMatrix(attractorTypes_focusgene_input);
+			Collections.sort(output);
+	
+			//remove i or j
+			for(i=output.size()-1;i>=0;i--){
+//				solverResults_focusgenes.remove((int)output.get(i));
+				attractorTypes_focusgene_input = ColtUtils.deleteRow(attractorTypes_focusgene_input, output.get(i));
+			}
+			output = null;
 			
-//			//double check uniqueList
-//			nonlinearEq a = new nonlinearEq(grn_);
-//			for(i=0;i<uniqueList_focusgene.size();i++){	
-//				String str = uniqueList_focusgene.get(i);
-//				String[] strlist = str.split(";");
-//				DoubleMatrix1D tempX0 = new DenseDoubleMatrix1D(strlist.length);
-//				for(int j=0;j<strlist.length;j++)
-//					tempX0.set(j, Double.parseDouble(strlist[j]));
-//				DoubleMatrix1D tempY = a.runSolver(tempX0,grn_);	
-//				if( tempY == null ) return "notStable";
-//				
-//				str = "";
-//				for(int j=0;j<tempY.size();j++)
-//					str += tempY.get(j)+";" ;
-//				uniqueList_focusgene.set(i,str);
-//			}
-//			List<String> newUniqueList_focusgene = new ArrayList<String>(new HashSet<String>(uniqueList_focusgene));
-				
-			
+
 			//calculate para
-			sumPara = new DenseDoubleMatrix2D( uniqueList_focusgene.size(), dimension*2);
-			counts = new int[uniqueList_focusgene.size()];
-			labeledSeries = new ArrayList<int[]>(uniqueList_focusgene.size());
+			DoubleMatrix2D sumPara = new DenseDoubleMatrix2D( attractorTypes_focusgene_input.rows(), dimension*2);
+			int[] counts = new int[attractorTypes_focusgene_input.rows()];
+			labeledSeries = new ArrayList<int[]>(attractorTypes_focusgene_input.rows());
 			sumPara.assign(0);
-				
-			int temp[][] = new int[counts.length][itsValue];
+
+			int temp[][] = new int[counts.length][its];
 			cern.jet.math.Functions F = cern.jet.math.Functions.functions;	
 			for(i=0;i<itsValue;i++){
 				DoubleMatrix1D tempX0 =  timeSeries.get(i).viewRow(timeSeries.get(i).rows()-1);
-		
+
 				//generate current vector
 				DoubleMatrix1D temp1 = new DenseDoubleMatrix1D(focus_index.length);
 				for(int j=0;j<focus_index.length;j++)
 					temp1.set(j, Math.floor(100*tempX0.get(focus_index[j]))/100);
-			
+
 				//close to which attractor
-				double[] tempSum = new double[sumPara.rows()]; 
-				for(int k=0;k<uniqueList_focusgene.size();k++)
-					tempSum[k] =  temp1.aggregate(attractorTypes_focusgene.viewRow(k), F.plus, F.chain(F.square,F.minus));
-					
-				
+				double[] tempSum = new double[attractorTypes_focusgene_input.rows()]; 
+				for(int k=0;k<attractorTypes_focusgene_input.rows();k++)
+					tempSum[k] =  temp1.aggregate(attractorTypes_focusgene_input.viewRow(k), F.plus, F.chain(F.square,F.minus));
+
+
 				//find the minimal distance
-				int flag = -1; double minimal = 100000;
+				int flag = -1; double minimal = 100000000;
 				for(int j=0;j<tempSum.length;j++)
 					if(tempSum[j]<minimal){flag=j;minimal=tempSum[j];}
-				
+
 				counts[flag] += 1;
 				temp[flag][counts[flag]-1] = i;
-						
+
 				for(int j=0;j<dimension;j++)
 					sumPara.set(flag, j, sumPara.get(flag, j) + tempX0.get(j));
-				
+
 				for(int j=dimension;j<2*dimension;j++)
 					sumPara.set(flag, j, 0.03);
 			}
-			//-------------------
 			
+			//-------------------
+
 			for(i=0;i<counts.length;i++)
 				labeledSeries.add(temp[i]);
 			
-			for(int j=0;j<uniqueList_focusgene.size();j++)
-				Transform.div(sumPara.viewRow(j), counts[j]);
+			//remove counts==0
+			int length = counts.length;
+			for(int j=0;j<counts.length;j++)
+				if( counts[j] == 0 )
+					length--;
+				else
+					Transform.div(sumPara.viewRow(j), counts[j]);
 			
+			
+			this.sumPara = new DenseDoubleMatrix2D( length, dimension*2);
+			this.counts = new int[length];
+
+			int index=0;
+			for(int j=0;j<counts.length;j++)
+				if( counts[j] != 0 ){
+					this.counts[index] = counts[j];
+					
+					for(int jj=0;jj<dimension;jj++)
+						this.sumPara.set(index, jj, sumPara.get(j, jj) );
+
+					for(int jj=dimension;jj<2*dimension;jj++)
+						this.sumPara.set(index, jj, 0.03);
+					
+					index++;
+				}
+
+			
+			grn.setCounts(this.counts);
+			grn.setSumPara(this.sumPara);
+
+
 			return "ok";
 		}
-		
-		
+
+
 		// ----------------------------------------------------------------------------
 
 		public void finalizeAfterSuccess() 
@@ -1182,17 +1737,32 @@ public class Landscape extends LandscapeWindow {
 			snake_.stop();
 			myCardLayout_.show(runButtonAndSnakePanel_, runPanel_.getName());
 			dispose();
-			
-			LandscapePanel onea = new LandscapePanel(grn_, displayMethod);	
-			
-			if( !outputPath.isEmpty() )
-				saveLand();
-		
+
+			LandscapePanel onea = new LandscapePanel(grn, displayMethod);	
+
+			querySaveLand();
 		}
 
-		private void saveLand(){
+		private void querySaveLand() {
+			JFrame frame = new JFrame();
+			int n = JOptionPane.showConfirmDialog(frame, "Would you like to save the result to a file?", "Export landscape result", JOptionPane.YES_NO_OPTION);
+			if (n == JOptionPane.YES_OPTION) {
+				JFileChooser fc = new JFileChooser();
+				int retVal = fc.showSaveDialog(frame);                 // let frame to become a showDialog
+				if (retVal == JFileChooser.APPROVE_OPTION) {
+					File resultFile = fc.getSelectedFile();   // where is the selected file	
+					saveLand(resultFile.toString());
+				} else {
+					System.out.println("Cancelled by user!");
+				}
+			} else if (n == JOptionPane.NO_OPTION) {
+				System.out.println("Don't save it!");
+			}			
+		}
+
+		private void saveLand(String outputPath){
 			//first part: SBML
-			grn_.setId("NetLand_"+grn_.getId());
+			grn.setId("NetLand_"+grn.getId());
 			String outputNewPointName = "temp_"+System.currentTimeMillis();
 			String temppath = System.getProperty("java.io.tmpdir");
 			File fnew = new File(temppath);
@@ -1200,8 +1770,8 @@ public class Landscape extends LandscapeWindow {
 			try {
 				File fTempnew = File.createTempFile(outputNewPointName, ".sbml", fnew);			
 				URL url = fTempnew.toURI().toURL();
-				grn_.writeSBML(url);	
-				
+				grn.writeSBML(url);	
+
 				//second part: land info	
 				String outputNewPointName1 = "temp_"+System.currentTimeMillis();
 				String temppath1 = System.getProperty("java.io.tmpdir");
@@ -1209,94 +1779,93 @@ public class Landscape extends LandscapeWindow {
 				File fTempnew1 = File.createTempFile(outputNewPointName1, ".landscape", fnew1);
 				FileWriter fw = new FileWriter(fTempnew1.getPath(), false);
 
-				fw.write("\n\nLand\t"+grn_.getMaxX()+"\t"+grn_.getMinX()+"\t"+grn_.getMaxY()+"\t"+grn_.getMinY()+"\n");
-				
+				fw.write("\n\nLand\t"+grn.getMaxX()+"\t"+grn.getMinX()+"\t"+grn.getMaxY()+"\t"+grn.getMinY()+"\n");
+
 
 				//write parameters
-				fw.write(grn_.getSize()+"\t"+maxExpValue+"\t"+itsValue+"\t"+maxTime+"\t"+displayMethod+"\t"+gpdmIts.getText()+"\n");
-				
+				fw.write(grn.getSize()+"\t"+maxExpValue+"\t"+itsValue+"\t"+maxTime+"\t"+displayMethod+"\t"+gpdmIts.getText()+"\n");
+
 				for(int i=0;i<focusGenesList.length;i++)
 					fw.write(focusGenesList[i]+"\t");
 				fw.write("\n");
-				
+
 				//write x
-				for(int i=0;i<grn_.getX().size();i++)
-					fw.write(grn_.getX().get(i)+"\t");
+				for(int i=0;i<grn.getX().size();i++)
+					fw.write(grn.getX().get(i)+"\t");
 				fw.write("\n");
-				
+
 				//write y
-				for(int i=0;i<grn_.getY().size();i++)
-					fw.write(grn_.getY().get(i)+"\t");
+				for(int i=0;i<grn.getY().size();i++)
+					fw.write(grn.getY().get(i)+"\t");
 				fw.write("\n");
-				
+
 				//write counts
-				for(int i=0;i<grn_.getCounts().length;i++)
-					fw.write(grn_.getCounts()[i]+"\t");
+				for(int i=0;i<grn.getCounts().length;i++)
+					fw.write(grn.getCounts()[i]+"\t");
 				fw.write("\n");
-				
-				
+
+
 				//write sumpara
-				for(int i=0;i<grn_.getSumPara().rows();i++){
-					for(int j=0;j<grn_.getSumPara().columns();j++)
-						fw.write(grn_.getSumPara().get(i,j)+"\t");
+				for(int i=0;i<grn.getSumPara().rows();i++){
+					for(int j=0;j<grn.getSumPara().columns();j++)
+						fw.write(grn.getSumPara().get(i,j)+"\t");
 					fw.write("\n");
 				}
-				
+
 				//write allY for gpdm				
 				if( !displayMethod ){//only for gpdm
-					fw.write(grn_.getAllY().rows()+"\t"+grn_.getAllY().columns()+"\n");
-					
-					for(int i=0;i<grn_.getAllY().rows();i++){
-						for(int j=0;j<grn_.getAllY().columns();j++)
-							fw.write(grn_.getAllY().get(i, j)+"\t");
+					fw.write(grn.getAllY().rows()+"\t"+grn.getAllY().columns()+"\n");
+
+					for(int i=0;i<grn.getAllY().rows();i++){
+						for(int j=0;j<grn.getAllY().columns();j++)
+							fw.write(grn.getAllY().get(i, j)+"\t");
 						fw.write("\n");
 					}
 				}
-				
-				
+
+
 				//write size of griddata
-				fw.write(grn_.getGridData().rows()+"\t"+grn_.getGridData().columns()+"\n");
-				
+				fw.write(grn.getGridData().rows()+"\t"+grn.getGridData().columns()+"\n");
+
 				//write griddata
-				for(int i=0;i<grn_.getGridData().rows();i++){
-					for(int j=0;j<grn_.getGridData().columns();j++)
-						fw.write(grn_.getGridData().get(i, j)+"\t");
+				for(int i=0;i<grn.getGridData().rows();i++){
+					for(int j=0;j<grn.getGridData().columns();j++)
+						fw.write(grn.getGridData().get(i, j)+"\t");
 					fw.write("\n");
 				}
-				
+
 				//write timeseries data
-				for(int k=0;k<grn_.getLandTimeSeries().size();k++){
-					fw.write(grn_.getLandTimeSeries().get(k).rows()+"\n");
-					for(int i=0;i<grn_.getLandTimeSeries().get(k).rows();i++){
-						for(int j=0;j<grn_.getLandTimeSeries().get(k).columns();j++)
-							fw.write(grn_.getLandTimeSeries().get(k).get(i, j)+"\t");
+				for(int k=0;k<grn.getLandTimeSeries().size();k++){
+					fw.write(grn.getLandTimeSeries().get(k).rows()+"\n");
+					for(int i=0;i<grn.getLandTimeSeries().get(k).rows();i++){
+						for(int j=0;j<grn.getLandTimeSeries().get(k).columns();j++)
+							fw.write(grn.getLandTimeSeries().get(k).get(i, j)+"\t");
 						fw.write("\n");
 					}
 				}
-				
-				
+
+
 				if( !displayMethod ){
 					//write origAllY
-					fw.write(grn_.getOrigAllY().rows()+"\t"+grn_.getOrigAllY().columns()+"\n");
+					fw.write(grn.getOrigAllY().rows()+"\t"+grn.getOrigAllY().columns()+"\n");
 
-					for(int i=0;i<grn_.getOrigAllY().rows();i++){
-						for(int j=0;j<grn_.getOrigAllY().columns();j++)
-							fw.write(grn_.getOrigAllY().get(i, j)+"\t");
+					for(int i=0;i<grn.getOrigAllY().rows();i++){
+						for(int j=0;j<grn.getOrigAllY().columns();j++)
+							fw.write(grn.getOrigAllY().get(i, j)+"\t");
 						fw.write("\n");
 					}
 				}
-				
-				
-				
+
+
+
 				fw.close();
-				
-				//merge
-				String output = outputPath;
-				mergeFiles(output, new String[]{fTempnew.getAbsolutePath(), fTempnew1.getAbsolutePath()});
-				
+
+				//merge			
+				mergeFiles(outputPath, new String[]{fTempnew.getAbsolutePath(), fTempnew1.getAbsolutePath()});
+
 				fTempnew.delete();
 				fTempnew1.delete();
-				
+
 				System.out.print("Save the landsacpe to "+outputPath+"\n");
 			} catch (IOException e1) {
 				JOptionPane.showMessageDialog(null,  "Cannot create a new file!", "Error", JOptionPane.INFORMATION_MESSAGE);
@@ -1311,10 +1880,10 @@ public class Landscape extends LandscapeWindow {
 				JOptionPane.showMessageDialog(null,  "Error in parsing the file!", "Error", JOptionPane.INFORMATION_MESSAGE);
 				MsgManager.Messages.errorMessage(e, "Error", "");
 			}
-			
-			
+
+
 		}
-		
+
 		// ----------------------------------------------------------------------------
 
 		public void finalizeAfterFail()
@@ -1324,49 +1893,44 @@ public class Landscape extends LandscapeWindow {
 			//escapeAction(); // close the simulation window
 		}
 
-		public String getOutputPath() {
-			return outputPath;
-		}
 
-		public void setOutputPath(String outputPath) {
-			this.outputPath = outputPath;
-		}
-		
 		public void mergeFiles(String outFile, String[] files) {  
-	        FileChannel outChannel = null;  
-	        int BUFSIZE = 1024 * 8;
-	        
-	        try {  
-	            outChannel = new FileOutputStream(outFile).getChannel();  
-	            for(String f : files){  
-	                FileChannel fc = new FileInputStream(f).getChannel();   
-	                ByteBuffer bb = ByteBuffer.allocate(BUFSIZE);  
-	                while(fc.read(bb) != -1){  
-	                    bb.flip();  
-	                    outChannel.write(bb);  
-	                    bb.clear();  
-	                }  
-	                fc.close();  
-	            }  
-	        } catch (IOException ioe) {  
-	        	JOptionPane.showMessageDialog(null, "Cannot merge two files!", "Error", JOptionPane.INFORMATION_MESSAGE);
-	        	MsgManager.Messages.errorMessage(ioe, "Error", "");
-	        } finally {  
-	            try {if (outChannel != null) {outChannel.close();}}
-	            catch (IOException ignore) {
-	            	JOptionPane.showMessageDialog(null, "Cannot merge two files!", "Error", JOptionPane.INFORMATION_MESSAGE);
-	            	MsgManager.Messages.errorMessage(ignore, "Error", "");
-	            }  
-	        }  
-	    }  
-		
+			FileChannel outChannel = null;  
+			int BUFSIZE = 1024 * 8;
+
+			try {  
+				outChannel = new FileOutputStream(outFile).getChannel();  
+				for(String f : files){  
+					FileChannel fc = new FileInputStream(f).getChannel();   
+					ByteBuffer bb = ByteBuffer.allocate(BUFSIZE);  
+					while(fc.read(bb) != -1){  
+						bb.flip();  
+						outChannel.write(bb);  
+						bb.clear();  
+					}  
+					fc.close();  
+				}  
+			} catch (IOException ioe) {  
+				JOptionPane.showMessageDialog(null, "Cannot merge two files!", "Error", JOptionPane.INFORMATION_MESSAGE);
+				MsgManager.Messages.errorMessage(ioe, "Error", "");
+			} finally {  
+				try {if (outChannel != null) {outChannel.close();}}
+				catch (IOException ignore) {
+					JOptionPane.showMessageDialog(null, "Cannot merge two files!", "Error", JOptionPane.INFORMATION_MESSAGE);
+					MsgManager.Messages.errorMessage(ignore, "Error", "");
+				}  
+			}  
+		}  
+
 	}
-	
-	
-	public static ArrayList<Integer> calculateDisMatrix(DoubleMatrix2D matrix, double threshold) {
+
+
+	public static ArrayList<Integer> calculateDisMatrix(DoubleMatrix2D matrix) {
 		ArrayList<Integer> output = new ArrayList<Integer>();
 		matrix = ColtUtils.transpose(matrix);
 		DoubleMatrix2D a = Statistic.distance(matrix, Statistic.EUCLID);
+
+		double threshold = ColtUtils.sum(a)/a.size();;
 				
 		for(int i=0;i<a.rows()-1;i++)
 			for(int j=i+1;j<a.columns();j++)
@@ -1374,11 +1938,11 @@ public class Landscape extends LandscapeWindow {
 					if( !output.contains(j) )
 						output.add(j);
 				}
-		
+
 		return output;
 	}
 
-	
+
 
 }
 

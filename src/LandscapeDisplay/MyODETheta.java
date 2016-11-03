@@ -1,22 +1,9 @@
 package LandscapeDisplay;
 
-import static java.lang.Math.pow;
-
-import java.util.ArrayList;
-
 import org.apache.commons.math3.ode.FirstOrderDifferentialEquations;
-import org.opensourcephysics.numerics.ODE;
-
-import cern.colt.matrix.DoubleFactory2D;
-import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
-import cern.colt.matrix.doublealgo.Transform;
-import cern.colt.matrix.impl.DenseDoubleMatrix1D;
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
-import cern.colt.matrix.linalg.Algebra;
-import ch.epfl.lis.gnw.Gene;
 import ch.epfl.lis.gnw.GeneNetwork;
-import ch.epfl.lis.networks.Node;
 import edu.umbc.cs.maple.utils.ColtUtils;
 
 

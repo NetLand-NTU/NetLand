@@ -1,13 +1,11 @@
 package WindowGUI;
 
 import java.awt.*;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.jzy3d.maths.Utils;
 
 
@@ -30,11 +28,11 @@ public class NetLand extends JFrame{
 	static NetworkElement element = null;
 	JFrame jf;
 	
-	static Logger log_ = Logger.getLogger(NetLand.class.getName());
+	//static Logger log_ = Logger.getLogger(NetLand.class.getName());
 	
 	public void init()
 	{	
-		jf = new JFrame("NetLand - software for quantitative modeling and visualization of Waddington’s epigenetic landscape"); 
+		jf = new JFrame("NetLand - software for quantitative modeling and visualization of Waddington's epigenetic landscape"); 
 		
 		Image image;
 		try {
@@ -96,35 +94,7 @@ public class NetLand extends JFrame{
 
 
 	public static void main(String[] args)
-	{  	
-//		try {
-//			//System.load("E:\\netland\\workspace\\NetLand\\libquaqua.jnilib");
-//			System.load("E:\\netland\\workspace\\NetLand\\libquaqua64.jnilib");
-//		} catch (UnsatisfiedLinkError e) {
-//			System.err.println("Native code library failed to load.\n" + e);
-//			System.exit(1);
-//		}
-//		
-//		System.setProperty("Quaqua.tabLayoutPolicy","scroll");
-//		SwingUtilities.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					JFrame.setDefaultLookAndFeelDecorated(true);
-//					JDialog.setDefaultLookAndFeelDecorated(true);
-//					UIManager.setLookAndFeel(ch.randelshofer.quaqua.QuaquaManager.getLookAndFeel());
-//					
-//					NetLand a = new NetLand();
-//					a.setDefault("rsc/2genes.tsv", "2genes.tsv");
-//					a.init();
-//
-//					System.out.print("Welcome! Thanks for using NetLand.\n");
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//				
-//			}
-//		});
-
+	{  		
 		try{
 	        org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper.launchBeautyEyeLNF();
 	        UIManager.put("RootPane.setupButtonVisible", false);        
@@ -139,9 +109,59 @@ public class NetLand extends JFrame{
 		
 		System.out.print(Utils.dat2str(new Date())+"\n");
 		System.out.print("Welcome! Thanks for using NetLand.\n");
+		
+		
+//		runningAssessment();
 	}
 
 	
 
+//	private static void runningAssessment(){
+////		try {
+////			String path = "E:\\" + "SDE_log.txt";
+////			try {
+////				new File(path).createNewFile();
+////			} catch (IOException e) {
+////				e.printStackTrace();
+////			};
+////			PrintStream ps = new PrintStream(path);
+////			System.setOut(ps);
+////			System.setErr(ps);
+////		} catch (FileNotFoundException e){
+////			e.printStackTrace();
+////		}
+//		
+//		int[] testsize = {2,5,10,20,30,40,50,60,70,80,90,100,150,200}; //
+//		//load file
+//		int format = ImodNetwork.TSV;
+//		
+//		for(int i=0;i<testsize.length;i++){
+//			int currentSize=testsize[i];
+//			System.out.print("Current: "+currentSize+"\n");
+//			URL url = NetLand.class.getResource("networks/testNet"+currentSize+".tsv");
+//			
+//			for(int j=0;j<1;j++){ //run 10 times				
+//				NetworkElement element = null;
+//				try {
+//					element = IONetwork.loadItem("testNet"+currentSize+".tsv", url, format);
+//					element.setNetworkViewer(new NetworkGraph(element));
+//					
+//					element = WidgetsButtons.TopButton.convert2dynamicModel(element);
+//					element.setOrigFile(url, "testNet"+currentSize+".tsv", format);
+//				} catch (Exception e) {
+//					MsgManager.Messages.errorMessage(e, "Error", "");
+//					System.exit(1);
+//				}
+//				
+//				element.setName(j+"");
+//				//System.out.print("Time begin: "+j+"\t"+System.currentTimeMillis()+"\n"); 
+//				//run simulation
+//				Simulation rd = new Simulation(new JFrame(), element);
+//				//set parameters
+//				rd.enterAction(element);	
+//				
+//			}
+//		}	
+//	}
 }
 

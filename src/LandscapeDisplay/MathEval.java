@@ -123,8 +123,8 @@ extends Object
 		operators=new Operator[256];
 		DefaultImpl.registerOperators(this);
 
-		constants=new TreeMap<String,Double>(String.CASE_INSENSITIVE_ORDER);
-		variables=new TreeMap<String,Double>(String.CASE_INSENSITIVE_ORDER);
+		constants=new TreeMap<String,Double>(); //String.CASE_INSENSITIVE_ORDER
+		variables=new TreeMap<String,Double>(); //String.CASE_INSENSITIVE_ORDER
 		setConstant("E"     ,Math.E);
 		setConstant("Euler" ,0.577215664901533D);
 		setConstant("LN2"   ,0.693147180559945D);
@@ -134,8 +134,8 @@ extends Object
 		setConstant("PHI"   ,1.618033988749895D);
 		setConstant("PI"    ,Math.PI);
 
-		pureFunctions=new TreeMap<String,FunctionHandler>(String.CASE_INSENSITIVE_ORDER);
-		impureFunctions=new TreeMap<String,FunctionHandler>(String.CASE_INSENSITIVE_ORDER);
+		pureFunctions=new TreeMap<String,FunctionHandler>(); //String.CASE_INSENSITIVE_ORDER
+		impureFunctions=new TreeMap<String,FunctionHandler>(); //String.CASE_INSENSITIVE_ORDER
 		DefaultImpl.registerFunctions(this);
 
 		relaxed=false;
@@ -153,14 +153,14 @@ extends Object
 
 		operators=oth.operators;
 
-		constants=new TreeMap<String,Double>(String.CASE_INSENSITIVE_ORDER);
+		constants=new TreeMap<String,Double>();//String.CASE_INSENSITIVE_ORDER
 		constants.putAll(oth.constants);
 
-		variables=new TreeMap<String,Double>(String.CASE_INSENSITIVE_ORDER);
+		variables=new TreeMap<String,Double>(); //String.CASE_INSENSITIVE_ORDER
 		variables.putAll(oth.variables);
 
-		pureFunctions=new TreeMap<String,FunctionHandler>(String.CASE_INSENSITIVE_ORDER);
-		impureFunctions=new TreeMap<String,FunctionHandler>(String.CASE_INSENSITIVE_ORDER);
+		pureFunctions=new TreeMap<String,FunctionHandler>();//String.CASE_INSENSITIVE_ORDER
+		impureFunctions=new TreeMap<String,FunctionHandler>();//String.CASE_INSENSITIVE_ORDER
 		pureFunctions.putAll(oth.pureFunctions);
 		impureFunctions.putAll(oth.impureFunctions);
 
@@ -312,7 +312,7 @@ extends Object
 
 	/** Return a set of the variables in the supplied expression. Note: Substitutions which are in the constant table are not included. */
 	public Set<String> getVariablesWithin(String exp) {
-		Set<String>                         all=new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+		Set<String>                         all=new TreeSet<String>(); //String.CASE_INSENSITIVE_ORDER
 		String                              add=null;
 
 		if(separators==null) {
@@ -335,6 +335,30 @@ extends Object
 		return all;
 	}
 
+	
+	public ArrayList<String> MygetVariablesWithin(String exp) {
+		ArrayList<String>                         all=new ArrayList<String>();
+		String                              add=null;
+
+		if(separators==null) {
+			StringBuilder sep=new StringBuilder(10);
+			for(char chr=0; chr<operators.length; chr++) {
+				if(operators[chr]!=null && !operators[chr].internal) { sep.append(chr); }
+			}
+			sep.append("()");
+			separators=sep.toString();
+		}
+
+		for(StringTokenizer tkz=new StringTokenizer(exp,separators,true); tkz.hasMoreTokens(); ) {
+			String                          tkn=tkz.nextToken().trim();
+
+			if     (tkn.length()!=0 && Character.isLetter(tkn.charAt(0))) { add=tkn;      }
+			else if(tkn.length()==1 && tkn.charAt(0)=='('               ) { add=null;     }
+			else if(add!=null       && !constants.containsKey(add)      ) { all.add(add); }
+		}
+		if(add!=null && !constants.containsKey(add)) { all.add(add); }
+		return all;
+	}
 	//*************************************************************************************************
 	//INSTANCE METHODS - PRIVATE IMPLEMENTATION
 	//*************************************************************************************************

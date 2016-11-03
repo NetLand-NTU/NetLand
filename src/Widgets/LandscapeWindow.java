@@ -29,10 +29,10 @@ public class LandscapeWindow extends JDialog {
 	protected JPanel centerPanel_;
 	protected JTextField its;
 	protected JTextField maxExp;
-	protected JTextArea userPath_;
+//	protected JTextArea userPath_;
 	protected JTextArea focusGenes;
-	protected JButton browse_;
-	protected JButton clear_;
+//	protected JButton browse_;
+//	protected JButton clear_;
 	protected JRadioButton randioButton1;
 //	protected JRadioButton randioButton3;
 	protected CardLayout myCardLayout_;
@@ -61,7 +61,7 @@ public class LandscapeWindow extends JDialog {
 	
 	public LandscapeWindow(Frame aFrame) {
 		super(aFrame);
-		setResizable(false);		
+		setResizable(true);		
 		setSize(400, 630);
 		setTitle("Generate landscape");
 		
@@ -175,37 +175,37 @@ public class LandscapeWindow extends JDialog {
 		options3.setBorder(new EmptyBorder(5, 0, 5, 0));
 
 		
-		//save
-		JLabel label17 = new JLabel("Save landscape: ");	
-		userPath_ = new JTextArea();
-		userPath_.setBackground(Color.WHITE);
-		userPath_.setEditable(false);
-		userPath_.setLineWrap(true);
-		userPath_.setRows(2);
+//		//save
+//		JLabel label17 = new JLabel("Save landscape: ");	
+//		userPath_ = new JTextArea();
+//		userPath_.setBackground(Color.WHITE);
+//		userPath_.setEditable(false);
+//		userPath_.setLineWrap(true);
+//		userPath_.setRows(2);
+//		
+//		JPanel options4 = new JPanel();
+//		options4.setLayout(new BorderLayout());
+//		
+//		options4.add(label17, BorderLayout.WEST);
+//		options4.add(userPath_, BorderLayout.CENTER);
+//		
+//		options4.setBorder(new EmptyBorder(5, 0, 5, 0));
 		
-		JPanel options4 = new JPanel();
-		options4.setLayout(new BorderLayout());
 		
-		options4.add(label17, BorderLayout.WEST);
-		options4.add(userPath_, BorderLayout.CENTER);
-		
-		options4.setBorder(new EmptyBorder(5, 0, 5, 0));
-		
-		
-		//buttons
-		browse_ = new JButton();
-		browse_.setText("Browse");	
-		
-		clear_ = new JButton();
-		clear_.setText("Clear");
-		
-		JPanel options5 = new JPanel();
-		options5.setLayout(new BoxLayout(options5, BoxLayout.X_AXIS));
-		
-		options5.add(browse_);
-		options5.add(clear_);
-		
-		options5.setBorder(new EmptyBorder(5, 0, 5, 0));
+//		//buttons
+//		browse_ = new JButton();
+//		browse_.setText("Browse");	
+//		
+//		clear_ = new JButton();
+//		clear_.setText("Clear");
+//		
+//		JPanel options5 = new JPanel();
+//		options5.setLayout(new BoxLayout(options5, BoxLayout.X_AXIS));
+//		
+//		options5.add(browse_);
+//		options5.add(clear_);
+//		
+//		options5.setBorder(new EmptyBorder(5, 0, 5, 0));
 		
 		
 		//select display method
@@ -326,7 +326,10 @@ public class LandscapeWindow extends JDialog {
 		wholePanel.add(options11); 
 		wholePanel.add(options);wholePanel.add(options1);wholePanel.add(options2);wholePanel.add(options21);
 		wholePanel.add(options22);
-		wholePanel.add(options3);wholePanel.add(options4);wholePanel.add(options5);wholePanel.add(radioPanel);
+		wholePanel.add(options3);
+//		wholePanel.add(options4);
+//		wholePanel.add(options5);
+		wholePanel.add(radioPanel);
 		wholePanel.add(radioPanel1);
 		wholePanel.add(buttonsPanel);
 

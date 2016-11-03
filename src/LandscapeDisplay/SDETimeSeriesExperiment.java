@@ -2,6 +2,11 @@ package LandscapeDisplay;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
 import javax.swing.JOptionPane;
 
 
@@ -33,12 +38,9 @@ public class SDETimeSeriesExperiment {
 	
 	private MySDE system ;
 	private DoubleMatrix1D X0;
-	private boolean converged;
-
-	// ============================================================================
-	// PUBLIC METHODS
+	//private boolean converged;
 	
-	// ----------------------------------------------------------------------------
+	private boolean isStopRun;
 	
 	/** Default constructor. */
 	public SDETimeSeriesExperiment() {
@@ -48,16 +50,16 @@ public class SDETimeSeriesExperiment {
 		timeSeries_ = null;
 		timeScale_ = null;
 		solver_ = null;
+		isStopRun = false;
 	}
 	
 	// ----------------------------------------------------------------------------
 	
 	/** Instantiates the different variables _before_ simulate the experiment. */
-	public void init() {
-		
+	public void init() {		
 		if (numTimePoints_ <= 1)
 			throw new IllegalArgumentException("The number of time points must be greater than 1.");
-		
+					
 		// allocation
 		int n = solver_.getSystem().getDimension(); // dimension of the system
 		timeSeries_ = new DenseDoubleMatrix2D(numTimePoints_, n);
@@ -74,14 +76,7 @@ public class SDETimeSeriesExperiment {
 	 * @param N Number of stochastic differential equations to solve. 
 	 */
 	public void run(int N) {
-
-		// set the parameters first
-//		SdeSettings settings = SdeSettings.getInstance();
-//		settings.setSeed(-1); // random seed
-//		settings.setMaxt(maxt_);
-//		settings.setDt(0.5); //0.001
-		dt_ = 0.5;
-		
+	
 		// set solver
 		solver_ = SdeSolverFactory.createSolver(SdeSolverFactory.EULER_MARUYAMA);
 		if (solver_ == null)
@@ -99,25 +94,26 @@ public class SDETimeSeriesExperiment {
 		
 		integrate();		
 		
-		converged = solver_.converged();
+		//converged = solver_.converged();
 	}
 		
 	// ----------------------------------------------------------------------------
 	
 	/** Numerical integration of the system of N SDEs.*/
 	public void integrate() {
-		
-//		SdeSettings settings = SdeSettings.getInstance();
-		
 		int n = solver_.getSystem().getDimension();
 
 		double t = 0;
-//		maxt_ = settings.getMaxt();
 		
 		if (maxt_ <= 0)
 			throw new IllegalArgumentException("Duration (maxt) must be greater than 0.");
 		
-		dt_ = maxt_/(double)(numTimePoints_-1);
+		
+		solver_.setAbsolutePrecision(0.001);
+		solver_.setRelativePrecision(0.001);
+		
+		
+		//dt_ = 0.5; //maxt_/(double)(numTimePoints_-1);
 		
 		if (dt_ <= 0 || dt_ > maxt_)
 			throw new IllegalArgumentException("Interval between two measured time points must be greater than 0 and and smaller than maxt.");
@@ -128,7 +124,7 @@ public class SDETimeSeriesExperiment {
 		
 	
 		solver_.setH(dt_);
-		
+
 		DoubleMatrix1D X = solver_.getX();
 		
 		
@@ -141,6 +137,7 @@ public class SDETimeSeriesExperiment {
 		
 		int pt = 1;
 		
+		
 		do {
 			double t1 = t;
 			try {
@@ -148,7 +145,9 @@ public class SDETimeSeriesExperiment {
 				// this steps the time by TimeSeriesExperiment.dt_, the solver integrates with a smaller, fixed step size
 				// defined in SdeSettings by dt_*multiplier_ (SdeSettings.dt_ != TimeSeriesExperiment.dt_)
 				// WARNING: TimeSeriesExperiment.dt_ must be a multiple of SdeSettings.dt_
-				t += solver_.step();
+				t += solver_.step(); 
+		
+				//System.out.print("time: "+t+"\t"+"t: "+System.currentTimeMillis()+"\n"); 
 
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null, "at t = " + t + "\n" + e.getMessage()+"\nPlease reset the parameters.", "Error", JOptionPane.INFORMATION_MESSAGE);		
@@ -161,23 +160,39 @@ public class SDETimeSeriesExperiment {
 			}
 
 			// save the result
-			X = solver_.getX();
+			X = solver_.getX(); 
+
 			for (int i = 0; i < n; i++){
 				//if( X.get(i)<0 ) X.set(i, 0);
 				timeSeries_.set(pt, i,X.get(i));
 			}
 			timeScale_.set(pt, t);
-			
+	
+			if( pt%5000 == 0 )
+				System.out.print(".");
 			pt++;
 			
-		} while (t < maxt_ - 0.0001);
+		} while (t < maxt_ - 0.0001 && !isStopRun);
 		
 		assert t == maxt_ : "t=" + t + " maxt=" + maxt_;
-		assert pt == numTimePoints_;
+		assert pt == 2*maxt_+1;
 	}
 	
 	// ----------------------------------------------------------------------------
 
+	public List<Integer> incrementByN(int start, int n, int end) {
+		double aStep = (end-start)*1.0/n;
+
+		int length = (int) (Math.rint((end-start)/aStep)+1);
+		List<Integer> temp= new ArrayList<Integer>();
+		for (int i = 0; i < length; i++){
+			double t = (Math.rint(1000*(start+aStep*i)))/1000.0;
+			temp.add((int) Math.rint(t));
+		}
+		
+		return temp;
+	}
+	
 	/** Wrapper function to print trajectories to files. */
 	public void printAll(FileWriter fw) {
 		
@@ -194,24 +209,24 @@ public class SDETimeSeriesExperiment {
 
 	/** Writes time series data with the time scale to file. */
 	public void printTrajectories(FileWriter fw, DoubleMatrix2D timeSeries, DoubleMatrix1D timeScale) {
-			int R = timeSeries.rows();
-			int C = timeSeries.columns();
-			
-			for (int i = 0; i < R; i++) {
-				// first column of the file is time scale
-				try {
-					fw.write(Double.toString(timeScale.get(i)));
-					
-					for (int j = 0; j < C; j++)
-						fw.write("\t" + timeSeries.get(i, j));			
-					fw.write("\n");
-					
-				} catch (IOException e) {
-					JOptionPane.showMessageDialog(null, "Error in writing the file!", "Error", JOptionPane.INFORMATION_MESSAGE);
-					MsgManager.Messages.errorMessage(e, "Error", "");
-				}			
-				
-			}
+		int R = timeSeries.rows();
+		int C = timeSeries.columns();
+
+		for (int i = 0; i < R; i++) {
+			// first column of the file is time scale
+			try {
+				fw.write(Double.toString(timeScale.get(i)));
+
+				for (int j = 0; j < C; j++)
+					fw.write("\t" + timeSeries.get(i, j));			
+				fw.write("\n");
+
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(null, "Error in writing the file!", "Error", JOptionPane.INFORMATION_MESSAGE);
+				MsgManager.Messages.errorMessage(e, "Error", "");
+			}			
+
+		}
 	}
 	
 	// ============================================================================
@@ -241,11 +256,21 @@ public class SDETimeSeriesExperiment {
 	public void setX0(DoubleMatrix1D X0) { this.X0 = X0; }
 	public DoubleMatrix1D getX0() { return X0; }
 
-	public boolean isConverged() {
-		return converged;
+//	public boolean isConverged() {
+//		return converged;
+//	}
+//
+//	public void setConverged(boolean converged) {
+//		this.converged = converged;
+//	}
+
+	public boolean isStopRun() {
+		return isStopRun;
 	}
 
-	public void setConverged(boolean converged) {
-		this.converged = converged;
+	public void setStopRun(boolean isStopRun) {
+		this.isStopRun = isStopRun;
 	}
+	
+	
 }

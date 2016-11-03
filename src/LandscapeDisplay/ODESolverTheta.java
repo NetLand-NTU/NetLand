@@ -71,7 +71,7 @@ public class ODESolverTheta {
 
 					if( t > count ){
 						for(int i=0;i<y.length;i++)
-							atimeSeries.set(count, i, y[i]);
+							atimeSeries.set(count, i, floor(100*y[i])/100);
 						atimeArray.set(count, t);
 						count++;
 					}

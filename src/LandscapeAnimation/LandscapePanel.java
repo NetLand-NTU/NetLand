@@ -177,6 +177,14 @@ public class LandscapePanel extends JFrame{
 		}
 		return temp;
 	}
+	
+	
+	public double[] incrementByN(double d, int n, double f) {
+		double aStep = (f-d)/n;
+		double[] temp = increment(d, aStep, f);
+		
+		return temp;
+	}
 
 	public void GUI(){
 		//set icon
@@ -419,9 +427,13 @@ public class LandscapePanel extends JFrame{
 		
 		//all types
 		for(int k1=0;k1<grn_.getSumPara().rows();k1++){
+			
 			double u1 = 1;
 			//consider all genes
 			for(int index=0;index<currentY.size();index++){
+				if( index==4 )
+					continue;
+				
 				currentY.set(index, Math.abs(currentY.get(index)));
 				u1 *= Math.exp(-1.0*Math.pow((currentY.get(index)-grn_.getSumPara().get(k1, index)), 2)/2.0/grn_.getSumPara().get(k1, index+nGenes))/Math.sqrt(2.0*Math.PI*grn_.getSumPara().get(k1, index+nGenes));
 			}
@@ -435,8 +447,8 @@ public class LandscapePanel extends JFrame{
 		}
 
 		double up = -1.0*Math.log(u);
-		if( up>100 )
-			up=100;
+		if( up>500 )
+			up=500;
 
 		return up;
 	}
@@ -460,8 +472,10 @@ public class LandscapePanel extends JFrame{
 
 
 	private void updateDataProLand(int indexX, int indexY) {
-		landpointsX = increment(0.0, 0.05, grn_.getLand_maxExpValue());
-		landpointsY = increment(0.0, 0.05, grn_.getLand_maxExpValue());			
+//		landpointsX = increment(0.0, 0.05, grn_.getLand_maxExpValue());
+//		landpointsY = increment(0.0, 0.05, grn_.getLand_maxExpValue());		
+		landpointsX = incrementByN(0.0, 50, grn_.getLand_maxExpValue());
+		landpointsY = incrementByN(0.0, 50, grn_.getLand_maxExpValue());			
 		landpointsZ = new double[landpointsX.length][landpointsY.length];;
 
 		calculateLandU(landpointsX, landpointsX, landpointsZ, indexX, indexY);

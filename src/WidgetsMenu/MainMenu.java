@@ -58,7 +58,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.sbml.jsbml.SBMLException;
 
 import com.sun.image.codec.jpeg.JPEGCodec;
@@ -105,7 +105,7 @@ public class MainMenu {
 	private static JMenuBar menuBar = new JMenuBar();
 	private static JFrame parentFrame;
 	
-	static Logger log = Logger.getLogger(MainMenu.class.getName());
+	//static Logger log = Logger.getLogger(MainMenu.class.getName());
 	
 	public MainMenu(NetworkElement element, JFrame c){
 		MainMenu.element = element;
@@ -363,10 +363,10 @@ public class MainMenu {
 	//========= about ==============================================================
 	public static void about() {
 		JOptionPane.showMessageDialog(null,"NetLand: A tool for kinetic modeling and visualization of Waddington's epigenetic landscape \n\n" +
-				"Waddington’s epigenetic landscape is a powerful metaphor for cellular dynamics driven by gene regulatory networks. \n" +
+				"Waddington's epigenetic landscape is a powerful metaphor for cellular dynamics driven by gene regulatory networks. \n" +
 				"Its quantitative modeling and visualization, however, remains a challenge, especially when there are more than two genes. \n" +
 				"Here, we present NetLand, an open-source software tool for modeling and simulating the kinetic dynamics of transcriptional \n" +
-				"regulatory networks with far more than two genes, and visualizing the corresponding Waddington’s epigenetic landscape. \n" +
+				"regulatory networks with far more than two genes, and visualizing the corresponding Waddington's epigenetic landscape. \n" +
 				"With an interactive and graphical user interface, NetLand can facilitate the knowledge discovery and experimental design \n" +
 				"in the study of cell fate regulation (e.g. stem cell differentiation and reprogramming). \n" +
 				"The software NetLand is written in Java, with a graphical user interface (GUI). For detailed instruction, please refer to \n" +
@@ -383,7 +383,7 @@ public class MainMenu {
 			Desktop dp = Desktop.getDesktop();
 
 	        try {
-				dp.browse(new java.net.URI("https://github.com/NetLand-NTU/NetLand/blob/master/NetLand_manual.docx"));
+				dp.browse(new java.net.URI("https://github.com/NetLand-NTU/NetLand/blob/master/NetLand_manual.pdf"));
 			} catch (IOException | URISyntaxException e) {
 				MsgManager.Messages.errorMessage(e, "Error", "");
 			}
@@ -781,36 +781,50 @@ public class MainMenu {
             //first line
             String[] info = tempString.split("\t");
             int noSerries = Integer.parseInt(info[1]);
-            int timePoints = Integer.parseInt(info[2]);
-            int dimension = Integer.parseInt(info[3]);
-           
+            //int timePoints = Integer.parseInt(info[2]);
+            int dimension = Integer.parseInt(info[2]);
+            int itsValue = Integer.parseInt(info[1]);
+            int maxTime = Integer.parseInt(info[3]);
+            double noise = Double.parseDouble(info[4]);
+            String modelType = info[5];
          
             ArrayList<DoubleMatrix2D> timeSeries = new ArrayList<DoubleMatrix2D>(noSerries);
             ArrayList<DoubleMatrix1D> timeScales = new ArrayList<DoubleMatrix1D>(noSerries);
-            for(int i=0;i<noSerries;i++){
-            	DoubleMatrix1D tempTime = new DenseDoubleMatrix1D(timePoints);
-            	timeScales.add(tempTime);
-            	
-            	DoubleMatrix2D tempSeries = new DenseDoubleMatrix2D(timePoints, dimension);
-            	timeSeries.add(tempSeries); 
-            }
+//            for(int i=0;i<noSerries;i++){
+//            	DoubleMatrix1D tempTime = new DenseDoubleMatrix1D(timePoints);
+//            	timeScales.add(tempTime);
+//            	
+//            	DoubleMatrix2D tempSeries = new DenseDoubleMatrix2D(timePoints, dimension);
+//            	timeSeries.add(tempSeries); 
+//            }
             
             //second line
-            tempString = reader.readLine();
-            String[] para = tempString.split("\t");
-            int itsValue = Integer.parseInt(para[0]);
-            int maxTime = Integer.parseInt(para[1]);
-            double noise = Double.parseDouble(para[2]);
-            String modelType = para[3];
+            //tempString = reader.readLine();
+            //String[] para = tempString.split("\t");
+            //int itsValue = Integer.parseInt(para[0]);
+            //int maxTime = Integer.parseInt(para[1]);
+            //double noise = Double.parseDouble(para[2]);
+            //String modelType = para[3];
             
             
             //each time series
             tempString = reader.readLine();
             for(int its=0;its<noSerries;its++){
-            	int i= Integer.parseInt(tempString);
-            	DoubleMatrix1D tempTime = timeScales.get(i);
-            	DoubleMatrix2D tempSeries = timeSeries.get(i);
+            	String[] para = tempString.split("\t");
+            	int timePoints= Integer.parseInt(para[1]);
+            	DoubleMatrix1D tempTime = new DenseDoubleMatrix1D(timePoints); //timeScales.get(i);
+            	DoubleMatrix2D tempSeries = new DenseDoubleMatrix2D(timePoints, dimension); //timeSeries.get(i);
             
+//            	int index = 0;
+//            	//save info
+//            	while ((tempString = reader.readLine()) != null && index<timePoints) {
+//            		String[] nums = tempString.split("\t");
+//            		tempTime.set(index, Double.parseDouble(nums[0]));
+//            		for(int j=1;j<dimension+1;j++)
+//            			tempSeries.set(index, j-1, Double.parseDouble(nums[j]));
+//            		index++;
+//            	}
+            	
             	int index = 0;
             	//save info
             	while ((tempString = reader.readLine()) != null && index<timePoints) {
@@ -820,9 +834,28 @@ public class MainMenu {
             			tempSeries.set(index, j-1, Double.parseDouble(nums[j]));
             		index++;
             	}
+            	
+            	timeSeries.add((DoubleMatrix2D) tempSeries.clone());
+                timeScales.add(tempTime);
             }
             
             reader.close();
+            
+//            //recover temp file
+//            if( timeSeries.size() != itsValue ){
+//            	Object[] options = {"Continue simulation","Load the file"};
+//
+//            	int response = JOptionPane.showOptionDialog(null, "The temporary result is saved in the file\n"
+//            			,"Warning: Uncomplete simuation!",JOptionPane.YES_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);	
+//
+//            	if(response==0) { 
+//            		
+//            		return;
+//            	}else if(response==1) {  
+//            		//directly load file				
+//            	}
+//            	
+//            }
             
             //load sbml and land
             loadSBMLTRAJ(sbmlFileName, itsValue, maxTime, noise, modelType, timeSeries, timeScales);

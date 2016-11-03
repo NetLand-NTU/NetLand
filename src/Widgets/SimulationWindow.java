@@ -47,7 +47,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
-import javax.swing.JTextArea;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
@@ -57,11 +56,6 @@ import ch.epfl.lis.animation.Snake;
 
 
 
-/** This dialog handles all the simulations parameters of steady-states and time-series experiments.
- * 
- * @author Thomas Schaffter (firstname.name@gmail.com)
- *
- */
 public class SimulationWindow extends JDialog {
 	
 	protected JPanel runPanel_;
@@ -75,15 +69,12 @@ public class SimulationWindow extends JDialog {
 	protected JSpinner tmax_;
 	protected JSpinner sdeDiffusionCoeff_;
 	
-	protected JButton browse_;
-	protected JTextArea userPath_;
 	protected JLabel durationOfSeriesLabel_;
 	protected JLabel numTimeSeriesLabel_;
 	
 	
 	protected JButton runButton_;
 	protected JButton cancelButton_;
-	//protected JPanel validationPanel_;
 
 	protected JPanel runButtonAndSnakePanel_;
 	protected Snake snake_;
@@ -91,7 +82,6 @@ public class SimulationWindow extends JDialog {
 	protected final CardLayout myCardLayout_ = new CardLayout();
 	
 	protected JPanel trajPlot;
-	protected JButton clear_;
 	protected JRadioButton fixButton;
 	protected JRadioButton randomButton;
 	private JPanel cancelPanel_;
@@ -99,7 +89,6 @@ public class SimulationWindow extends JDialog {
 	protected JButton analyzeResult;
 	protected JButton generateSteadyStateConcentrationGraph;
 	protected JButton setGateSignal;
-	private JPanel analyzePanel;
 	
     /** Logger for this class */
     @SuppressWarnings("unused")
@@ -127,7 +116,6 @@ public class SimulationWindow extends JDialog {
 		
 		centerPanel_ = new JPanel();
 		centerPanel_.setBorder(new EmptyBorder(0, 0, 10, 0));
-		//centerPanel_.setBackground(Color.WHITE);
 		getContentPane().add(centerPanel_);
 		
 	
@@ -141,7 +129,6 @@ public class SimulationWindow extends JDialog {
 
 		model_ = new JComboBox();
 		model_.setFocusable(false);
-		//model_.setBackground(Color.WHITE);
 		options.add(model_);
 		
 		options.setBorder(new EmptyBorder(5, 0, 5, 0));
@@ -163,9 +150,9 @@ public class SimulationWindow extends JDialog {
 		// Set model of "number of time series" spinner
 		SpinnerNumberModel model = new SpinnerNumberModel();
 		model.setMinimum(1);
-		model.setMaximum(10000);
+		model.setMaximum(1000000000);
 		model.setStepSize(1);
-		model.setValue(10);
+		model.setValue(1000000);
 		numTimeSeries_.setModel(model);
 
 		((JSpinner.NumberEditor)numTimeSeries_.getEditor()).getTextField().setBackground(new Color(240,240,240));
@@ -187,9 +174,9 @@ public class SimulationWindow extends JDialog {
 		// Set model of "duration" spinner
 		model = new SpinnerNumberModel();
 		model.setMinimum(1);
-		model.setMaximum(100000);
+		model.setMaximum(1000000000);
 		model.setStepSize(1);
-		model.setValue(128);
+		model.setValue(128000000);
 		tmax_.setModel(model);
 	
 		((JSpinner.NumberEditor)tmax_.getEditor()).getTextField().setBackground(new Color(240,240,240));
@@ -200,17 +187,13 @@ public class SimulationWindow extends JDialog {
 		options3.setLayout(new BoxLayout(options3, BoxLayout.X_AXIS));
 		
 		final JLabel label14 = new JLabel();
-		//label14.setBackground(Color.WHITE);
 		label14.setText("Noise (SDEs): ");
 		options3.add(label14);
 
 		sdeDiffusionCoeff_ = new JSpinner();
 		sdeDiffusionCoeff_.setFocusable(false);		
 		options3.add(sdeDiffusionCoeff_);
-		//sdeDiffusionCoeff_.setBackground(new Color(0,0,0,0));
 
-		//options3.setBorder(new EmptyBorder(5, 0, 5, 0));
-		// Diffusion multiplier (SDE only)
 		model = new SpinnerNumberModel();
 		model.setMinimum(0.0);
 		model.setMaximum(10.);
@@ -228,11 +211,9 @@ public class SimulationWindow extends JDialog {
 		ButtonGroup bg = new ButtonGroup();
 		fixButton = new JRadioButton("Fixed initials");
 		fixButton.setSelected(true);
-		//fixButton.setBackground(new Color(187,207,232));
 		bg.add(fixButton);
 
 		randomButton = new JRadioButton("Random initials");
-		//randomButton.setBackground(new Color(187,207,232));
 		bg.add(randomButton);
 		
 		JPanel options5 = new JPanel();
@@ -242,35 +223,7 @@ public class SimulationWindow extends JDialog {
 		options5.add(randomButton);
 		options5.setBorder(new EmptyBorder(5, 0, 5, 0));
 		
-		//output
-		JPanel options4 = new JPanel();
-		options4.setLayout(new BoxLayout(options4, BoxLayout.X_AXIS));
 		
-		final JLabel label17 = new JLabel();
-		label17.setText("Save result:");
-		options4.add(label17);
-		
-		userPath_ = new JTextArea();
-		userPath_.setBackground(Color.WHITE);
-		userPath_.setEditable(false);
-		userPath_.setLineWrap(true);
-		userPath_.setColumns(10);
-		userPath_.setPreferredSize(new Dimension(50,50));		
-		options4.add(userPath_);
-
-		options4.setBorder(new EmptyBorder(5, 0, 5, 0));
-		
-		JPanel options6 = new JPanel();
-		options6.setLayout(new BoxLayout(options6, BoxLayout.X_AXIS));
-		
-		browse_ = new JButton();
-		browse_.setText("Browse");
-		
-		clear_ = new JButton();
-		clear_.setText("Clear");
-		
-		options6.add(browse_);
-		options6.add(clear_);
 		
 		
 		//buttons
@@ -278,7 +231,6 @@ public class SimulationWindow extends JDialog {
 		runButtonAndSnakePanel_.setLayout(myCardLayout_);
 		runButtonAndSnakePanel_.setBackground(null);
 		runButtonAndSnakePanel_.setBorder(new EmptyBorder(0,50,0,0));
-//		runButtonAndSnakePanel_.setPreferredSize(new Dimension(50,50));
 
 		runPanel_ = new JPanel();
 		runPanel_.setBackground(null);
@@ -291,7 +243,6 @@ public class SimulationWindow extends JDialog {
 		runButton_.setBackground(UIManager.getColor("Button.background"));
 		runButton_.setName("computeButton");
 		runButton_.setText("Simulate");
-//		runButton_.setBorder(new EmptyBorder(0,50,0,0));
 
 		snakePanel_ = new JPanel();
 		snakePanel_.setLayout(new BorderLayout());
@@ -302,7 +253,6 @@ public class SimulationWindow extends JDialog {
 		snake_ = new Snake();
 		snakePanel_.add(snake_, BorderLayout.EAST);
 		snake_.setName("snake_");
-		//snake_.setBackground(Color.WHITE);
 		snake_.setPreferredSize(new Dimension(50,50));
 
 		cancelPanel_ = new JPanel();
@@ -313,17 +263,12 @@ public class SimulationWindow extends JDialog {
 		cancelButton_.setBackground(UIManager.getColor("Button.background"));
 		cancelButton_.setText("Cancel");
 			
-		//cancelPanel_.setBorder(new EmptyBorder(20,5,45,0));
 				
 		analyzeResult = new JButton("Analyze Result");
 		cancelPanel_.add(analyzeResult);
 		
-		//analyzePanel.setBorder(new EmptyBorder(-120,15,45,10));
-		//runButtonAndSnakePanel_.setBorder(BorderFactory.createLineBorder(Color.red));
-		//cancelPanel_.setBorder(BorderFactory.createLineBorder(Color.red));
 		
 		JPanel buttonsPanel = new JPanel();
-//	    buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.X_AXIS));
 		buttonsPanel.setLayout(new BorderLayout());
 	    
 		buttonsPanel.add(runButtonAndSnakePanel_, BorderLayout.CENTER);
@@ -334,41 +279,23 @@ public class SimulationWindow extends JDialog {
 		JPanel setPanel = new JPanel();
 		setPanel.setLayout(new BoxLayout(setPanel, BoxLayout.Y_AXIS));
 		setPanel.setBorder(new EmptyBorder(30, 10, 0, 10));
-//		setPanel.setBackground(new Color(187,207,232));
-//		options.setBackground(new Color(187,207,232));
-//		options1.setBackground(new Color(187,207,232));
-//		options2.setBackground(new Color(187,207,232));
-//		options3.setBackground(new Color(187,207,232));
-//		options4.setBackground(new Color(187,207,232));
-//		options5.setBackground(new Color(187,207,232));
-//		options6.setBackground(new Color(187,207,232));
-//		runPanel_.setBackground(new Color(187,207,232));
-//		cancelPanel_.setBackground(new Color(187,207,232));
-//		runButtonAndSnakePanel_.setBackground(new Color(187,207,232));
-//		buttonsPanel.setBackground(new Color(187,207,232));
-//		snake_.setBackground(new Color(187,207,232));
+
 		
 		setPanel.add(options);
 		setPanel.add(options1);
 		setPanel.add(options2);
 		setPanel.add(options3);
 		setPanel.add(options5);
-		setPanel.add(options4);
-		setPanel.add(options6);	
 		setPanel.add(buttonsPanel);
 		
 		
 		trajPlot = new JPanel();
-		//trajPlot.setBackground(new Color(187,207,232));
 		trajPlot.add(trajectoryTabb());
 		
 		centerPanel_.setLayout(new BoxLayout(centerPanel_,BoxLayout.X_AXIS));
 		centerPanel_.add(setPanel);
 		centerPanel_.add(trajPlot);
 		
-//		JScrollPane scrollPane11 = new JScrollPane(centerPanel_);  
-//		getContentPane().add(scrollPane11);
-
 		setLocationRelativeTo(aFrame);
 		
 	}

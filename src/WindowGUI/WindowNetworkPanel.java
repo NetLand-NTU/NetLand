@@ -82,7 +82,7 @@ public class WindowNetworkPanel extends JPanel{
 		
 		kernelPanel.setLayout(new BorderLayout());
 		kernelPanel.add(scroll,BorderLayout.CENTER);
-		redirectSystemStreams(jTextArea1);
+		redirectSystemStreams(jTextArea1); 
 
 		/**	SET LAYOUT **/			
 		JPanel combinePanel = new JPanel();	
