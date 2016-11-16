@@ -33,9 +33,10 @@
       <species boundaryCondition="false" hasOnlySubstanceUnits="true" initialAmount="0" compartment="cytosol" name="ECTs" id="ECTs"/>
     </listOfSpecies>
     <listOfParameters>
+	    <parameter id="KM" value="0.4" constant="true" />
     </listOfParameters>
     <listOfReactions>
-      <reaction name="0.2*(0+1*0.7^8/(0.7^8+MEs^8)*0.7^8/(0.7^8+ECTs^8)*(0.4+Oct4*Sox2/(0.35+Oct4*Sox2)))-0.2*Oct4" id="Oct4_synthesis">
+      <reaction name="0.2*(0+1*0.7^8/(0.7^8+MEs^8)*0.7^8/(0.7^8+ECTs^8)*(KM+Oct4*Sox2/(0.35+Oct4*Sox2)))-0.2*Oct4" id="Oct4_synthesis">
         <listOfModifiers>
           <modifierSpeciesReference species="MEs"/>
           <modifierSpeciesReference species="ECTs"/>
@@ -108,7 +109,7 @@
                     </apply>
                     <apply>
                       <plus/>
-                      <cn> 0.4 </cn>
+                      <ci> KM </ci>
                       <apply>
                         <divide/>
                         <apply>
@@ -139,7 +140,7 @@
           </math>
                 </kineticLaw>
       </reaction>
-      <reaction name="0.2*(0+1*0.7^8/(0.7^8+MEs^8)*0.7^8/(0.7^8+ECTs^8)*(0.4+Oct4*Sox2/(0.35+Oct4*Sox2)))-0.2*Sox2" id="Sox2_synthesis">
+      <reaction name="0.2*(0+1*0.7^8/(0.7^8+MEs^8)*0.7^8/(0.7^8+ECTs^8)*(KM+Oct4*Sox2/(0.35+Oct4*Sox2)))-0.2*Sox2" id="Sox2_synthesis">
         <listOfModifiers>
           <modifierSpeciesReference species="MEs"/>
           <modifierSpeciesReference species="ECTs"/>
@@ -212,7 +213,7 @@
                     </apply>
                     <apply>
                       <plus/>
-                      <cn> 0.4 </cn>
+                      <ci> KM </ci>
                       <apply>
                         <divide/>
                         <apply>
