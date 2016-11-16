@@ -152,7 +152,7 @@ public class SimulationWindow extends JDialog {
 		model.setMinimum(1);
 		model.setMaximum(1000000000);
 		model.setStepSize(1);
-		model.setValue(1000000);
+		model.setValue(10);
 		numTimeSeries_.setModel(model);
 
 		((JSpinner.NumberEditor)numTimeSeries_.getEditor()).getTextField().setBackground(new Color(240,240,240));
@@ -176,7 +176,7 @@ public class SimulationWindow extends JDialog {
 		model.setMinimum(1);
 		model.setMaximum(1000000000);
 		model.setStepSize(1);
-		model.setValue(128000000);
+		model.setValue(128);
 		tmax_.setModel(model);
 	
 		((JSpinner.NumberEditor)tmax_.getEditor()).getTextField().setBackground(new Color(240,240,240));

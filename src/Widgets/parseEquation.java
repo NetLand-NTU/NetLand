@@ -236,7 +236,7 @@ public class parseEquation {
 				theStack.push(opTop);
 				break;
 			} else {
-				if(opThis=='*'||opThis=='/') {   //如果是本次是乘除,栈里最多可弹出一个乘号
+				if(opThis=='*'||opThis=='/') {   
 					if(opTop=='+'||opTop=='-') {
 						theStack.push(opTop);
 					} else {
@@ -246,11 +246,11 @@ public class parseEquation {
 				}else if(opThis=='^'){
 					if(opTop=='+'||opTop=='-'||opTop=='*'||opTop=='/') {
 						theStack.push(opTop);
-					} else {   //如果是本次是乘除,栈里最多可弹出一个乘号
+					} else {   
 						result+=opTop;
 					}
 					break;
-				}else {            //如果是本次是加减,栈里最多可弹出一次乘除,再加一次加减
+				}else {            
 					result+=opTop;
 				}
 			} //end else
@@ -275,7 +275,7 @@ public class parseEquation {
 		char ch;
 		String interAns = "";
 		String str1,str2;
-		theStack=new Stack<Character>(); //重置栈,后缀表达式求值是将数字放入栈中
+		theStack=new Stack<Character>(); 
 		try {        	
 			for(int j=j2; j<input.length()-1; j++) {
 				String tt = input.replaceAll("\\\\","\\\\\\\\");  

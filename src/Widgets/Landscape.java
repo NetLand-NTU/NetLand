@@ -59,7 +59,7 @@ public class Landscape extends LandscapeWindow {
 	private GeneNetwork grn;
 	private LandscapeThread landscape = null;
 
-	private boolean ide = true;
+	private boolean ide = false; 
 
 	public Landscape(Frame aFrame, NetworkElement item) {
 		super(aFrame);		
@@ -214,7 +214,8 @@ public class Landscape extends LandscapeWindow {
 
 	public void enterAction() {
 		try {
-
+			//System.out.print("land start: "+System.currentTimeMillis()+"\n"); 
+			
 			if( grn.getNodes().size() <= 1 ){
 				JOptionPane.showMessageDialog(null, "The system only contains "+grn.getNodes().size()+" reaction! To plot the landscape, at least two kinetic reactions are required.", "Error", JOptionPane.INFORMATION_MESSAGE);
 				return;
@@ -563,7 +564,6 @@ public class Landscape extends LandscapeWindow {
 			cern.colt.matrix.DoubleFactory2D Factory2D = cern.colt.matrix.DoubleFactory2D.dense;
 
 			while( !stopRequested && its<=numSeries ){					
-				//System.out.print("Its: "+its+"\n"); 
 
 				/** reset parameters **/
 				numPoints = 0;			
@@ -603,7 +603,6 @@ public class Landscape extends LandscapeWindow {
 
 
 					if( numPoints>maxPointsPerTraj ){
-//						System.out.print(maxPointsPerTraj+" out of "+numPoints+" points are selected.\n");
 
 						if( previoudTime==0 ){
 							timeSeries.add(selectNPoints(deSolver_.getTimeSeries().copy(), maxPointsPerTraj));
@@ -1013,7 +1012,7 @@ public class Landscape extends LandscapeWindow {
 
 				int its = 0;
 				while( !stopRequested && its<=100 ){
-					System.out.print("Trajectory #: "+its+"\n"); 
+					//System.out.print("Trajectory #: "+its+"\n"); 
 					deSolver_.solveEquations_ODE(); 
 					
 					timeSeries.add(deSolver_.getTimeSeries().copy());
@@ -1156,7 +1155,7 @@ public class Landscape extends LandscapeWindow {
 				String msg = null;
 				while ((msg = br.readLine()) != null) {
 					//System.out.println(msg); 
-					System.out.println('.');
+					System.out.print('.');
 					if( msg.equals("Press enter for more.") ){
 						p.destroy();
 						return -2;
@@ -1165,7 +1164,7 @@ public class Landscape extends LandscapeWindow {
 				}
 
 				exitVal = p.waitFor();
-
+				System.out.print('\n');
 			} catch (Exception e) {		
 				if( e.getMessage().equals("Generation canceled!") ){
 					snake_.stop();
@@ -1741,6 +1740,8 @@ public class Landscape extends LandscapeWindow {
 			LandscapePanel onea = new LandscapePanel(grn, displayMethod);	
 
 			querySaveLand();
+			
+			//System.out.print("land end: "+System.currentTimeMillis()+"\n"); 
 		}
 
 		private void querySaveLand() {

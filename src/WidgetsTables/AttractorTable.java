@@ -15,7 +15,12 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import org.jzy3d.colors.ColorMapper;
+import org.jzy3d.colors.colormaps.ColorMapHotCold;
 import org.jzy3d.colors.colormaps.ColorMapRainbow;
+import org.jzy3d.colors.colormaps.ColorMapRedAndGreen;
+import org.jzy3d.colors.colormaps.ColorMapWhiteBlue;
+import org.jzy3d.colors.colormaps.ColorMapWhiteGreen;
+import org.jzy3d.colors.colormaps.IColorMap;
 
 
 import ch.epfl.lis.gnw.GeneNetwork;
@@ -98,6 +103,7 @@ public class AttractorTable extends JPanel  {
         			if( grn.getSumPara().get(j-1, focus_index[i-1]) < min ) min = grn.getSumPara().get(j-1, focus_index[i-1]);
         		}
         	}  
+
         }  
   
        
@@ -163,7 +169,9 @@ public class AttractorTable extends JPanel  {
             l.setForeground(hasFocus ? Color.RED : Color.black);
             l.setBackground(hasFocus ? Color.YELLOW :Color.white);
             
-        	ColorMapper mycolorMapper = new ColorMapper(new ColorMapRainbow(), min, max);//((Shape) comps.get(0)).getColorMapper();
+            IColorMap colormap = new ColorMapWhiteGreen();
+            colormap.setDirection(false);
+        	ColorMapper mycolorMapper = new ColorMapper(colormap, min, max);//((Shape) comps.get(0)).getColorMapper();
         	
         	if( row>0 && column>0 ){           		
         		//int color = 250 - (int) (step*(Double.parseDouble((String) t.getValueAt(row, column))-minU));

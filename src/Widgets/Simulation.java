@@ -826,6 +826,7 @@ public class Simulation extends SimulationWindow {
 
 		public void run()
 		{		
+			//System.out.print("ODE start: "+System.currentTimeMillis()+"\n"); 
 			snake_.start();
 			myCardLayout_.show(runButtonAndSnakePanel_, snakePanel_.getName());
 
@@ -1075,7 +1076,6 @@ public class Simulation extends SimulationWindow {
 				
 	
 				while( !stopRequested && its<=numSeries ){					
-					System.out.print("\nIts: "+its+"\n"); 
 
 					/** reset parameters **/
 					numPoints = 0;			
@@ -1086,11 +1086,11 @@ public class Simulation extends SimulationWindow {
 						tempInitial = randomInitial(upbound, lowbound);
 						tempInitial = Transform.mult(tempInitial, 1000);
 						
+						System.out.print("\nIts: "+its+"\n"); 
+						
 						/** create a new CMDL file **/
 						System.out.print("Start writing CMDL model...\n");
-//						modelText = writeCMDL(tempInitial);
-//						model = processModel(modelText);
-										
+
 						for(int i=0;i<requestedSymbolNames.length;i++){
 							Species species = model.getSpeciesByName(requestedSymbolNames[i]);
 							species.setSpeciesPopulation(tempInitial.get(i));
@@ -1101,8 +1101,7 @@ public class Simulation extends SimulationWindow {
 						/** set model **/
 						simulator.initialize(model);
 					}
-						
-//					System.out.print(saveEveryTStep+"\t"+saveEveryMTraj+"\n");
+
 					
 					/** set time for each traj **/
 					for(int j=0;j<maxt;j+=saveEveryTStep){		
@@ -1139,8 +1138,7 @@ public class Simulation extends SimulationWindow {
 
 
 						if( numPoints>maxPointsPerTraj ){
-							//System.out.print(maxPointsPerTraj+" out of "+numPoints+" points are selected.\n");
-
+							
 							if( previoudTime==0 ){
 								timeSeries.add(selectNPoints(timeCourse.copy(), maxPointsPerTraj));
 								timeScale.add(selectNPoints(tempTime.copy(), maxPointsPerTraj));
@@ -1178,6 +1176,8 @@ public class Simulation extends SimulationWindow {
 					}//end of for
 
 					its++;
+					
+					//System.out.print("SSA its: "+System.currentTimeMillis()+"\n"); 
 				}//end of while
 
 				/** reset initial values **/
@@ -1228,41 +1228,13 @@ public class Simulation extends SimulationWindow {
 		private int samplePoints(Object[] symbolValues, double[] tempTime, DoubleMatrix1D timeScale, DoubleMatrix2D timeSeries) {
 			
 			for(int i=1;i<symbolValues.length-1;i++){
-//				double[] symbolValuePre = (double []) symbolValues[i-1];
 				double[] symbolValue = (double []) symbolValues[i];
-//				double[] symbolValueAft = (double []) symbolValues[i+1];
-//				for(int j=0;j<symbolValue.length;j++){
-//					if(symbolValue[j]-symbolValuePre[j]>0 && symbolValue[j]-symbolValueAft[j]>0){
-//						index.add(i); break;
-//					}else if(symbolValue[j]-symbolValuePre[j]==0 && symbolValue[j]-symbolValueAft[j]==0){
-//						index.add(i); break;
-//					}else if(symbolValue[j]-symbolValuePre[j]!=0 && symbolValue[j]-symbolValueAft[j]==0){
-//						index.add(i); break;
-//					}
-//				}			
+		
 				for(int j=0;j<symbolValue.length;j++)
 					timeSeries.set(i, j, symbolValue[j]/1000);
 				timeScale.set(i, tempTime[i]);
 			}
 
-//			if( index.size() == 1 )
-//				index.add(symbolValues.length-1);
-//			
-//			index.add(symbolValues.length-2);
-//			index.add(symbolValues.length-1);
-//			
-//			int[] y = new int[((double []) symbolValues[0]).length];
-//			for(int i=0;i<((double []) symbolValues[0]).length;i++)
-//				y[i] = i;
-//			
-////			timeSeries = new DenseDoubleMatrix2D(index.size()+2, y.length);
-////			timeScale = new DenseDoubleMatrix1D(index.size()+2);
-//			for(int i=0;i<index.size();i++){
-//				timeScale.set(i, tempTime[index.get(i)]);
-//				for(int j=0;j<y.length;j++)
-//					timeSeries.set(i, j, ((double[])symbolValues[index.get(i)])[j]);
-//			}
-				
 			return timeScale.size();
 		}
 		
@@ -1314,7 +1286,6 @@ public class Simulation extends SimulationWindow {
 			ArrayList<DoubleMatrix2D> timeSeries = new ArrayList<DoubleMatrix2D>();
 			ArrayList<DoubleMatrix1D> timeScale = new ArrayList<DoubleMatrix1D>();		
 
-//			System.out.print(saveEveryTStep+"\t"+saveEveryMTraj+"\n");
 
 			int steps = saveEveryTStep; //simulation time for each run
 			int numPoints = 0; //record the number of sampled points
@@ -1367,8 +1338,7 @@ public class Simulation extends SimulationWindow {
 
 
 					if( numPoints>maxPointsPerTraj ){
-						//System.out.print(maxPointsPerTraj+" out of "+numPoints+" points are selected.\n");
-
+						
 						if( previoudTime==0 ){
 							timeSeries.add(selectNPoints(deSolver_.getTimeSeries().copy(), maxPointsPerTraj));
 							timeScale.add(selectNPoints(deSolver_.getTimeScale().copy(), maxPointsPerTraj));
@@ -1407,6 +1377,8 @@ public class Simulation extends SimulationWindow {
 				}//end of for
 
 				its++;
+				
+				//System.out.print("ODE its: "+System.currentTimeMillis()+"\n"); 
 			}//end of while
 
 			/** reset initial values **/
@@ -1615,7 +1587,7 @@ public class Simulation extends SimulationWindow {
 			cern.colt.matrix.DoubleFactory1D Factory1D = cern.colt.matrix.DoubleFactory1D.dense;
 			cern.colt.matrix.DoubleFactory2D Factory2D = cern.colt.matrix.DoubleFactory2D.dense;
 
-//			System.out.print(saveEveryMTraj+"\t"+saveEveryTStep+"\n");
+
 			try
 			{			
 				while( !stopRequested && its<=numSeries ){					
@@ -1632,7 +1604,6 @@ public class Simulation extends SimulationWindow {
 						if( j+saveEveryTStep>maxt )
 							steps = maxt-j;
 
-//						System.out.print(j+"\n");
 						deSolver_.setMaxt(steps);
 						deSolver_.setNumTimePoints((int) (steps/step+1));		
 
@@ -1656,8 +1627,7 @@ public class Simulation extends SimulationWindow {
 
 
 							if( numPoints>maxPointsPerTraj ){
-								//System.out.print(maxPointsPerTraj+" out of "+numPoints+" points are selected.\n");
-
+								
 								if( previoudTime==0 ){
 									timeSeries.add(selectNPoints(deSolver_.getTs().getTimeSeries(), 200));
 									timeScale.add(selectNPoints(deSolver_.getTs().getTimeScale(), 200));
@@ -1706,6 +1676,8 @@ public class Simulation extends SimulationWindow {
 					}//end of for
 
 					its++;
+					
+					//System.out.print("SDE its: "+System.currentTimeMillis()+"\n"); 
 				}//end of while
 
 //				/** reset initial values **/
@@ -2205,7 +2177,7 @@ public class Simulation extends SimulationWindow {
 			trajPlot.updateUI();
 			trajPlot.setVisible(true);	
 			trajPlot.repaint();
-
+			//System.out.print("ODE end: "+System.currentTimeMillis()+"\n"); 
 		}
 
 

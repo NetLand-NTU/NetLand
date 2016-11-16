@@ -14,9 +14,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -28,7 +25,6 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -39,7 +35,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import org.jzy3d.chart.ContourChart;
 import org.jzy3d.chart.controllers.mouse.camera.AWTCameraMouseController;
@@ -56,7 +51,6 @@ import org.jzy3d.picking.IObjectPickedListener;
 import org.jzy3d.picking.PickingSupport;
 import org.jzy3d.plot3d.builder.Builder;
 import org.jzy3d.plot3d.builder.Mapper;
-import org.jzy3d.plot3d.primitives.AbstractDrawable;
 import org.jzy3d.plot3d.primitives.Shape;
 import org.jzy3d.plot3d.primitives.axes.ContourAxeBox;
 import org.jzy3d.plot3d.rendering.canvas.ICanvas;
@@ -83,6 +77,12 @@ import ch.epfl.lis.gnw.GeneNetwork;
 
 
 public class LandscapePanel extends JFrame{	
+	/**
+	 * display of the landscape
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	
 	/** DATA **/
 	private GeneNetwork grn_;
 	private boolean isProbabilisticLandscape;
@@ -97,7 +97,7 @@ public class LandscapePanel extends JFrame{
 	private double[] time;
 	public int nGenes;
 	private String[] geneNames;
-	private ArrayList<Integer> selectedGenes = new ArrayList<Integer>();
+	//private ArrayList<Integer> selectedGenes = new ArrayList<Integer>();
 
 
 	/** GUI components **/
@@ -719,40 +719,38 @@ public class LandscapePanel extends JFrame{
 			a.setVisible(true);						
 		}
 
-
-
-		
-
 	}
+	
+	
 
-	private void calculateLandUPro(int indexX, int indexY) {
-		double its = 0;
-		for(int i=0;i<grn_.getCounts().length;i++)
-			its += grn_.getCounts()[i];
-
-		double maxU = 0; double minU = 100000;
-		for(int i=0;i<trajDataInLandZ.length;i++){
-			double u = 0;
-			//all types
-			for(int k1=0;k1<grn_.getSumPara().rows();k1++){
-				double u1 = Math.exp(-1.0*Math.pow((trajDataInLandX[i]-grn_.getSumPara().get(k1, indexX)), 2)/2.0/grn_.getSumPara().get(k1, indexX+nGenes))/Math.sqrt(2.0*Math.PI*grn_.getSumPara().get(k1, indexX+nGenes));
-				double u2 = Math.exp(-1.0*Math.pow((trajDataInLandY[i]-grn_.getSumPara().get(k1, indexY)), 2)/2.0/grn_.getSumPara().get(k1, indexY+nGenes))/Math.sqrt(2.0*Math.PI*grn_.getSumPara().get(k1, indexY+nGenes));
-				u += u1*u2*grn_.getCounts()[k1]/its;
-			}
-
-			double up = -1.0*Math.log(u);
-			if( up>100 )
-				up=100;
-
-			trajDataInLandZ[i] = up;
-
-
-			if(trajDataInLandZ[i] >maxU)
-				maxU = trajDataInLandZ[i] ;
-			if(trajDataInLandZ[i] <minU)
-				minU = trajDataInLandZ[i] ;
-		}
-	}//end of for	
+//	private void calculateLandUPro(int indexX, int indexY) {
+//		double its = 0;
+//		for(int i=0;i<grn_.getCounts().length;i++)
+//			its += grn_.getCounts()[i];
+//
+//		double maxU = 0; double minU = 100000;
+//		for(int i=0;i<trajDataInLandZ.length;i++){
+//			double u = 0;
+//			//all types
+//			for(int k1=0;k1<grn_.getSumPara().rows();k1++){
+//				double u1 = Math.exp(-1.0*Math.pow((trajDataInLandX[i]-grn_.getSumPara().get(k1, indexX)), 2)/2.0/grn_.getSumPara().get(k1, indexX+nGenes))/Math.sqrt(2.0*Math.PI*grn_.getSumPara().get(k1, indexX+nGenes));
+//				double u2 = Math.exp(-1.0*Math.pow((trajDataInLandY[i]-grn_.getSumPara().get(k1, indexY)), 2)/2.0/grn_.getSumPara().get(k1, indexY+nGenes))/Math.sqrt(2.0*Math.PI*grn_.getSumPara().get(k1, indexY+nGenes));
+//				u += u1*u2*grn_.getCounts()[k1]/its;
+//			}
+//
+//			double up = -1.0*Math.log(u);
+//			if( up>100 )
+//				up=100;
+//
+//			trajDataInLandZ[i] = up;
+//
+//
+//			if(trajDataInLandZ[i] >maxU)
+//				maxU = trajDataInLandZ[i] ;
+//			if(trajDataInLandZ[i] <minU)
+//				minU = trajDataInLandZ[i] ;
+//		}
+//	}//end of for	
 
 	
 	private void mapTraj() {
