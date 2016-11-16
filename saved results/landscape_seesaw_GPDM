@@ -1,16 +1,16 @@
 <?xml version='1.0' encoding='UTF-8' standalone='no'?>
-<!-- Created by JSBMLexample version 1.0 on 2016-18-02 at 17:18:38 SGT with JSBML version 1.0-rc1. -->
+<!-- Created by JSBMLexample version 1.0 on 2015-16-21 at 15:16:14 SGT with JSBML version 1.0-rc1. -->
 <sbml xmlns="http://www.sbml.org/sbml/level2/version3" level="2" version="3">
-  <model metaid="_5d40c332-0ecd-4614-9888-fe8d63b10954" id="NetLand_SBML_model">
+  <model metaid="f668783c-72d2-48fa-8793-09523801e47e" id="NetLand_NetLand_seesaw">
     <annotation>
 	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:vCard="http://www.w3.org/2001/vcard-rdf/3.0#">
-	<rdf:Description rdf:about="#_5d40c332-0ecd-4614-9888-fe8d63b10954">
+	<rdf:Description rdf:about="#f668783c-72d2-48fa-8793-09523801e47e">
 	<dc:creator>
 	<rdf:Bag>
 	<rdf:li rdf:parseType="Resource">
 	<vCard:N rdf:parseType="Resource">
-	<vCard:Family>NTU</vCard:Family>
-	<vCard:Given>SCSE</vCard:Given>
+	<vCard:Family>G</vCard:Family>
+	<vCard:Given>J</vCard:Given>
 	</vCard:N>
 	<vCard:EMAIL>guojing.srtp@gmail.com</vCard:EMAIL>
 	<vCard:ORG rdf:parseType="Resource">
@@ -23,8 +23,8 @@
 	</rdf:RDF>
 	</annotation>
       <listOfCompartments>
-      <compartment size="1" id="cytosol"/>
-      <compartment size="1" id="compartment"/>
+      <compartment name="cytosol" id="cytosol" size="1"/>
+      <compartment name="compartment" id="compartment" size="1"/>
     </listOfCompartments>
     <listOfSpecies>
       <species boundaryCondition="false" hasOnlySubstanceUnits="true" initialAmount="1" compartment="cytosol" name="Oct4" id="Oct4"/>
@@ -32,17 +32,20 @@
       <species boundaryCondition="false" hasOnlySubstanceUnits="true" initialAmount="0" compartment="cytosol" name="MEs" id="MEs"/>
       <species boundaryCondition="false" hasOnlySubstanceUnits="true" initialAmount="0" compartment="cytosol" name="ECTs" id="ECTs"/>
     </listOfSpecies>
+    <listOfParameters>
+	    <parameter id="KM" value="0.4" constant="true" />
+    </listOfParameters>
     <listOfReactions>
-      <reaction name="0.2*(0+1*0.7^8/(0.7^8+MEs^8)*0.7^8/(0.7^8+ECTs^8)*(0.4+Oct4*Sox2/(0.35+Oct4*Sox2)))-0.2*Oct4" id="R_Oct4">
-        <listOfProducts>
-          <speciesReference species="Oct4"/>
-        </listOfProducts>
+      <reaction name="0.2*(0+1*0.7^8/(0.7^8+MEs^8)*0.7^8/(0.7^8+ECTs^8)*(KM+Oct4*Sox2/(0.35+Oct4*Sox2)))-0.2*Oct4" id="Oct4_synthesis">
         <listOfModifiers>
           <modifierSpeciesReference species="MEs"/>
           <modifierSpeciesReference species="ECTs"/>
           <modifierSpeciesReference species="Oct4"/>
           <modifierSpeciesReference species="Sox2"/>
         </listOfModifiers>
+        <listOfProducts>
+          <speciesReference species="Oct4"/>
+        </listOfProducts>
         <kineticLaw>
           <math xmlns="http://www.w3.org/1998/Math/MathML">          
             <apply>
@@ -106,7 +109,7 @@
                     </apply>
                     <apply>
                       <plus/>
-                      <cn> 0.4 </cn>
+                      <ci> KM </ci>
                       <apply>
                         <divide/>
                         <apply>
@@ -137,16 +140,16 @@
           </math>
                 </kineticLaw>
       </reaction>
-      <reaction name="0.2*(0+1*0.7^8/(0.7^8+MEs^8)*0.7^8/(0.7^8+ECTs^8)*(0.4+Oct4*Sox2/(0.35+Oct4*Sox2)))-0.2*Sox2" id="R_Sox2">
-        <listOfProducts>
-          <speciesReference species="Sox2"/>
-        </listOfProducts>
+      <reaction name="0.2*(0+1*0.7^8/(0.7^8+MEs^8)*0.7^8/(0.7^8+ECTs^8)*(KM+Oct4*Sox2/(0.35+Oct4*Sox2)))-0.2*Sox2" id="Sox2_synthesis">
         <listOfModifiers>
           <modifierSpeciesReference species="MEs"/>
           <modifierSpeciesReference species="ECTs"/>
           <modifierSpeciesReference species="Oct4"/>
           <modifierSpeciesReference species="Sox2"/>
         </listOfModifiers>
+        <listOfProducts>
+          <speciesReference species="Sox2"/>
+        </listOfProducts>
         <kineticLaw>
           <math xmlns="http://www.w3.org/1998/Math/MathML">          
             <apply>
@@ -210,7 +213,7 @@
                     </apply>
                     <apply>
                       <plus/>
-                      <cn> 0.4 </cn>
+                      <ci> KM </ci>
                       <apply>
                         <divide/>
                         <apply>
@@ -241,16 +244,16 @@
           </math>
                 </kineticLaw>
       </reaction>
-      <reaction name="1*(0+1*0.8*Oct4^9/(1.3^9+Oct4^9)+1*0.55^10/(0.55^10+Sox2^10)*0.3^8/(0.3^8+ECTs^8)-MEs)" id="R_MEs">
-        <listOfProducts>
-          <speciesReference species="MEs"/>
-        </listOfProducts>
+      <reaction name="1*(0+1*0.8*Oct4^9/(1.3^9+Oct4^9)+1*0.55^10/(0.55^10+Sox2^10)*0.3^8/(0.3^8+ECTs^8)-MEs)" id="MEs_synthesis">
         <listOfModifiers>
           <modifierSpeciesReference species="Oct4"/>
           <modifierSpeciesReference species="Sox2"/>
           <modifierSpeciesReference species="ECTs"/>
           <modifierSpeciesReference species="MEs"/>
         </listOfModifiers>
+        <listOfProducts>
+          <speciesReference species="MEs"/>
+        </listOfProducts>
         <kineticLaw>
           <math xmlns="http://www.w3.org/1998/Math/MathML">          
             <apply>
@@ -349,16 +352,16 @@
           </math>
                 </kineticLaw>
       </reaction>
-      <reaction name="1*(0+1*0.8*Sox2^9/(1.3^9+Sox2^9)+1*0.55^10/(0.55^10+Oct4^10)*0.3^8/(0.3^8+MEs^8)-ECTs)" id="R_ECTs">
-        <listOfProducts>
-          <speciesReference species="ECTs"/>
-        </listOfProducts>
+      <reaction name="1*(0+1*0.8*Sox2^9/(1.3^9+Sox2^9)+1*0.55^10/(0.55^10+Oct4^10)*0.3^8/(0.3^8+MEs^8)-ECTs)" id="ECTs_synthesis">
         <listOfModifiers>
           <modifierSpeciesReference species="Sox2"/>
           <modifierSpeciesReference species="Oct4"/>
           <modifierSpeciesReference species="MEs"/>
           <modifierSpeciesReference species="ECTs"/>
         </listOfModifiers>
+        <listOfProducts>
+          <speciesReference species="ECTs"/>
+        </listOfProducts>
         <kineticLaw>
           <math xmlns="http://www.w3.org/1998/Math/MathML">          
             <apply>
@@ -460,6 +463,7 @@
     </listOfReactions>
   </model>
 </sbml>
+
 
 Land	1.4792100000000001	-1.75821	2.21388	-2.25118
 4	3.0	200	128	false	50
