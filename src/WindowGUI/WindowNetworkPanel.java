@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -30,6 +29,8 @@ import WidgetsTables.ReactionTable;
 import WidgetsTables.SpeciesTable;
 import ch.epfl.lis.gnwgui.DynamicalModelElement;
 import ch.epfl.lis.gnwgui.NetworkElement;
+
+
 
 public class WindowNetworkPanel extends JPanel{
 	private static final long serialVersionUID = 1L;
@@ -65,8 +66,6 @@ public class WindowNetworkPanel extends JPanel{
 		
 		/** THE CONTENT OF KERNEL **/
 		JPanel kernelPanel = new JPanel();
-//		LogPanel logPanel = new LogPanel();
-//		logPanel.initLog();
 		JTextArea jTextArea1 = new JTextArea();
 		JScrollPane scroll = new JScrollPane(jTextArea1); 
 		jTextArea1.setEditable(false);
@@ -123,7 +122,6 @@ public class WindowNetworkPanel extends JPanel{
 		LeftMultipleTabs.add("Species");
 		LeftMultipleTabs.add("Reactions");	
 		LeftMultipleTabs.add("Parameters");
-		//LeftMultipleTabs.add("Info");
 
 		//Components
 		ArrayList<Component> c1 = new ArrayList<Component>();
@@ -140,8 +138,6 @@ public class WindowNetworkPanel extends JPanel{
 		/** fourth Tab: Parameters **/
 		c1.add(parametersTabb());
 			
-		///** fifth Tab: Parameters **/
-		//c1.add(infoTabb());
 		
 		MultiTabs tabbs = new MultiTabs(LeftMultipleTabs, c1); 	
 		return tabbs;

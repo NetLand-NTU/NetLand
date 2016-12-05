@@ -362,7 +362,7 @@ public class Simulation extends SimulationWindow {
 
 				JPanel speciesPanel = new JPanel();
 				String[] columnName = {"Name", "InitialValue"};
-				boolean editable = true; //false;
+				boolean editable = false; //false;
 				new SpeciesTable(speciesPanel, columnName, grn, editable);
 
 				/** LAYOUT **/
@@ -471,9 +471,7 @@ public class Simulation extends SimulationWindow {
 		//double check distances between attractors			
 		//solver equations
 		List<String> solverResults_focusgenes = new ArrayList<String>();
-//		ArrayList<double[]> attractorTypes_focusgene = new ArrayList<double[]>();
 
-	
 		//at the same time, check if trajectories are stable
 		for(int i=0;i<its;i++){		
 			isConverge[i] = 0; //0: converge 1:not converge
@@ -720,63 +718,7 @@ public class Simulation extends SimulationWindow {
 		}
 	}
 
-
-	//=============================================================================
-	// running time assessment
-	//=============================================================================
-	//		public void enterAction(NetworkElement item) {
-	//	
-	//			try {
-	//				GeneNetwork grn = ((DynamicalModelElement) item).getGeneNetwork();			
-	//	
-	//				GnwSettings settings = GnwSettings.getInstance();
-	//	
-	//				// Save the required settings
-	//				// Model
-	//				settings.setSimulateODE(model_.getSelectedIndex() == 0);
-	//				settings.setSimulateSDE(model_.getSelectedIndex() == 1);
-	//				settings.setSimulateSTS(model_.getSelectedIndex() == 2);
-	//	
-	//	
-	//				settings.setNumTimeSeries((Integer) numTimeSeries_.getModel().getValue());
-	//	
-	//	
-	//				// TODO check that correct			
-	//				int maxt = (int)tmax_.getModel().getValue();
-	//				int dt = 0;
-	//	
-	//				if (durationOfSeriesLabel_.isEnabled())
-	//					settings.setMaxtTimeSeries(maxt);
-	//				//			if (numPointsPerSeriesLabel_.isEnabled())
-	//				settings.setDt(dt);
-	//				//settings.setNumMeasuredPoints((Integer) numPointsPerTimeSerie_.getModel().getValue());
-	//	
-	//	
-	//				if (settings.getSimulateSDE())
-	//					settings.setNoiseCoefficientSDE((Double) sdeDiffusionCoeff_.getModel().getValue());
-	//	
-	//	
-	//				//set parameters
-	//				model_.setSelectedIndex(2); //ssa
-	//				numTimeSeries_.getModel().setValue(100); //100
-	//				tmax_.getModel().setValue(1000); //1000
-	//				randomButton.setSelected(true); //random
-	//				
-	//				simulation = new SimulationThread(grn);
-	//	
-	//				// Perhaps make a test on the path validity
-	//				settings.stopBenchmarkGeneration(false); // reset
-	//	
-	//				// be sure to have set the output directory before running the simulation
-	//				simulation.start();
-	//			}
-	//			catch (Exception e)
-	//			{
-	//				//log_.log(Level.WARNING, "Simulation::enterAction(): " + e.getMessage(), e);
-	//				JOptionPane.showMessageDialog(null,  "Error in simulation of trajectories!", "Error", JOptionPane.INFORMATION_MESSAGE);
-	//				MsgManager.Messages.errorMessage(e, "Error", "");
-	//			}
-	//		}
+	
 
 	// ============================================================================
 	// PRIVATE CLASSES
@@ -1034,9 +976,9 @@ public class Simulation extends SimulationWindow {
 				/** generate model **/
 				DoubleMatrix1D tempInitial = grn_.getSpecies_initialState().copy();
 				Transform.mult(tempInitial, 1000);
-				System.out.print("Start generating the model...\n");
+				//System.out.print("Start generating the model...\n");
 				String modelText = writeCMDL(tempInitial);
-				System.out.print("Start simulating\n");
+				//System.out.print("Start simulating\n");
 				Model model = processModel(modelText);
 				
 				
@@ -1076,7 +1018,8 @@ public class Simulation extends SimulationWindow {
 				
 	
 				while( !stopRequested && its<=numSeries ){					
-
+					System.out.print("\nIts: "+its+"\n"); 
+					
 					/** reset parameters **/
 					numPoints = 0;			
 					previoudTime = 0;
@@ -1084,19 +1027,17 @@ public class Simulation extends SimulationWindow {
 					/** check if random initials **/
 					if( randomInitial ){
 						tempInitial = randomInitial(upbound, lowbound);
-						tempInitial = Transform.mult(tempInitial, 1000);
-						
-						System.out.print("\nIts: "+its+"\n"); 
+						tempInitial = Transform.mult(tempInitial, 1000);					
 						
 						/** create a new CMDL file **/
-						System.out.print("Start writing CMDL model...\n");
+						//System.out.print("Start writing CMDL model...\n");
 
 						for(int i=0;i<requestedSymbolNames.length;i++){
 							Species species = model.getSpeciesByName(requestedSymbolNames[i]);
 							species.setSpeciesPopulation(tempInitial.get(i));
 						}
 							
-						System.out.print("Start simulating\n");
+						//System.out.print("Start simulating\n");
 						
 						/** set model **/
 						simulator.initialize(model);
@@ -1119,8 +1060,8 @@ public class Simulation extends SimulationWindow {
 
 						/** sample points **/
 //						sSystem.out.print("sample\n");
-						DoubleMatrix2D timeCourse = new DenseDoubleMatrix2D(199, grn.getSize());
-						DoubleMatrix1D tempTime = new DenseDoubleMatrix1D(199);
+						DoubleMatrix2D timeCourse = new DenseDoubleMatrix2D(200, grn.getSize());
+						DoubleMatrix1D tempTime = new DenseDoubleMatrix1D(200);
 						numPoints = samplePoints(symbolValues, symbolTime, tempTime, timeCourse);
 
 //						tempTime = tempTime.viewPart(0, numPoints-1);
@@ -1184,7 +1125,7 @@ public class Simulation extends SimulationWindow {
 				grn_.setInitialState(initialX0);
 
 				if( stopRequested == true ){
-					System.out.print("The simulation is cancelled. \nThe temporary result is saved at "+tmpfilename.toString()+". \n");
+					System.out.print("The simulation is cancelled. \n"); //The temporary result is saved at "+tmpfilename.toString()+". \n
 					finalizeAfterFail();
 					return;
 				}
@@ -1227,7 +1168,7 @@ public class Simulation extends SimulationWindow {
 		
 		private int samplePoints(Object[] symbolValues, double[] tempTime, DoubleMatrix1D timeScale, DoubleMatrix2D timeSeries) {
 			
-			for(int i=1;i<symbolValues.length-1;i++){
+			for(int i=0;i<symbolValues.length;i++){
 				double[] symbolValue = (double []) symbolValues[i];
 		
 				for(int j=0;j<symbolValue.length;j++)
@@ -1385,7 +1326,7 @@ public class Simulation extends SimulationWindow {
 			grn_.setInitialState(initialX0);
 
 			if( stopRequested == true ){
-				System.out.print("The simulation is cancelled. \nThe temporary result is saved at "+tmpfilename.toString()+". \n");
+				System.out.print("The simulation is cancelled. \n"); //The temporary result is saved at "+tmpfilename.toString()+". \n
 				finalizeAfterFail();
 				return;
 			}
@@ -1667,9 +1608,9 @@ public class Simulation extends SimulationWindow {
 
 						}else{
 							stopRequested = true;
-							JOptionPane.showMessageDialog(new Frame(), "The simulation is cancelled.\n" +
-									"The temporary result is saved at "+tmpfilename.toString()+".\n" +
-									"Reload the file to continue.\n", "Error", JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(new Frame(), "The simulation is cancelled.\n" 
+									, "Error", JOptionPane.INFORMATION_MESSAGE); //"The temporary result is saved at "+tmpfilename.toString()+".\n" +
+							//"Reload the file to continue.\n"
 							finalizeAfterFail();
 							break;
 						}
@@ -1685,7 +1626,7 @@ public class Simulation extends SimulationWindow {
 
 
 				if( stopRequested == true ){
-					System.out.print("The simulation is cancelled. \n The temporary result is saved at "+tmpfilename.toString()+" \n");
+					System.out.print("The simulation is cancelled. \n "); //The temporary result is saved at "+tmpfilename.toString()+" \n
 					finalizeAfterFail();
 					return;
 				}

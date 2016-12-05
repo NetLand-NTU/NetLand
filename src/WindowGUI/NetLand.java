@@ -4,14 +4,9 @@ import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
-
-//import org.apache.log4j.Logger;
 import org.jzy3d.maths.Utils;
-
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
-
 import WidgetsMenu.MainMenu;
 import ch.epfl.lis.gnwgui.IONetwork;
 import ch.epfl.lis.gnwgui.NetworkElement;
@@ -28,7 +23,6 @@ public class NetLand extends JFrame{
 	static NetworkElement element = null;
 	JFrame jf;
 	
-	//static Logger log_ = Logger.getLogger(NetLand.class.getName());
 	
 	public void init()
 	{	
@@ -110,58 +104,8 @@ public class NetLand extends JFrame{
 		System.out.print(Utils.dat2str(new Date())+"\n");
 		System.out.print("Welcome! Thanks for using NetLand.\n");
 		
-		
-//		runningAssessment();
 	}
 
 	
-
-//	private static void runningAssessment(){
-////		try {
-////			String path = "E:\\" + "SDE_log.txt";
-////			try {
-////				new File(path).createNewFile();
-////			} catch (IOException e) {
-////				e.printStackTrace();
-////			};
-////			PrintStream ps = new PrintStream(path);
-////			System.setOut(ps);
-////			System.setErr(ps);
-////		} catch (FileNotFoundException e){
-////			e.printStackTrace();
-////		}
-//		
-//		int[] testsize = {2,5,10,20,30,40,50,60,70,80,90,100,150,200}; //
-//		//load file
-//		int format = ImodNetwork.TSV;
-//		
-//		for(int i=0;i<testsize.length;i++){
-//			int currentSize=testsize[i];
-//			System.out.print("Current: "+currentSize+"\n");
-//			URL url = NetLand.class.getResource("networks/testNet"+currentSize+".tsv");
-//			
-//			for(int j=0;j<1;j++){ //run 10 times				
-//				NetworkElement element = null;
-//				try {
-//					element = IONetwork.loadItem("testNet"+currentSize+".tsv", url, format);
-//					element.setNetworkViewer(new NetworkGraph(element));
-//					
-//					element = WidgetsButtons.TopButton.convert2dynamicModel(element);
-//					element.setOrigFile(url, "testNet"+currentSize+".tsv", format);
-//				} catch (Exception e) {
-//					MsgManager.Messages.errorMessage(e, "Error", "");
-//					System.exit(1);
-//				}
-//				
-//				element.setName(j+"");
-//				//System.out.print("Time begin: "+j+"\t"+System.currentTimeMillis()+"\n"); 
-//				//run simulation
-//				Simulation rd = new Simulation(new JFrame(), element);
-//				//set parameters
-//				rd.enterAction(element);	
-//				
-//			}
-//		}	
-//	}
 }
 

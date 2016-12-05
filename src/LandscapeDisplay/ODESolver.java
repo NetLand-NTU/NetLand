@@ -72,7 +72,9 @@ public class ODESolver {
 			initialX0 = randomInitial(upBoundary, lowBoundary);
 		}
 
-
+//		tempAtimeSeries.add(initialX0.toArray());
+//		tempAtimeArray.add(0.0);
+		
 		double[] x = new double[initialX0.size()];
 
 
@@ -90,22 +92,15 @@ public class ODESolver {
 				double[] y = interpolator.getInterpolatedState();
 
 				if( t-count>=1 ){
-//					double dis = 0;
-//					for(int i=0;i<ylast.length;i++)
-//						dis += Math.abs(ylast[i] - y[i]);
-//					
-//					if( dis>0.00001 ){
-						tempAtimeSeries.add(y.clone());
-						tempAtimeArray.add(t);
+					tempAtimeSeries.add(y.clone());
+					tempAtimeArray.add(t);
 
-						count = tempAtimeArray.get(tempAtimeArray.size()-1);
-//						ylast = y.clone();
-						
-						if( timeCount%5000 == 0 )
-							System.out.print(".");
-						
-						timeCount++;		
-//					}
+					count = tempAtimeArray.get(tempAtimeArray.size()-1);
+
+					if( timeCount%5000 == 0 )
+						System.out.print(".");
+
+					timeCount++;		
 				}
 			}
 		};

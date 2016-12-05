@@ -34,14 +34,7 @@ public class SpeciesTable extends Component{
 		this.grn_ = grn;
 
 		DoubleMatrix1D initialValues = grn.getSpecies_initialState();
-
-//		Float temp = Float.parseFloat(Double.toString(initialValues.get(0)));
-//		if( temp.isNaN() ){
-//			initialValues = grn.getInitialState();
-//		}
 		ArrayList<Gene> species = grn.getSpecies();
-
-		//		System.out.print(species.size());
 
 		ArrayList<String[]> data = new ArrayList<String[]>();		
 		for(int k=0;k<species.size();k++){
@@ -56,8 +49,7 @@ public class SpeciesTable extends Component{
 			rowData[i][0] = data.get(i)[0];
 			rowData[i][1] = data.get(i)[1];
 		}
-//		rowData[data.size()][0] = "Cell Volume";
-//		rowData[data.size()][1] = "1000.0";
+
 		createDataTable(rowData, editable);	
 
 	}

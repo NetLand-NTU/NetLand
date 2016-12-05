@@ -29,7 +29,7 @@ public class PlotToolBar extends JToolBar {
     protected JButton buttonDatas;
     protected JButton buttonSavePNGFile;
     protected JButton buttonReset;
-    protected JButton buttonAdjustBounds;
+//    protected JButton buttonAdjustBounds;
     private boolean denySaveSecurity;
     private JFileChooser pngFileChooser;
     /** the currently selected PlotPanel */
@@ -84,8 +84,8 @@ public class PlotToolBar extends JToolBar {
         buttonReset = new JButton(new ImageIcon(PlotPanel.class.getResource("icons/back.png")));
         buttonReset.setToolTipText("Reset zoom & axis");
 
-        buttonAdjustBounds = new JButton(new ImageIcon(PlotPanel.class.getResource(plotCanvas.getAdjustBounds() ? "icons/adjustbounds.png" : "icons/noadjustbounds.png")));
-        buttonAdjustBounds.setToolTipText("Auto-update/fix bounds");
+//        buttonAdjustBounds = new JButton(new ImageIcon(PlotPanel.class.getResource(plotCanvas.getAdjustBounds() ? "icons/adjustbounds.png" : "icons/noadjustbounds.png")));
+//        buttonAdjustBounds.setToolTipText("Auto-update/fix bounds");
          
 
         /*buttonEdit.addActionListener(new ActionListener() {
@@ -143,13 +143,13 @@ public class PlotToolBar extends JToolBar {
             }
         });
 
-        buttonAdjustBounds.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                plotCanvas.setAdjustBounds(!plotCanvas.getAdjustBounds());
-                ajustBoundsChanged();
-            }
-        });
+//        buttonAdjustBounds.addActionListener(new ActionListener() {
+//
+//            public void actionPerformed(ActionEvent e) {
+//                plotCanvas.setAdjustBounds(!plotCanvas.getAdjustBounds());
+//                ajustBoundsChanged();
+//            }
+//        });
 
         buttonGroup.add(buttonCenter);
         buttonGroup.add(buttonZoom);
@@ -160,9 +160,9 @@ public class PlotToolBar extends JToolBar {
         add(buttonReset, null);
         //add(buttonViewCoords, null);
         add(buttonSetScales, null);
-        if (adjustBoundsVisible) {
-            add(buttonAdjustBounds, null);
-        }
+//        if (adjustBoundsVisible) {
+//            add(buttonAdjustBounds, null);
+//        }
         //add(buttonEdit, null);
         add(buttonSavePNGFile, null);
         add(buttonDatas, null);
@@ -249,17 +249,17 @@ public class PlotToolBar extends JToolBar {
 
     public void viewAdjustBounds(boolean visible) {
         if (visible && !adjustBoundsVisible) {
-            add(buttonAdjustBounds, null);
+//            add(buttonAdjustBounds, null);
             adjustBoundsVisible = true;
         }
         if (!visible && adjustBoundsVisible) {
-            remove(buttonAdjustBounds);
+//            remove(buttonAdjustBounds);
             adjustBoundsVisible = false;
         }
         ajustBoundsChanged();
     }
 
     public void ajustBoundsChanged() {
-        buttonAdjustBounds.setIcon(new ImageIcon(PlotPanel.class.getResource(plotCanvas.getAdjustBounds() ? "icons/adjustbounds.png" : "icons/noadjustbounds.png")));
+//        buttonAdjustBounds.setIcon(new ImageIcon(PlotPanel.class.getResource(plotCanvas.getAdjustBounds() ? "icons/adjustbounds.png" : "icons/noadjustbounds.png")));
     }
 }

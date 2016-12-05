@@ -377,7 +377,9 @@ public class RxnButtonRender extends AbstractCellEditor implements TableCellRend
 	private void setColoredTextArea(String temp){
 		String[] sArray1 = temp.split("");
     	int flag=0;
-    	
+    	Color myColorPara = new Color (255, 66, 93);
+		Color myColorSpec = new Color (147, 224, 255);
+		
     	for(int i=0;i<sArray1.length;){
     		String k = sArray1[i];
     		
@@ -392,7 +394,7 @@ public class RxnButtonRender extends AbstractCellEditor implements TableCellRend
     				else if( k.equals("[") || k.equals("]"))
     					flag=flag;
     				else
-    					setDocs(k,Color.green,false,20);  	
+    					setDocs(k,myColorPara,false,20);  	
     				i++;
     				if( i<sArray1.length )
     					k = sArray1[i];
@@ -410,7 +412,7 @@ public class RxnButtonRender extends AbstractCellEditor implements TableCellRend
     				else if( k.equals("<") || k.equals(">"))
     					flag=flag;
     				else
-    					setDocs(k,Color.BLUE,false,20);  	
+    					setDocs(k,myColorSpec,false,20);  	
     				i++;
     				if( i<sArray1.length )
     					k = sArray1[i];

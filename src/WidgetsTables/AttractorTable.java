@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -63,23 +64,36 @@ public class AttractorTable extends JPanel  {
     }  
   
     private class MyTableModel extends AbstractTableModel {    
-        String[] columnNames =  new String[grn.getSumPara().rows()+1];
+        String[] columnNames ;
         Object[][] data;
          
         public MyTableModel() { 
+        	
+        	int rows = grn.getSumPara().rows();
+        	ArrayList<Integer> tempcounts = new ArrayList<Integer>();
+        	for(int i=0;i<grn.getSumPara().rows();i++){    	
+        		if( grn.getCounts()[i] == 0 ){
+        			rows--;
+        		}else
+        			tempcounts.add(grn.getCounts()[i]);      		
+        	}
+        	
+        	columnNames =  new String[rows+1];
         	columnNames[0] = "Gene Names";
 
-        	int rows = grn.getSumPara().rows();
-        	for(int i=1;i<=rows;i++)
+        	
+        	for(int i=1;i<=rows;i++){    		
         		columnNames[i] = "#"+i;
+        	}
         	
         	data = new Object[focusGenesList.length+1][columnNames.length];  
         	
    	
         	//calcualte percentage
         	String[] percentageList = new String[rows];
-        	for(int i=0;i<rows;i++)			
-        		percentageList[i] = grn.getCounts()[i]/((double)grn.getLand_itsValue())+" ("+grn.getCounts()[i]+")  ";
+        	for(int i=0;i<rows;i++)     		
+        		percentageList[i] = tempcounts.get(i)/((double)grn.getLand_itsValue())+" ("+tempcounts.get(i)+")  ";
+        	
     		
         	//data first line
         	data[0][0] = "percentage";
