@@ -44,7 +44,7 @@ Then follow the install instructions in the package. For Linux, users can use co
 
 2.	Unzip it to your desired location.
 
-The NetLand package should include the following files and folders: 
+     The NetLand package should include the following files and folders: 
 
      a)	“runNetLand.sh” (Linux/Unix or Mac OS X) and “runNetLand.bat” (Windows): Shell scripts for launching NetLand on the different operating systems.
      
@@ -56,7 +56,7 @@ The NetLand package should include the following files and folders:
      
      e)	Two folders, namely “toy models” and “saved results” (not necessary for launching the software), which contain files of toy network models and pre-computed results respectively.
      
-3.	Make sure you have the execute permissions to the executable files in “GPDM” folder under Linux/Unix or Mac OS X. To check the permission of a file, type the following command at a terminal: “ls –l <filename>”. Use “chmod 705 <filename>” to obtain the execute permission.
+3.   Make sure you have the execute permissions to the executable files in “GPDM” folder under Linux/Unix or Mac OS X. To check the permission of a file, type the following command at a terminal: “ls –l <filename>”. Use “chmod 705 <filename>” to obtain the execute permission.
 
 
 If everything is installed correctly, you are ready to run a simulation (see next section). <b>Note that the scripts (“runNetLand.sh” and “runNetLand.bat”) must be in the same directory with the “GPDM” folder and the "lib" folder.</b>
