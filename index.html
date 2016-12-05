@@ -3,7 +3,7 @@
 
 <!-- HEAD ================================================= -->
 <head>
-	<title>NetLand: a tool for kinetic modeling and visu-alization of Waddington’s epigenetic landscape</title>
+	<title>NetLand: a Software Tool for Quantitative Modeling and Visualization of Waddington’s Epigenetic Landscape</title>
 
 
 	<!-- CSS STYLE FILES -->
@@ -105,22 +105,31 @@
 							<tr valign="top">
 								<td class="content_box_middle">
 									
-									<h2 class="box_header">A software for quantitative modeling and visualization of Waddington’s epigenetic landscape</h2>
+									<h2 class="box_header">A Software Tool for Quantitative Modeling and Visualization of Waddington’s Epigenetic Landscape</h2>
 									<p><span class="mininote">Version 1.0.0&nbsp;&nbsp;|&nbsp;&nbsp;Requires <a href="http://www.java.com/en/download/manual.jsp?locale=en" target="_blank">Java</a> </p>	
 									<p>
-									NetLand is a software tool designed for modeling, simulations and visualization of gene regulatory networks and their corresponding 
-								<b>Waddington’s epigenetic landscapes</b>. It can provide a global picture of cellular dynamics for a user-specified gene regulatory network. </p>
+									NetLand is intended for modeling, simulation and visualization of gene regulatory networks (GRNs) 
+									and their corresponding quasi-potential landscapes. Users can import models of GRNs from a file in 
+										formats such as TSV, SBML, etc., and manually edit the network structure. Then, NetLand will 
+										automatically encode differential equations for modeling the kinetics of transcriptional regulations. 
+										Model equations and parameters can also be modified by users. As such, a computational model is 
+										constructed and can be used to simulate the dynamics of the input networks.
+									</p>
 									
-									<p>Users can import models of gene regulatory network from a file or database (e.g. BioModels), 
-									or manually edit their own network models. Then, NetLand will automatically encode differential equations for the kinetics of transcriptional regulation. 
-									The forms of equations and parameter values can be edited by the users. The network model will be used to simulate the dynamics of cell state transitions, 
-									which will be plotted as time-course trajectories. After that, NetLand will calculate the quasi-potential landscape based on efficient numerical solutions of 
-									the kinetic equations. To display the 3-D landscape for a network of more than two genes, NetLand allows users to either choose two marker genes, or use 
-									a dimension reduction method called GPDM (Gaussian process dynamical model). </p>
+									<p>
+										To display the 3D landscape for a network of more than two genes, NetLand allows users to either project 
+										the landscape to a state space of two chosen marker genes, or project to a latent space using a dimensionality 
+										reduction method called the Gaussian process dynamical model (GPDM). Therefore, NetLand can provide a global 
+										picture of cellular dynamics for a user-specified GRN. Although we designed the NetLand software originally
+										for modeling stem cell fate transitions, it can also be used to study other cellular phenotypes, such as 
+										cancer cell death, cellular ageing, etc.
+									</p>
 									
-									<p>Although we designed the NetLand software originally for modeling stem cell fate, it can be also used to study other cellular phenotypes, such as cancer cell death, cellular ageing, etc.
-								</p>
-									<p>The software NetLand is written in <a href="http://www.java.com/en/download/manual.jsp?locale=en" target="_blank">Java</a>, with a graphical user interface (GUI). The source code and additional resources are available at <a href="https://github.com/NetLand-NTU/NetLand/">GitHub</a>. </p>
+									
+									<p>
+										The software NetLand is written in <a href="http://www.java.com/en/download/manual.jsp?locale=en" target="_blank">Java</a>, 
+										with a graphical user interface (GUI). The source code and additional resources are available at 
+										<a href="https://github.com/NetLand-NTU/NetLand/">GitHub</a>. </p>
 
 
 									
